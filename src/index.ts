@@ -8,7 +8,10 @@ program
 
 program.command("new")
   .description("create a new site")
-  .action(() => {
+  .argument("[path]", "path to create the new site (default: current path)")
+  .option("--template", "URL of the template to use")
+  .action((path: string, options) => {
+    console.log(path);
     console.log("not implemented");
   });
 
