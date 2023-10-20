@@ -1,4 +1,5 @@
 import { Command } from "npm:commander";
+import { buildCmd } from "./commands/build.ts";
 const program = new Command();
 
 program
@@ -11,7 +12,6 @@ program.command("new")
   .argument("[path]", "path to create the new site (default: current path)")
   .option("--template", "URL of the template to use")
   .action((path: string, options) => {
-    console.log(path);
     console.log("not implemented");
   });
 
@@ -23,9 +23,7 @@ program.command("dev")
 
 program.command("build")
   .description("generate a static site suitable for hosting")
-  .action(() => {
-    console.log("not implemented");
-  });
+  .action(buildCmd);
 
 program.command("serve")
   .description(
