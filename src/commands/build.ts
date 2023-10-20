@@ -9,19 +9,22 @@ import { walk } from "https://deno.land/std@0.204.0/fs/mod.ts";
 async function copyPublicFiles(publicPath: string, dest: string) {
   for await (const entry of walk(publicPath)) {
     const relPath = relative(publicPath, entry.path);
+
+    // skip dotfiles
+    if (entry.name.startsWith(".")) {
+      continue;
+    }
+
     if (entry.isFile) {
       await Deno.copyFile(entry.path, join(dest, relPath));
     } else if (entry.isDirectory) {
       await Deno.mkdir(join(dest, relPath), { recursive: true });
     } else if (entry.isSymlink) {
-      console.log(entry.path);
-      console.log(Deno.readLinkSync(entry.path));
       const originalPath = resolve(
         entry.path,
         "../",
         Deno.readLinkSync(entry.path),
       );
-      console.log(originalPath);
       await Deno.copyFile(originalPath, join(dest, relPath));
     }
   }

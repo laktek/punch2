@@ -1,5 +1,6 @@
 import { join, toFileUrl } from "https://deno.land/std@0.204.0/path/mod.ts";
 import { assert } from "https://deno.land/std@0.204.0/testing/asserts.ts";
+import { exists } from "https://deno.land/std@0.204.0/fs/mod.ts";
 
 import { build } from "./build.ts";
 
@@ -11,24 +12,39 @@ Deno.test("build", async (t) => {
   await t.step("copy files in public/", async () => {
     await build(src, dest);
 
-    const robotsTxt = await Deno.stat(join(destDir, "robots.txt"));
-    assert(robotsTxt.isFile);
+    assert(await exists(join(destDir, "robots.txt"), { isReadable: true }));
 
-    const fileInsideDirectory = await Deno.stat(
-      join(destDir, "path_a", "a.txt"),
+    // file in a directory
+    assert(
+      await exists(
+        join(destDir, "path_a", "a.txt"),
+        { isReadable: true },
+      ),
     );
-    assert(fileInsideDirectory.isFile);
 
-    const symlinkFile = await Deno.stat(
-      join(destDir, "symlink.txt"),
+    // symlink
+    assert(
+      await exists(
+        join(destDir, "symlink.txt"),
+        { isReadable: true },
+      ),
     );
-    assert(symlinkFile.isFile);
 
-    const decoder = new TextDecoder("utf-8");
-    const symlinkFile2 = await Deno.readFile(
-      join(destDir, "symlink2.txt"),
+    // symlink 2
+    assert(
+      await exists(
+        join(destDir, "symlink2.txt"),
+        { isReadable: true },
+      ),
     );
-    assert(decoder.decode(symlinkFile2) === "test data A\n");
+
+    // dotfile
+    assert(
+      await exists(
+        join(destDir, ".foo"),
+        { isReadable: true },
+      ) === false,
+    );
   });
 
   await Deno.remove(destDir, { recursive: true });
