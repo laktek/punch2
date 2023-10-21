@@ -88,7 +88,7 @@
 - If cannot be found, render `src/pages/404.html` or default 404 message
 - When a matching page is found,.
   - parse its HTML
-  - Extract all assets -  check which ones need to be built (bundling JS/CSS, optimizing images)
+  - Extract all assets -  check which ones need to be built (bundling JS/CSS, tailwind, optimizing images)
   - Check for any `punch-*` element and render them. (eg: <punch-layout><h1>Title</h1><p>Text</p></punch-layout> or <punch-navbar links={ site.main.links } />)
     -- note: should make the prefix configurable. Use an array of element prefixes
   - Use handlebars to render template tags (eg: <a href={{ personal.links.instagram }}>Instagram</a>)

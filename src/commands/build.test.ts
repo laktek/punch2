@@ -5,12 +5,17 @@ import { exists } from "https://deno.land/std@0.204.0/fs/mod.ts";
 import { build } from "./build.ts";
 
 Deno.test("build", async (t) => {
-  const src = toFileUrl(join(Deno.cwd(), "./testdata/site_1"));
+  const srcPath = join(Deno.cwd(), "./testdata/site_1");
   const destDir = await Deno.makeTempDir();
-  const dest = toFileUrl(destDir);
+  const destPath = destDir;
+
+  const opts = {
+    srcPath,
+    destPath,
+  };
 
   await t.step("copy files in public/", async () => {
-    await build(src, dest);
+    await build(opts);
 
     assert(await exists(join(destDir, "robots.txt"), { isReadable: true }));
 

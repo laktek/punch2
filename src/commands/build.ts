@@ -6,7 +6,12 @@ import {
 } from "https://deno.land/std@0.204.0/path/mod.ts";
 import { walk } from "https://deno.land/std@0.204.0/fs/mod.ts";
 
-async function copyPublicFiles(publicPath: string, dest: string) {
+import { getConfig } from "../config/config.ts";
+
+async function copyPublicFiles(
+  publicPath: string,
+  dest: string,
+): Promise<void> {
   for await (const entry of walk(publicPath)) {
     const relPath = relative(publicPath, entry.path);
 
@@ -30,12 +35,25 @@ async function copyPublicFiles(publicPath: string, dest: string) {
   }
 }
 
-export async function build(src: URL, dest: URL): Promise<boolean> {
-  const srcPath = fromFileUrl(src);
-  const destPath = fromFileUrl(dest);
+interface BuildOpts {
+  srcPath: string;
+  destPath: string;
+  configPath?: string;
+}
 
-  const publicPath = join(srcPath, "public");
+export async function build(opts: BuildOpts): Promise<boolean> {
+  const { srcPath, destPath, configPath } = opts;
+
+  // read the punch config
+  const config = await getConfig(configPath ?? join(srcPath, "punch.json"));
+
+  // copy public files
+  const publicPath = join(srcPath, config.dirs!.public!);
   await copyPublicFiles(publicPath, destPath);
+
+  // prepare contents
+
+  // generate pages
 
   return true;
 }
