@@ -1,11 +1,8 @@
-import {
-  assert,
-  assertRejects,
-} from "https://deno.land/std@0.204.0/testing/asserts.ts";
-import { join } from "https://deno.land/std@0.204.0/path/mod.ts";
+import { assert, assertRejects } from "std/testing/asserts.ts";
+import { join } from "std/path/mod.ts";
 
-import { stringify as yamlStringify } from "https://deno.land/std@0.204.0/yaml/mod.ts";
-import { stringify as tomlStringify } from "https://deno.land/std@0.204.0/toml/mod.ts";
+import { stringify as yamlStringify } from "std/yaml/mod.ts";
+import { stringify as tomlStringify } from "std/toml/mod.ts";
 
 import { getConfig } from "./config.ts";
 

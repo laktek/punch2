@@ -1,10 +1,5 @@
-import {
-  fromFileUrl,
-  join,
-  relative,
-  resolve,
-} from "https://deno.land/std@0.204.0/path/mod.ts";
-import { walk } from "https://deno.land/std@0.204.0/fs/mod.ts";
+import { fromFileUrl, join, relative, resolve } from "std/path/mod.ts";
+import { walk } from "std/fs/mod.ts";
 
 import { getConfig } from "../config/config.ts";
 

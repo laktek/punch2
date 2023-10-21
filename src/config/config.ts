@@ -1,8 +1,8 @@
-import { extname, join } from "https://deno.land/std@0.204.0/path/mod.ts";
-import { exists } from "https://deno.land/std@0.204.0/fs/mod.ts";
-import { parse as yamlParse } from "https://deno.land/std@0.204.0/yaml/mod.ts";
-import { parse as tomlParse } from "https://deno.land/std@0.204.0/toml/mod.ts";
-import { deepMerge } from "https://deno.land/std@0.204.0/collections/deep_merge.ts";
+import { extname, join } from "std/path/mod.ts";
+import { exists } from "std/fs/mod.ts";
+import { parse as yamlParse } from "std/yaml/mod.ts";
+import { parse as tomlParse } from "std/toml/mod.ts";
+import { deepMerge } from "std/collections/deep_merge.ts";
 
 interface Config {
   routes?: string[];

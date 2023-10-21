@@ -1,6 +1,6 @@
-import { join, toFileUrl } from "https://deno.land/std@0.204.0/path/mod.ts";
-import { assert } from "https://deno.land/std@0.204.0/testing/asserts.ts";
-import { exists } from "https://deno.land/std@0.204.0/fs/mod.ts";
+import { join, toFileUrl } from "std/path/mod.ts";
+import { assert } from "std/testing/asserts.ts";
+import { exists } from "std/fs/mod.ts";
 
 import { build } from "./build.ts";
 
