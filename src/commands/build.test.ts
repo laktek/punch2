@@ -17,7 +17,10 @@ Deno.test("build", async (t) => {
   await t.step("copy files in public/", async () => {
     await build(opts);
 
-    assert(await exists(join(destDir, "robots.txt"), { isReadable: true }));
+    assert(
+      await exists(join(destDir, "robots.txt"), { isReadable: true }),
+      "failed to read top-level file",
+    );
 
     // file in a directory
     assert(
@@ -25,6 +28,7 @@ Deno.test("build", async (t) => {
         join(destDir, "path_a", "a.txt"),
         { isReadable: true },
       ),
+      "failed to read  file inside a directory",
     );
 
     // symlink
@@ -33,6 +37,7 @@ Deno.test("build", async (t) => {
         join(destDir, "symlink.txt"),
         { isReadable: true },
       ),
+      "failed to read symlink file outside of public directory",
     );
 
     // symlink 2
@@ -41,6 +46,7 @@ Deno.test("build", async (t) => {
         join(destDir, "symlink2.txt"),
         { isReadable: true },
       ),
+      "failed to read symlink file inside of public directory",
     );
 
     // dotfile
@@ -49,6 +55,7 @@ Deno.test("build", async (t) => {
         join(destDir, ".foo"),
         { isReadable: true },
       ) === false,
+      "should not copy dotfiles",
     );
   });
 

@@ -14,7 +14,7 @@ interface Config {
   };
   modifiers?: {
     generator?: string;
-    prepare_contents?: string;
+    get_contents?: string;
     get_custom_element?: string;
   };
 }

@@ -147,7 +147,7 @@ Eg (navbar):
 - Check `/src/contents`
 - any sub directory, will be created as a table. Any files will be tried to be added as entries. Directories inside it are ignored. Eg: `blogposts` directory with .md files
 - top level files will create tables Eg: team.yaml will create a `team` table
-- Following file types are automatically parsed: .md, .json, .yaml, .toml, .csv
+- Following file types are automatically parsed: .md, .json, .jsonc, .yaml, .toml, .csv
 - Each entry in the table will have a last_updated_at based on the file's last modified date and content_hash
 
 ### Build cache

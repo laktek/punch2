@@ -1,19 +1,16 @@
-import { fromFileUrl, join, relative, resolve } from "std/path/mod.ts";
+import { join, relative, resolve } from "std/path/mod.ts";
 import { walk } from "std/fs/mod.ts";
 
 import { getConfig } from "../config/config.ts";
+import { Contents } from "../lib/contents.ts";
+import { commonSkipPaths } from "../utils/paths.ts";
 
 async function copyPublicFiles(
   publicPath: string,
   dest: string,
 ): Promise<void> {
-  for await (const entry of walk(publicPath)) {
+  for await (const entry of walk(publicPath, { skip: commonSkipPaths })) {
     const relPath = relative(publicPath, entry.path);
-
-    // skip dotfiles
-    if (entry.name.startsWith(".")) {
-      continue;
-    }
 
     if (entry.isFile) {
       await Deno.copyFile(entry.path, join(dest, relPath));
@@ -47,6 +44,10 @@ export async function build(opts: BuildOpts): Promise<boolean> {
   await copyPublicFiles(publicPath, destPath);
 
   // prepare contents
+  const contentsPath = join(srcPath, config.dirs!.contents!);
+  // TODO: configure path for the DB
+  const contents = new Contents({});
+  await contents.prepare(contentsPath);
 
   // generate pages
 
