@@ -3,7 +3,7 @@ import { Database } from "https://deno.land/x/sqlite3@0.9.1/mod.ts";
 import { join, resolve } from "std/path/mod.ts";
 
 import { commonSkipPaths } from "../utils/paths.ts";
-import { parseFile } from "../utils/contents.ts";
+import { parseFile } from "../utils/content_parsers.ts";
 
 export interface ContentOpts {
   dbPath?: string;
