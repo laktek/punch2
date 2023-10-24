@@ -7,6 +7,7 @@ import { stringify as csvStringify } from "std/csv/mod.ts";
 import {
   parseCSVFile,
   parseJSONFile,
+  parseMarkdownFile,
   parseTOMLFile,
   parseYAMLFile,
 } from "./content_parsers.ts";
@@ -87,6 +88,34 @@ Deno.test("parseCSVFile", async (t) => {
 
     const results = await parseCSVFile(path);
     assertEquals(results, records, "expected array of records");
+  });
+
+  await Deno.remove(contentsDir, { recursive: true });
+});
+
+Deno.test("parseMarkdownFile", async (t) => {
+  const contentsDir = await Deno.makeTempDir();
+
+  await t.step("file with front-matter and markdown content", async () => {
+    const path = join(contentsDir, "array.csv");
+    await Deno.writeTextFile(
+      path,
+      `---\ntitle: Sample Blog\nauthor: John Doe\n---\nThis is a **sample** blog post with a [link](https://www.example.com)`,
+    );
+
+    const expected = [{
+      title: "Sample Blog",
+      author: "John Doe",
+      x_punch_content:
+        "This is a **sample** blog post with a [link](https://www.example.com)",
+      x_punch_content_type: "markdown",
+    }];
+    const results = await parseMarkdownFile(path);
+    assertEquals(
+      results,
+      expected,
+      "parsed markdown file didn't match with expected result",
+    );
   });
 
   await Deno.remove(contentsDir, { recursive: true });

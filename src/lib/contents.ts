@@ -49,6 +49,11 @@ export class Contents {
   }
 
   async insert(table: string, records: unknown[]): Promise<void> {
+    this.db.transaction(() => {
+      // create table if it doesn't exist
+      // db.run(`create table if not exists ${table}(data)`);
+      // insert into table
+    });
     return;
   }
 
