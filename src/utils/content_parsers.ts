@@ -5,7 +5,7 @@ import { parse as csvParse } from "std/csv/mod.ts";
 import matter from "npm:gray-matter";
 
 interface Result {
-  table: string;
+  key: string;
   records: unknown[];
 }
 
@@ -42,33 +42,33 @@ export async function parseCSVFile(
 export async function parseMarkdownFile(path: string): Promise<unknown[]> {
   const { data, content } = matter(await Deno.readTextFile(path));
   return [
-    { ...data, x_punch_content: content, x_punch_content_type: "markdown" },
+    { ...data, content: content, content_type: "markdown" },
   ];
 }
 
-export function getTableName(basename: string): string {
+export function getKey(basename: string): string {
   return basename.toLowerCase().replace(/^[^a-z]+/, "");
 }
 
 export async function parseFile(path: string): Promise<Result | null> {
   const ext = extname(path);
+  const key = getKey(basename(path, ext));
+  let records = null;
   if (ext === ".json") {
-    const records = await parseJSONFile(path);
-    const table = getTableName(basename(path, ".json"));
-    return { records, table };
+    records = await parseJSONFile(path);
   } else if (ext === ".yaml") {
-    const records = await parseYAMLFile(path);
-    const table = getTableName(basename(path, ".yaml"));
-    return { records, table };
+    records = await parseYAMLFile(path);
   } else if (ext === ".toml") {
-    const records = await parseTOMLFile(path);
-    const table = getTableName(basename(path, ".toml"));
-    return { records, table };
+    records = await parseTOMLFile(path);
   } else if (ext === ".md") {
-    const records = await parseMarkdownFile(path);
-    const table = getTableName(basename(path, ".md"));
-    return { records, table };
+    records = await parseMarkdownFile(path);
   } else {
+    console.error(`unsupported content file: ${path}`);
+  }
+
+  if (records === null) {
     return null;
   }
+
+  return { key, records };
 }

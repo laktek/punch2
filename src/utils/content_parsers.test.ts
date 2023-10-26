@@ -106,9 +106,9 @@ Deno.test("parseMarkdownFile", async (t) => {
     const expected = [{
       title: "Sample Blog",
       author: "John Doe",
-      x_punch_content:
+      content:
         "This is a **sample** blog post with a [link](https://www.example.com)",
-      x_punch_content_type: "markdown",
+      content_type: "markdown",
     }];
     const results = await parseMarkdownFile(path);
     assertEquals(
