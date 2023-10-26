@@ -17,7 +17,7 @@
 * Support for i18n (multi-language sites)
 * Easy A/B testing
 * Built-in support for a11y guidelines
-* East to integrate with Shopify stores
+* Easy to integrate with Shopify stores
 * Deploy to Vercel, Netlify, GitHub Pages or self-host
 * Single command publish to punch.site
 * Migrate Jekyll, Astro, and Hugo sites
@@ -85,6 +85,8 @@
 ### Default generator:
 
 - Check `src/pages/` for a matching page for the given path
+  - check for absolute path match: `/about/company` matches to `src/about/company.html`.
+  - check for first-level path match: `/about/company` matches to `src/about/[slug].html` or anything. `src/about/index.html` would have the lowest priority.
 - If cannot be found, render `src/pages/404.html` or default 404 message
 - When a matching page is found,.
   - parse its HTML
@@ -93,6 +95,7 @@
     -- note: should make the prefix configurable. Use an array of element prefixes
   - Use handlebars to render template tags (eg: <a href={{ personal.links.instagram }}>Instagram</a>)
   - `context.content` is available as an input object for the page
+  - also, special `context` helper can provide helpful methods
 - Check `src/public` and copy all files to output
 
 ### Rendering Punch elements

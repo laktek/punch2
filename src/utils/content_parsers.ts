@@ -3,6 +3,10 @@ import { parse as yamlParse } from "std/yaml/mod.ts";
 import { parse as tomlParse } from "std/toml/mod.ts";
 import { parse as csvParse } from "std/csv/mod.ts";
 import matter from "npm:gray-matter";
+import { walk } from "std/fs/mod.ts";
+import { resolve } from "std/path/mod.ts";
+
+import { commonSkipPaths } from "./paths.ts";
 
 interface Result {
   key: string;
@@ -71,4 +75,44 @@ export async function parseFile(path: string): Promise<Result | null> {
   }
 
   return { key, records };
+}
+
+export async function parseDir(path: string): Promise<Result | null> {
+  const dirKey = getKey(basename(path));
+  const allRecords = [];
+
+  for await (
+    const entry of walk(path, { maxDepth: 1, skip: commonSkipPaths })
+  ) {
+    // only files and symlinks are parsed
+    let filePath = null;
+    if (entry.isFile) {
+      filePath = entry.path;
+    } else if (entry.isSymlink) {
+      const originalPath = resolve(
+        entry.path,
+        "../",
+        Deno.readLinkSync(entry.path),
+      );
+      filePath = originalPath;
+    }
+
+    // skip directories
+    if (!filePath) {
+      continue;
+    }
+
+    const result = await parseFile(filePath);
+    if (result) {
+      const { records, key } = result;
+      const recordsWithSlug = records.map((r: any) => ({
+        ...r,
+        key,
+        slug: key,
+      }));
+      allRecords.push(...recordsWithSlug);
+    }
+  }
+
+  return { key: dirKey, records: allRecords };
 }
