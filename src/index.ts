@@ -1,5 +1,7 @@
 import { Command } from "npm:commander";
-import { buildCmd } from "./commands/build.ts";
+import { join, resolve } from "std/path/mod.ts";
+
+import { build } from "./commands/build.ts";
 const program = new Command();
 
 program
@@ -23,7 +25,15 @@ program.command("dev")
 
 program.command("build")
   .description("generate a static site suitable for hosting")
-  .action(buildCmd);
+  .argument("[path]", "path of the site to build")
+  .option("--output", "output directory for the built site")
+  .action((path: string, options: any) => {
+    const srcPath = resolve(Deno.cwd(), path);
+    const destPath = options.out
+      ? resolve(Deno.cwd(), options.out)
+      : join(Deno.cwd(), "dist");
+    build({ srcPath, destPath });
+  });
 
 program.command("serve")
   .description(
