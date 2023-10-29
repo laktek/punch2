@@ -120,6 +120,7 @@ export function getCustomElement(name: string, attrs: Map<string, string>, child
 - Check `/src/elements` for matching element. (eg: `src/elements/layout.html` will match `punch-layout`)
 - Uses handlebars to render the template tags
 - `attrs` and `children` are treated as custom helpers
+- (future) support scoped CSS https://developer.chrome.com/articles/at-scope/#closing-note-selector-isolation-not-style-isolation
 
 Eg (layout):
 

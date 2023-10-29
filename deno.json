@@ -1,5 +1,6 @@
 {
   "imports": {
     "std/": "https://deno.land/std@0.204.0/"
+    "handlebars": "npm:handlebars@4.7.8"
   }
 }
