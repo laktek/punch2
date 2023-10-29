@@ -16,11 +16,14 @@
 * Static and dynamic routing
 * Support for i18n (multi-language sites)
 * Easy A/B testing
-* Built-in support for a11y guidelines
+* Complaint with Web Vitals recommendations https://web.dev/articles/vitals
 * Easy to integrate with Shopify stores
 * Deploy to Vercel, Netlify, GitHub Pages or self-host
 * Single command publish to punch.site
 * Migrate Jekyll, Astro, and Hugo sites
+
+Future releases:
+* Image optimizations
 
 ### What you can build with Punch?
 

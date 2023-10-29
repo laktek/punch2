@@ -10,21 +10,28 @@ async function copyPublicFiles(
   publicPath: string,
   dest: string,
 ): Promise<void> {
-  for await (const entry of walk(publicPath, { skip: commonSkipPaths })) {
-    const relPath = relative(publicPath, entry.path);
+  try {
+    for await (const entry of walk(publicPath, { skip: commonSkipPaths })) {
+      const relPath = relative(publicPath, entry.path);
 
-    if (entry.isFile) {
-      await Deno.copyFile(entry.path, join(dest, relPath));
-    } else if (entry.isDirectory) {
-      await Deno.mkdir(join(dest, relPath), { recursive: true });
-    } else if (entry.isSymlink) {
-      const originalPath = resolve(
-        entry.path,
-        "../",
-        Deno.readLinkSync(entry.path),
-      );
-      await Deno.copyFile(originalPath, join(dest, relPath));
+      if (entry.isFile) {
+        await Deno.copyFile(entry.path, join(dest, relPath));
+      } else if (entry.isDirectory) {
+        await Deno.mkdir(join(dest, relPath), { recursive: true });
+      } else if (entry.isSymlink) {
+        const originalPath = resolve(
+          entry.path,
+          "../",
+          Deno.readLinkSync(entry.path),
+        );
+        await Deno.copyFile(originalPath, join(dest, relPath));
+      }
     }
+  } catch (e) {
+    if (e instanceof Deno.errors.NotFound) {
+      return;
+    }
+    throw e;
   }
 }
 
@@ -54,11 +61,37 @@ export async function build(opts: BuildOpts): Promise<boolean> {
   // generate pages
   const pagesPath = join(srcPath, config.dirs!.pages!);
   const pageRoutes = await routesFromPages(pagesPath, [".html"]);
-  const routes = [...pageRoutes, config.routes];
+  const routes = [...pageRoutes, ...config.routes!];
 
-  // run generate modifier
+  let customOnRender: () => void | undefined;
+  if (config.modifiers?.onRender) {
+    const { onRender } = await import(
+      join(srcPath, config.modifiers?.onRender)
+    );
+    customOnRender = onRender;
+  }
+
+  // TODO: refactor below
+  await Deno.mkdir(destPath, { recursive: true });
+
   routes.forEach(async (route) => {
-    //await runBuild(route);
+    const context = {
+      srcPath,
+      config,
+      route,
+      contents,
+    };
+
+    if (customOnRender) {
+      await customOnRender();
+    } else {
+      const output = await globalThis.Punch.render(context);
+      if (output.errorStatus) {
+        console.error(`${output.errorMessage} (${output.errorStatus})`);
+      } else {
+        await Deno.writeTextFile(join(destPath, output.route), output.content);
+      }
+    }
   });
 
   return true;

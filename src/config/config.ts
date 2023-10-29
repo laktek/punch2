@@ -4,18 +4,19 @@ import { parse as yamlParse } from "std/yaml/mod.ts";
 import { parse as tomlParse } from "std/toml/mod.ts";
 import { deepMerge } from "std/collections/deep_merge.ts";
 
-interface Config {
+export interface Config {
   routes?: string[];
   dirs?: {
     public?: string;
     pages?: string;
     contents?: string;
     elements?: string;
+    css?: string;
+    js?: string;
+    images?: string;
   };
   modifiers?: {
-    generator?: string;
-    get_contents?: string;
-    get_custom_element?: string;
+    onRender: string;
   };
 }
 
@@ -41,7 +42,11 @@ export async function getConfig(configPath: string): Promise<Config> {
       pages: "pages",
       contents: "contents",
       elements: "elements",
+      css: "css",
+      js: "js",
+      images: "images",
     },
+    routes: [],
   };
 
   try {

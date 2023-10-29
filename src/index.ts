@@ -1,7 +1,18 @@
 import { Command } from "npm:commander";
 import { join, resolve } from "std/path/mod.ts";
 
+import { render } from "./lib/render.ts";
+
 import { build } from "./commands/build.ts";
+
+declare global {
+  var Punch: any;
+}
+
+globalThis.Punch = {
+  render,
+};
+
 const program = new Command();
 
 program
