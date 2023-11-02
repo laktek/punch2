@@ -1,9 +1,18 @@
-import { extname, join, relative, resolve } from "std/path/mod.ts";
-import { exists, walk } from "std/fs/mod.ts";
+import {
+  basename,
+  dirname,
+  extname,
+  join,
+  relative,
+  resolve,
+} from "std/path/mod.ts";
+import { exists, expandGlob, walk } from "std/fs/mod.ts";
 
 import { Config } from "../config/config.ts";
 
 import { commonSkipPaths } from "./paths.ts";
+
+const dynamicPageTmplExp = /\/_.+_\.html$/;
 
 export async function routesFromPages(
   pagesPath: string,
@@ -12,7 +21,9 @@ export async function routesFromPages(
   const routes: string[] = [];
   try {
     for await (
-      const entry of walk(pagesPath, { skip: commonSkipPaths })
+      const entry of walk(pagesPath, {
+        skip: [...commonSkipPaths, dynamicPageTmplExp],
+      })
     ) {
       // only files and symlinks are parsed
       if (entry.isFile || entry.isSymlink) {
@@ -69,27 +80,44 @@ export async function findResource(
     resourceDir = config.dirs!.pages!;
     resourceType = ResourceType.HTML;
   } else if (ext === "") {
+    // if route has no extension, treat it as a page
     resourceDir = config.dirs!.pages!;
-    // check if route.html exists
-    let resourcePath = join(srcPath, resourceDir, `${route}.html`);
-    if (await exists(resourcePath, { isFile: true, isReadable: true })) {
-      return { path: resourcePath, resourceType: ResourceType.HTML };
-    }
-
-    // check if route/index.html exists
-    resourcePath = join(srcPath, resourceDir, route, "index.html");
-    if (await exists(resourcePath, { isFile: true, isReadable: true })) {
-      return { path: resourcePath, resourceType: ResourceType.HTML };
-    }
+    resourceType = ResourceType.HTML;
   }
 
   if (resourceDir === null || resourceType === null) {
     return null;
   }
 
-  const resourcePath = join(srcPath, resourceDir, route);
-  if (await exists(resourcePath, { isFile: true, isReadable: true })) {
-    return { path: resourcePath, resourceType };
+  const resourceDirPath = join(srcPath, resourceDir);
+  const dirPath = join(resourceDirPath, dirname(route));
+  const base = basename(route, ext);
+
+  const matches = [];
+
+  // check for directory index matches
+  if (ext === "") {
+    const dirIndex = join(resourceDirPath, route, "index.html");
+    if (await exists(dirIndex, { isFile: true, isReadable: true })) {
+      return { path: dirIndex, resourceType };
+    }
   }
+
+  for await (
+    const f of expandGlob(
+      join(`{${base},_*_}${ext || ".html"}`),
+      {
+        root: dirPath,
+      },
+    )
+  ) {
+    matches.push(f.path);
+  }
+  if (matches.length) {
+    // if multiple matches, return the  absolute path match
+    const absMatch = matches.find((m) => m === join(resourceDirPath, route));
+    return { path: absMatch || matches[0], resourceType };
+  }
+
   return null;
 }

@@ -107,7 +107,7 @@ Deno.test("parseMarkdownFile", async (t) => {
       title: "Sample Blog",
       author: "John Doe",
       content:
-        "This is a **sample** blog post with a [link](https://www.example.com)",
+        `<p>This is a <strong>sample</strong> blog post with a <a href="https://www.example.com">link</a></p>\n`,
       content_type: "markdown",
     }];
     const results = await parseMarkdownFile(path);

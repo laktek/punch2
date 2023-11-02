@@ -13,6 +13,7 @@ interface QueryOpts {
   count?: boolean;
   where?: string;
   limit?: number;
+  offset?: number;
   order_by?: string;
 }
 
@@ -84,9 +85,37 @@ export class Contents {
       limit = opts!.limit!;
     }
 
+    let offset = 0;
+    if (opts?.offset) {
+      offset = opts!.offset;
+    }
+
     const stmt = this.#db.prepare(
-      `select ${select} from contents, json_each(contents.records) as records where contents.key = :key limit :limit`,
+      `select ${select} from contents, json_each(contents.records) as records where contents.key = :key limit :limit offset :offset`,
     );
-    return stmt.values({ key, limit }).map((r) => JSON.parse(r[0]));
+    return stmt.values({ key, limit, offset }).map((r) => JSON.parse(r[0]));
+  }
+
+  proxy() {
+    const query = (prop: string) => this.query(prop);
+    return new Proxy({}, {
+      getOwnPropertyDescriptor(target: unknown, prop: string) {
+        const results = query(prop);
+        if (results.length === 1) {
+          return { configurable: true, enumerable: true, value: results[0] };
+        } else {
+          return { configurable: true, enumerable: true, value: results };
+        }
+      },
+
+      get(target: unknown, prop: string) {
+        const results = query(prop);
+        if (results.length === 1) {
+          return results[0];
+        } else {
+          return results;
+        }
+      },
+    });
   }
 }

@@ -3,6 +3,7 @@ import { parse as yamlParse } from "std/yaml/mod.ts";
 import { parse as tomlParse } from "std/toml/mod.ts";
 import { parse as csvParse } from "std/csv/mod.ts";
 import matter from "npm:gray-matter";
+import { marked } from "npm:marked";
 import { walk } from "std/fs/mod.ts";
 import { resolve } from "std/path/mod.ts";
 
@@ -45,8 +46,12 @@ export async function parseCSVFile(
 
 export async function parseMarkdownFile(path: string): Promise<unknown[]> {
   const { data, content } = matter(await Deno.readTextFile(path));
+  const htmlContent = await marked.parse(
+    content.replace(/^[\u200B\u200C\u200D\u200E\u200F\uFEFF]/, ""),
+    { async: true, gfm: true },
+  );
   return [
-    { ...data, content: content, content_type: "markdown" },
+    { ...data, content: htmlContent, content_type: "markdown" },
   ];
 }
 

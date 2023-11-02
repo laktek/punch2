@@ -5,6 +5,7 @@
 ### Features
 
 * Blazing fast to build
+  - compare with benchmark https://github.com/zachleat/bench-framework-markdown
 * Optimized, low bandwith sites
 * Static-site generation
 * Single binary CLI to run
@@ -17,10 +18,12 @@
 * Support for i18n (multi-language sites)
 * Easy A/B testing
 * Complaint with Web Vitals recommendations https://web.dev/articles/vitals
+* Automatic OG image generation
+* Automatic sitemap generation
 * Easy to integrate with Shopify stores
 * Deploy to Vercel, Netlify, GitHub Pages or self-host
 * Single command publish to punch.site
-* Migrate Jekyll, Astro, and Hugo sites
+* Migrate Jekyll, 11ty, Astro, and Hugo sites
 
 Future releases:
 * Image optimizations

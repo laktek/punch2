@@ -42,6 +42,66 @@ Deno.test("routesFromPages", async (t) => {
     },
   );
 
+  await t.step(
+    "skips dotfiles",
+    async () => {
+      const paths = [
+        "index.html",
+        ".dotfile",
+        "foo/index.html",
+        "foo/.dotfile",
+        "foo/bar/baz.html",
+        "foo/bar/.dotfile",
+      ];
+      await Deno.mkdir(join(pagesDir, "/foo/bar/baz"), { recursive: true });
+
+      paths.forEach(async (p) =>
+        await Deno.writeTextFile(join(pagesDir, p), "test")
+      );
+
+      const routes = await routesFromPages(pagesDir, [".html"]);
+      assertEquals(
+        routes,
+        ["index.html", "foo/index.html", "foo/bar/baz.html"],
+        "expected array of routes",
+      );
+    },
+  );
+
+  await t.step(
+    "skips dynamic page templates",
+    async () => {
+      const paths = [
+        "index.html",
+        "page_1_.html",
+        "_slug_.html",
+        "foo/index.html",
+        "foo/page_1_.html",
+        "foo/_id_.html",
+        "foo/bar/baz.html",
+        "foo/bar/_id_.html",
+      ];
+      await Deno.mkdir(join(pagesDir, "/foo/bar/baz"), { recursive: true });
+
+      paths.forEach(async (p) =>
+        await Deno.writeTextFile(join(pagesDir, p), "test")
+      );
+
+      const routes = await routesFromPages(pagesDir, [".html"]);
+      assertEquals(
+        routes,
+        [
+          "index.html",
+          "page_1_.html",
+          "foo/index.html",
+          "foo/page_1_.html",
+          "foo/bar/baz.html",
+        ],
+        "expected array of routes",
+      );
+    },
+  );
+
   await Deno.remove(pagesDir, { recursive: true });
 });
 
@@ -126,7 +186,7 @@ Deno.test("findResource", async (t) => {
     );
   });
 
-  await t.step("find HTML pages", async () => {
+  await t.step("find direct page templates", async () => {
     const pagesPath = join(srcPath, "pages");
     await Deno.mkdir(pagesPath);
     await Deno.writeTextFile(
@@ -152,18 +212,39 @@ Deno.test("findResource", async (t) => {
     await Deno.remove(pagesPath, { recursive: true });
   });
 
-  const pagesPath = join(srcPath, "pages");
-  await Deno.mkdir(join(pagesPath, "sample"), { recursive: true });
-  await Deno.writeTextFile(
-    join(join(pagesPath, "sample"), "index.html"),
-    "<html></html>",
-  );
-  await Deno.writeTextFile(
-    join(pagesPath, "sample.html"),
-    "<html></html>",
-  );
-
   await t.step("match directory routes to index pages", async () => {
+    const pagesPath = join(srcPath, "pages");
+    await Deno.mkdir(join(pagesPath, "sample-dir"), { recursive: true });
+    await Deno.writeTextFile(
+      join(join(pagesPath, "sample-dir"), "index.html"),
+      "<html></html>",
+    );
+
+    const config = {
+      dirs: {
+        pages: "pages",
+      },
+    };
+
+    assertEquals(
+      await findResource(srcPath, config, "/sample-dir"),
+      {
+        resourceType: ResourceType.HTML,
+        path: join(pagesPath, "sample-dir", "index.html"),
+      },
+    );
+    assertEquals(
+      await findResource(srcPath, config, "/not-exist"),
+      null,
+    );
+  });
+
+  await t.step("match no extension routes to pages", async () => {
+    const pagesPath = join(srcPath, "pages");
+    await Deno.writeTextFile(
+      join(pagesPath, "sample.html"),
+      "<html></html>",
+    );
     const config = {
       dirs: {
         pages: "pages",
@@ -180,7 +261,17 @@ Deno.test("findResource", async (t) => {
     );
   });
 
-  await t.step("match no extension routes to pages", async () => {
+  await t.step("match routes to dynamic pages", async () => {
+    const pagesPath = join(srcPath, "pages");
+    await Deno.writeTextFile(
+      join(pagesPath, "_slug_.html"),
+      "<html></html>",
+    );
+    await Deno.mkdir(join(pagesPath, "blogs"), { recursive: true });
+    await Deno.writeTextFile(
+      join(pagesPath, "blogs", "_title_.html"),
+      "<html></html>",
+    );
     const config = {
       dirs: {
         pages: "pages",
@@ -188,12 +279,15 @@ Deno.test("findResource", async (t) => {
     };
 
     assertEquals(
-      await findResource(srcPath, config, "/sample"),
-      { resourceType: ResourceType.HTML, path: join(pagesPath, "sample.html") },
+      await findResource(srcPath, config, "/foo.html"),
+      { resourceType: ResourceType.HTML, path: join(pagesPath, "_slug_.html") },
     );
     assertEquals(
-      await findResource(srcPath, config, "/not-exist"),
-      null,
+      await findResource(srcPath, config, "/blogs/test-post.html"),
+      {
+        resourceType: ResourceType.HTML,
+        path: join(pagesPath, "blogs", "_title_.html"),
+      },
     );
   });
 

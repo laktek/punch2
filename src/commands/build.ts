@@ -1,8 +1,9 @@
-import { extname, join, relative, resolve } from "std/path/mod.ts";
+import { dirname, extname, join, relative, resolve } from "std/path/mod.ts";
 import { walk } from "std/fs/mod.ts";
 
 import { getConfig } from "../config/config.ts";
 import { Contents } from "../lib/contents.ts";
+import { Renderer } from "../lib/render.ts";
 import { routesFromPages } from "../utils/routes.ts";
 import { commonSkipPaths } from "../utils/paths.ts";
 
@@ -58,6 +59,12 @@ export async function build(opts: BuildOpts): Promise<boolean> {
   const contents = new Contents();
   await contents.prepare(contentsPath);
 
+  // setup renderer
+  const renderer = new Renderer();
+  globalThis.Punch = {
+    render: renderer.render,
+  };
+
   // generate pages
   const pagesPath = join(srcPath, config.dirs!.pages!);
   const pageRoutes = await routesFromPages(pagesPath, [".html"]);
@@ -89,6 +96,8 @@ export async function build(opts: BuildOpts): Promise<boolean> {
       if (output.errorStatus) {
         console.error(`${output.errorMessage} (${output.errorStatus})`);
       } else {
+        const outputPath = join(destPath, output.route);
+        await Deno.mkdir(dirname(outputPath), { recursive: true });
         await Deno.writeTextFile(join(destPath, output.route), output.content);
       }
     }

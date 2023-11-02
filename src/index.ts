@@ -1,17 +1,11 @@
 import { Command } from "npm:commander";
 import { join, resolve } from "std/path/mod.ts";
 
-import { render } from "./lib/render.ts";
-
 import { build } from "./commands/build.ts";
 
 declare global {
   var Punch: any;
 }
-
-globalThis.Punch = {
-  render,
-};
 
 const program = new Command();
 
@@ -40,9 +34,7 @@ program.command("build")
   .option("--output", "output directory for the built site")
   .action((path: string, options: any) => {
     const srcPath = resolve(Deno.cwd(), path);
-    const destPath = options.out
-      ? resolve(Deno.cwd(), options.out)
-      : join(Deno.cwd(), "dist");
+    const destPath = resolve(Deno.cwd(), options.out ?? "dist");
     build({ srcPath, destPath });
   });
 
