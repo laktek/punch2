@@ -2,8 +2,8 @@ import { basename, extname, join } from "std/path/mod.ts";
 import { parse as yamlParse } from "std/yaml/mod.ts";
 import { parse as tomlParse } from "std/toml/mod.ts";
 import { parse as csvParse } from "std/csv/mod.ts";
-import matter from "npm:gray-matter";
-import { marked } from "npm:marked";
+import matter from "gray-matter";
+import { marked } from "marked";
 import { walk } from "std/fs/mod.ts";
 import { resolve } from "std/path/mod.ts";
 

@@ -190,3 +190,38 @@ Deno.test("Contents.query", async (t) => {
     contents.close();
   });
 });
+
+Deno.test("Contents.proxy", async (t) => {
+  await t.step("handles defaults", async () => {
+    const contents = new Contents();
+    contents.insert("foo", [{ "hello": "world" }, { "hello1": "world1" }]);
+    contents.setDefaults({ "bar": "baz" });
+    const obj: any = contents.proxy();
+
+    assertEquals(
+      obj.bar,
+      "baz",
+      "expected proxy to match defaults",
+    );
+    contents.close();
+  });
+
+  await t.step("proxies to query", async () => {
+    const contents = new Contents();
+    contents.insert("foo", [{ "hello": "world" }, { "hello1": "world1" }]);
+    const obj: any = contents.proxy();
+
+    assertEquals(
+      obj.foo[0].hello,
+      "world",
+      "expected to match proxied value",
+    );
+
+    assertEquals(
+      obj.foo.length,
+      2,
+      "expected to return all records for the key",
+    );
+    contents.close();
+  });
+});

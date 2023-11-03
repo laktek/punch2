@@ -239,28 +239,6 @@ Deno.test("findResource", async (t) => {
     );
   });
 
-  await t.step("match no extension routes to pages", async () => {
-    const pagesPath = join(srcPath, "pages");
-    await Deno.writeTextFile(
-      join(pagesPath, "sample.html"),
-      "<html></html>",
-    );
-    const config = {
-      dirs: {
-        pages: "pages",
-      },
-    };
-
-    assertEquals(
-      await findResource(srcPath, config, "/sample"),
-      { resourceType: ResourceType.HTML, path: join(pagesPath, "sample.html") },
-    );
-    assertEquals(
-      await findResource(srcPath, config, "/not-exist"),
-      null,
-    );
-  });
-
   await t.step("match routes to dynamic pages", async () => {
     const pagesPath = join(srcPath, "pages");
     await Deno.writeTextFile(
@@ -279,17 +257,42 @@ Deno.test("findResource", async (t) => {
     };
 
     assertEquals(
-      await findResource(srcPath, config, "/foo.html"),
+      await findResource(srcPath, config, "/foo"),
       { resourceType: ResourceType.HTML, path: join(pagesPath, "_slug_.html") },
     );
     assertEquals(
-      await findResource(srcPath, config, "/blogs/test-post.html"),
+      await findResource(srcPath, config, "/blogs/test-post"),
       {
         resourceType: ResourceType.HTML,
         path: join(pagesPath, "blogs", "_title_.html"),
       },
     );
   });
+
+  await t.step(
+    "traverse parent paths to find the closest dynamic page template",
+    async () => {
+      const pagesPath = join(srcPath, "pages");
+      await Deno.mkdir(join(pagesPath, "blogs"), { recursive: true });
+      await Deno.writeTextFile(
+        join(pagesPath, "blogs", "_title_.html"),
+        "<html></html>",
+      );
+      const config = {
+        dirs: {
+          pages: "pages",
+        },
+      };
+
+      assertEquals(
+        await findResource(srcPath, config, "/blogs/2023/11/03/test-post"),
+        {
+          resourceType: ResourceType.HTML,
+          path: join(pagesPath, "blogs", "_title_.html"),
+        },
+      );
+    },
+  );
 
   await Deno.remove(srcPath, { recursive: true });
 });

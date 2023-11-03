@@ -5,6 +5,7 @@ import {
   join,
   relative,
   resolve,
+  sep,
 } from "std/path/mod.ts";
 import { exists, expandGlob, walk } from "std/fs/mod.ts";
 
@@ -90,10 +91,13 @@ export async function findResource(
   }
 
   const resourceDirPath = join(srcPath, resourceDir);
-  const dirPath = join(resourceDirPath, dirname(route));
   const base = basename(route, ext);
 
-  const matches = [];
+  // check if there's an explicit match
+  const fullPath = join(resourceDirPath, route);
+  if (await exists(fullPath, { isFile: true, isReadable: true })) {
+    return { path: fullPath, resourceType };
+  }
 
   // check for directory index matches
   if (ext === "") {
@@ -101,11 +105,34 @@ export async function findResource(
     if (await exists(dirIndex, { isFile: true, isReadable: true })) {
       return { path: dirIndex, resourceType };
     }
+
+    const tmplPath = await findClosestTemplate(
+      join(resourceDirPath, dirname(route)),
+      resourceDirPath,
+    );
+
+    if (tmplPath) {
+      return { path: tmplPath, resourceType };
+    } else {
+      return null;
+    }
   }
 
+  return null;
+}
+
+function withoutTrailingSlash(p: string): string {
+  return p.replace(new RegExp(`${sep}$`), "");
+}
+
+async function findClosestTemplate(
+  dirPath: string,
+  rootPath: string,
+): Promise<string | null> {
+  const matches = [];
   for await (
     const f of expandGlob(
-      join(`{${base},_*_}${ext || ".html"}`),
+      join(`_*_\.html`),
       {
         root: dirPath,
       },
@@ -114,10 +141,13 @@ export async function findResource(
     matches.push(f.path);
   }
   if (matches.length) {
-    // if multiple matches, return the  absolute path match
-    const absMatch = matches.find((m) => m === join(resourceDirPath, route));
-    return { path: absMatch || matches[0], resourceType };
+    return matches[0];
+  } else {
+    // check the parent directory for a template
+    if (withoutTrailingSlash(dirPath) !== withoutTrailingSlash(rootPath)) {
+      return await findClosestTemplate(dirname(dirPath), rootPath);
+    } else {
+      return null;
+    }
   }
-
-  return null;
 }

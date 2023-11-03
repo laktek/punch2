@@ -1,6 +1,9 @@
 {
   "imports": {
-    "std/": "https://deno.land/std@0.204.0/"
-    "handlebars": "npm:handlebars@4.7.8"
+    "std/": "https://deno.land/std@0.204.0/",
+    "handlebars": "npm:handlebars@4.7.8",
+    "commander": "npm:commander@11.1.0",
+    "gray-matter": "npm:gray-matter@4.0.3",
+    "marked": "npm:marked@9.1.5",
   }
 }

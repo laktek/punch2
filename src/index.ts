@@ -1,4 +1,4 @@
-import { Command } from "npm:commander";
+import { Command } from "commander";
 import { join, resolve } from "std/path/mod.ts";
 
 import { build } from "./commands/build.ts";

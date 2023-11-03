@@ -19,10 +19,12 @@ interface QueryOpts {
 
 export class Contents {
   #db: Database;
+  #defaults: { [key: string]: unknown };
 
   constructor(opts?: ContentOpts) {
     const dbPath = opts?.dbPath ?? ":memory:";
     this.#db = new Database(dbPath);
+    this.#defaults = {};
 
     // create the contents table
     this.#db.exec(`create table if not exists 'contents' (key, records)`);
@@ -96,10 +98,22 @@ export class Contents {
     return stmt.values({ key, limit, offset }).map((r) => JSON.parse(r[0]));
   }
 
+  setDefaults(obj: { [key: string]: unknown }) {
+    this.#defaults = obj;
+  }
+
   proxy() {
     const query = (prop: string) => this.query(prop);
+    const defaults = (prop: string) => this.#defaults[prop];
+
     return new Proxy({}, {
       getOwnPropertyDescriptor(target: unknown, prop: string) {
+        // check if the property available in this.#defaults
+        const defValue = defaults(prop);
+        if (defValue) {
+          return { configurable: true, enumerable: true, value: defValue };
+        }
+
         const results = query(prop);
         if (results.length === 1) {
           return { configurable: true, enumerable: true, value: results[0] };
@@ -109,6 +123,11 @@ export class Contents {
       },
 
       get(target: unknown, prop: string) {
+        const defValue = defaults(prop);
+        if (defValue) {
+          return defValue;
+        }
+
         const results = query(prop);
         if (results.length === 1) {
           return results[0];

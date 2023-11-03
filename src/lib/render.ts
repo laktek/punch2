@@ -50,11 +50,10 @@ export class Renderer {
       // register elements as partials
 
       const helpers = {
-        // (get_one blog find_by="slug" value=slug order_by="created_at asc")
+        // (get_one blog slug=slug order_by="created_at asc" limit=10 offset=1)
         get_one: (contentsObj: any) => {
           return contentsObj;
         },
-
         get_all: (contentsObj: any) => {
           return contentsObj;
         },
@@ -62,11 +61,15 @@ export class Renderer {
           return "slug";
           //return { slug: "slug" };
         },
-        test_arg: (opts) => {
+        test_arg: (opts: any) => {
           return opts.value;
         },
       };
       handlebarsEnv.registerHelper(helpers);
+
+      contents.setDefaults({
+        route: { path: route }, // segments, slug
+      });
 
       const content = await renderHTML(handlebarsEnv, path, contents);
       let outputRoute = route;
