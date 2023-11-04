@@ -20,7 +20,6 @@
 * Complaint with Web Vitals recommendations https://web.dev/articles/vitals
 * Automatic OG image generation
 * Automatic sitemap generation
-* Easy to integrate with Shopify stores
 * Deploy to Vercel, Netlify, GitHub Pages or self-host
 * Single command publish to punch.site
 * Migrate Jekyll, 11ty, Astro, and Hugo sites
@@ -33,7 +32,7 @@ Future releases:
 * Marketing sites
 * Personal Websites
 * Blogs
-* E-commerce stores
+* E-commerce stores (Shopify)
 * Emails & Newsletters
 * Documentation sites
 * Mini apps

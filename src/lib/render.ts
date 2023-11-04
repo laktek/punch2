@@ -3,7 +3,7 @@ import Handlebars from "handlebars";
 
 import { Contents } from "./contents.ts";
 import { Config } from "../config/config.ts";
-import { findResource, ResourceType } from "../utils/routes.ts";
+import { findResource, getRouteParams, ResourceType } from "../utils/routes.ts";
 import { renderHTML } from "../utils/renderers/html.ts";
 
 export interface Context {
@@ -57,18 +57,14 @@ export class Renderer {
         get_all: (contentsObj: any) => {
           return contentsObj;
         },
-        route: () => {
-          return "slug";
-          //return { slug: "slug" };
-        },
-        test_arg: (opts: any) => {
-          return opts.value;
-        },
       };
       handlebarsEnv.registerHelper(helpers);
 
       contents.setDefaults({
-        route: { path: route }, // segments, slug
+        route: getRouteParams(
+          route,
+          relative(join(srcPath, config.dirs!.pages!), path),
+        ),
       });
 
       const content = await renderHTML(handlebarsEnv, path, contents);

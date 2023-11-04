@@ -1,7 +1,12 @@
 import { assert, assertEquals } from "std/testing/asserts.ts";
 import { join } from "std/path/mod.ts";
 
-import { findResource, ResourceType, routesFromPages } from "./routes.ts";
+import {
+  findResource,
+  getRouteParams,
+  ResourceType,
+  routesFromPages,
+} from "./routes.ts";
 
 Deno.test("routesFromPages", async (t) => {
   const pagesDir = await Deno.makeTempDir();
@@ -295,4 +300,39 @@ Deno.test("findResource", async (t) => {
   );
 
   await Deno.remove(srcPath, { recursive: true });
+});
+
+Deno.test("getRouteParams", async (t) => {
+  await t.step(
+    "route without a dynamic page template",
+    async () => {
+      assertEquals(
+        getRouteParams("/path/to/foo", "/path/to/foo.html"),
+        { path: "/path/to/foo", segments: ["path", "to", "foo"] },
+      );
+    },
+  );
+
+  await t.step(
+    "route with a dynamic page template",
+    async () => {
+      assertEquals(
+        getRouteParams("/path/to/foo", "/path/_slug_.html"),
+        {
+          path: "/path/to/foo",
+          segments: ["path", "to", "foo"],
+          slug: "to/foo",
+        },
+      );
+
+      assertEquals(
+        getRouteParams("/path/to/foo", "/path/to/_id_.html"),
+        {
+          path: "/path/to/foo",
+          segments: ["path", "to", "foo"],
+          id: "foo",
+        },
+      );
+    },
+  );
 });

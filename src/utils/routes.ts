@@ -1,5 +1,6 @@
 import {
   basename,
+  common,
   dirname,
   extname,
   join,
@@ -150,4 +151,18 @@ async function findClosestTemplate(
       return null;
     }
   }
+}
+
+export function getRouteParams(
+  route: string,
+  tmplPath: string,
+): unknown {
+  const segments = route.split("/").filter((t) => t);
+  const tmplName = basename(tmplPath).match(/^_(.+)_.*$/);
+  let tmplVar: { [key: string]: string } = {};
+  if (tmplName) {
+    tmplVar[tmplName[1]] = relative(common([tmplPath, route]), route);
+  }
+
+  return { path: route, segments, ...tmplVar };
 }
