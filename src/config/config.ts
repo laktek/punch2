@@ -16,7 +16,7 @@ export interface Config {
     images?: string;
   };
   modifiers?: {
-    onRender: string;
+    renderer?: string;
   };
 }
 

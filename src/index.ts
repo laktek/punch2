@@ -3,10 +3,6 @@ import { join, resolve } from "std/path/mod.ts";
 
 import { build } from "./commands/build.ts";
 
-declare global {
-  var Punch: any;
-}
-
 const program = new Command();
 
 program

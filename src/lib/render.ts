@@ -9,7 +9,6 @@ import { renderHTML } from "../utils/renderers/html.ts";
 export interface Context {
   srcPath: string;
   config: Config;
-  route: string;
   contents: Contents;
 }
 
@@ -38,11 +37,40 @@ function queryContents(contents: Contents, key: string, options: any) {
 }
 
 export class Renderer {
-  constructor() {
+  context: Context;
+
+  #handlebarsEnv: unknown;
+
+  constructor(context: Context) {
+    this.context = context;
+    this.#setupHandlebars();
   }
 
-  async render(context: Context): Promise<Output> {
-    const { srcPath, config, route, contents } = context;
+  #setupHandlebars() {
+    const { contents } = this.context;
+
+    this.#handlebarsEnv = Handlebars.create();
+
+    // register elements as partials
+
+    const helpers = {
+      get_one: (key: string, options: { hash: any }) => {
+        const results = queryContents(contents, key, {
+          ...options.hash,
+          limit: 1,
+        });
+        return results[0];
+      },
+      get_all: (key: string, options: { hash: any }) => {
+        return queryContents(contents, key, options.hash);
+      },
+    };
+
+    this.#handlebarsEnv.registerHelper(helpers);
+  }
+
+  async render(route: string): Promise<Output> {
+    const { srcPath, config, contents } = this.context;
 
     const resource = await findResource(srcPath, config, route);
     if (!resource) {
@@ -55,25 +83,6 @@ export class Renderer {
 
     const { path, resourceType } = resource;
     if (resourceType === ResourceType.HTML) {
-      const handlebarsEnv = Handlebars.create();
-
-      // register elements as partials
-
-      const helpers = {
-        get_one: (key: string, options: { hash: any }) => {
-          const results = queryContents(contents, key, {
-            ...options.hash,
-            limit: 1,
-          });
-          return results[0];
-        },
-        get_all: (key: string, options: { hash: any }) => {
-          return queryContents(contents, key, options.hash);
-        },
-      };
-
-      handlebarsEnv.registerHelper(helpers);
-
       contents.setDefaults({
         route: getRouteParams(
           route,
@@ -81,7 +90,7 @@ export class Renderer {
         ),
       });
 
-      const content = await renderHTML(handlebarsEnv, path, contents);
+      const content = await renderHTML(this.#handlebarsEnv, path, contents);
 
       let outputRoute = route;
       const ext = extname(route);

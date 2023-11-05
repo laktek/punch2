@@ -59,11 +59,22 @@ export async function build(opts: BuildOpts): Promise<boolean> {
   const contents = new Contents();
   await contents.prepare(contentsPath);
 
-  // setup renderer
-  const renderer = new Renderer();
-  globalThis.Punch = {
-    render: renderer.render,
+  const context = {
+    srcPath,
+    config,
+    contents,
   };
+
+  // setup renderer
+  let renderer: Renderer;
+  if (config.modifiers?.renderer) {
+    const { renderer: customRenderer } = await import(
+      join(srcPath, config.modifiers?.renderer)
+    );
+    renderer = new customRenderer(context);
+  } else {
+    renderer = new Renderer(context);
+  }
 
   // generate pages
   const pagesPath = join(srcPath, config.dirs!.pages!);
@@ -71,36 +82,17 @@ export async function build(opts: BuildOpts): Promise<boolean> {
   const explicitRoutes = await normalizeRoutes(config.routes!);
   const routes = [...pageRoutes, ...explicitRoutes];
 
-  let customOnRender: () => void | undefined;
-  if (config.modifiers?.onRender) {
-    const { onRender } = await import(
-      join(srcPath, config.modifiers?.onRender)
-    );
-    customOnRender = onRender;
-  }
-
   // TODO: refactor below
   await Deno.mkdir(destPath, { recursive: true });
 
   routes.forEach(async (route) => {
-    const context = {
-      srcPath,
-      config,
-      route,
-      contents,
-    };
-
-    if (customOnRender) {
-      await customOnRender();
+    const output = await renderer.render(route);
+    if (output.errorStatus) {
+      console.error(`${output.errorMessage} (${output.errorStatus})`);
     } else {
-      const output = await globalThis.Punch.render(context);
-      if (output.errorStatus) {
-        console.error(`${output.errorMessage} (${output.errorStatus})`);
-      } else {
-        const outputPath = join(destPath, output.route);
-        await Deno.mkdir(dirname(outputPath), { recursive: true });
-        await Deno.writeTextFile(join(destPath, output.route), output.content);
-      }
+      const outputPath = join(destPath, output.route);
+      await Deno.mkdir(dirname(outputPath), { recursive: true });
+      await Deno.writeTextFile(join(destPath, output.route), output.content!);
     }
   });
 
