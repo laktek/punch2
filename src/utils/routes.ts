@@ -6,7 +6,7 @@ import {
   join,
   relative,
   resolve,
-  sep,
+  SEP,
 } from "std/path/mod.ts";
 import { exists, expandGlob, walk } from "std/fs/mod.ts";
 
@@ -123,7 +123,11 @@ export async function findResource(
 }
 
 function withoutTrailingSlash(p: string): string {
-  return p.replace(new RegExp(`${sep}$`), "");
+  return p.replace(new RegExp(`[${SEP}]+$`), "");
+}
+
+function withoutLeadingSlash(p: string): string {
+  return p.replace(new RegExp(`^[${SEP}]+`), "");
 }
 
 async function findClosestTemplate(
@@ -161,8 +165,12 @@ export function getRouteParams(
   const tmplName = basename(tmplPath).match(/^_(.+)_.*$/);
   let tmplVar: { [key: string]: string } = {};
   if (tmplName) {
-    tmplVar[tmplName[1]] = relative(common(["/" + tmplPath, route]), route);
+    tmplVar[tmplName[1]] = relative(common([tmplPath, route]), route);
   }
 
   return { path: route, segments, ...tmplVar };
+}
+
+export function normalizeRoutes(routes: string[]): string[] {
+  return routes.map((r) => withoutTrailingSlash(withoutLeadingSlash(r)));
 }

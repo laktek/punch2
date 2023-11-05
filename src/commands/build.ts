@@ -4,7 +4,7 @@ import { walk } from "std/fs/mod.ts";
 import { getConfig } from "../config/config.ts";
 import { Contents } from "../lib/contents.ts";
 import { Renderer } from "../lib/render.ts";
-import { routesFromPages } from "../utils/routes.ts";
+import { normalizeRoutes, routesFromPages } from "../utils/routes.ts";
 import { commonSkipPaths } from "../utils/paths.ts";
 
 async function copyPublicFiles(
@@ -68,7 +68,8 @@ export async function build(opts: BuildOpts): Promise<boolean> {
   // generate pages
   const pagesPath = join(srcPath, config.dirs!.pages!);
   const pageRoutes = await routesFromPages(pagesPath, [".html"]);
-  const routes = [...pageRoutes, ...config.routes!];
+  const explicitRoutes = await normalizeRoutes(config.routes!);
+  const routes = [...pageRoutes, ...explicitRoutes];
 
   let customOnRender: () => void | undefined;
   if (config.modifiers?.onRender) {

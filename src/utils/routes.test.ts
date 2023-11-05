@@ -4,6 +4,7 @@ import { join } from "std/path/mod.ts";
 import {
   findResource,
   getRouteParams,
+  normalizeRoutes,
   ResourceType,
   routesFromPages,
 } from "./routes.ts";
@@ -332,6 +333,19 @@ Deno.test("getRouteParams", async (t) => {
           segments: ["path", "to", "foo"],
           id: "foo",
         },
+      );
+    },
+  );
+});
+
+Deno.test("normalizeRoutes", async (t) => {
+  await t.step(
+    "removes leading and trailing slashes",
+    async () => {
+      assertEquals(
+        normalizeRoutes(["/path/to/foo", "path/to/foo", "path/to/foo/"]),
+        ["path/to/foo", "path/to/foo", "path/to/foo"],
+        "should remove the leading & trailing slashes",
       );
     },
   );
