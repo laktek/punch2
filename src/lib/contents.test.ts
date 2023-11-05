@@ -168,9 +168,196 @@ Deno.test("Contents.query", async (t) => {
       "hello2": "world2",
     }]);
     assertEquals(
-      contents.query("foo", { limit: 2 }).length,
-      2,
+      contents.query("foo", { limit: 2 }),
+      [{ "hello": "world" }, { "hello1": "world1" }],
       "expected to limit to 2 records",
+    );
+    contents.close();
+  });
+
+  await t.step("offset records", async () => {
+    const contents = new Contents();
+    contents.insert("foo", [{ "hello": "world" }, { "hello1": "world1" }, {
+      "hello2": "world2",
+    }]);
+    assertEquals(
+      contents.query("foo", { limit: 2, offset: 1 }),
+      [{ "hello1": "world1" }, {
+        "hello2": "world2",
+      }],
+      "expected to limit to 2 records",
+    );
+    contents.close();
+  });
+
+  await t.step("sort records", async () => {
+    const contents = new Contents();
+    contents.insert("animals", [
+      { "name": "Dog", "legs": 4 },
+      { "name": "Cat", "legs": 4 },
+      { "name": "Bird", "legs": 2, beak: true },
+      { "name": "Snake", "legs": 0 },
+      { "name": "Spider", "legs": 8 },
+      { "name": "Kangaroo", "legs": 2 },
+    ]);
+
+    assertEquals(
+      contents.query("animals", { order_by: "legs desc" }),
+      [
+        { "name": "Spider", "legs": 8 },
+        { "name": "Dog", "legs": 4 },
+        { "name": "Cat", "legs": 4 },
+        { "name": "Bird", "legs": 2, beak: true },
+        { "name": "Kangaroo", "legs": 2 },
+        { "name": "Snake", "legs": 0 },
+      ],
+      "should sort by legs descending",
+    );
+
+    assertEquals(
+      contents.query("animals", { order_by: "legs" }),
+      [
+        { "name": "Snake", "legs": 0 },
+        { "name": "Bird", "legs": 2, beak: true },
+        { "name": "Kangaroo", "legs": 2 },
+        { "name": "Dog", "legs": 4 },
+        { "name": "Cat", "legs": 4 },
+        { "name": "Spider", "legs": 8 },
+      ],
+      "should sort by legs ascending by default",
+    );
+
+    assertEquals(
+      contents.query("animals", { order_by: "beak nulls last" }),
+      [
+        { "name": "Bird", "legs": 2, beak: true },
+        { "name": "Dog", "legs": 4 },
+        { "name": "Cat", "legs": 4 },
+        { "name": "Snake", "legs": 0 },
+        { "name": "Spider", "legs": 8 },
+        { "name": "Kangaroo", "legs": 2 },
+      ],
+      "support nulls sorting",
+    );
+
+    assertEquals(
+      contents.query("animals", { order_by: "beak nulls first, legs desc" }),
+      [
+        { "name": "Spider", "legs": 8 },
+        { "name": "Dog", "legs": 4 },
+        { "name": "Cat", "legs": 4 },
+        { "name": "Kangaroo", "legs": 2 },
+        { "name": "Snake", "legs": 0 },
+        { "name": "Bird", "legs": 2, beak: true },
+      ],
+      "support multiple ordering terms",
+    );
+    contents.close();
+  });
+
+  await t.step("filter records", async () => {
+    const contents = new Contents();
+
+    contents.insert("animals", [
+      { "name": "Dog", "legs": 4 },
+      { "name": "Cat", "legs": 4 },
+      { "name": "Bird", "legs": 2, beak: true },
+      { "name": "Snake", "legs": 0 },
+      { "name": "Spider", "legs": 8 },
+      { "name": "Kangaroo", "legs": 2 },
+    ]);
+
+    assertEquals(
+      contents.query("animals", { where: [["name", "Spider"]] }),
+      [
+        { "name": "Spider", "legs": 8 },
+      ],
+      "should filter by single condition",
+    );
+
+    assertEquals(
+      contents.query("animals", { where: [["name", "Spider"]] }),
+      [
+        { "name": "Spider", "legs": 8 },
+      ],
+      "should filter by single condition",
+    );
+
+    assertEquals(
+      contents.query("animals", { where: [["legs", 2], ["beak", true]] }),
+      [
+        { "name": "Bird", "legs": 2, beak: true },
+      ],
+      "should filter by multiple conditions",
+    );
+
+    assertEquals(
+      contents.query("animals", { where: [["legs_gt", 4]] }),
+      [
+        { "name": "Spider", "legs": 8 },
+      ],
+      "should filter by greater than",
+    );
+
+    assertEquals(
+      contents.query("animals", { where: [["legs_gte", 4]] }),
+      [
+        { "name": "Dog", "legs": 4 },
+        { "name": "Cat", "legs": 4 },
+        { "name": "Spider", "legs": 8 },
+      ],
+      "should filter by greater than or equal",
+    );
+
+    assertEquals(
+      contents.query("animals", { where: [["legs_lt", 4]] }),
+      [
+        { "name": "Bird", "legs": 2, beak: true },
+        { "name": "Snake", "legs": 0 },
+        { "name": "Kangaroo", "legs": 2 },
+      ],
+      "should filter by less than",
+    );
+
+    assertEquals(
+      contents.query("animals", { where: [["legs_lte", 4]] }),
+      [
+        { "name": "Dog", "legs": 4 },
+        { "name": "Cat", "legs": 4 },
+        { "name": "Bird", "legs": 2, beak: true },
+        { "name": "Snake", "legs": 0 },
+        { "name": "Kangaroo", "legs": 2 },
+      ],
+      "should filter by less than or equal",
+    );
+
+    assertEquals(
+      contents.query("animals", { where: [["legs_not", 4]] }),
+      [
+        { "name": "Bird", "legs": 2, beak: true },
+        { "name": "Snake", "legs": 0 },
+        { "name": "Spider", "legs": 8 },
+        { "name": "Kangaroo", "legs": 2 },
+      ],
+      "should filter by less than or equal",
+    );
+
+    assertEquals(
+      contents.query("animals", { where: [["name_like", "%S%"]] }),
+      [
+        { "name": "Snake", "legs": 0 },
+        { "name": "Spider", "legs": 8 },
+      ],
+      "should filter by like condition",
+    );
+
+    assertEquals(
+      contents.query("animals", { where: [["name_ilike", "%s%"]] }),
+      [
+        { "name": "Snake", "legs": 0 },
+        { "name": "Spider", "legs": 8 },
+      ],
+      "should filter by ilike condition (case insensitive match)",
     );
     contents.close();
   });

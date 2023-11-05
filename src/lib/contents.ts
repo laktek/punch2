@@ -11,7 +11,7 @@ export interface ContentOpts {
 
 interface QueryOpts {
   count?: boolean;
-  where?: string;
+  where?: [string, any][];
   limit?: number;
   offset?: number;
   order_by?: string;
@@ -92,10 +92,70 @@ export class Contents {
       offset = opts!.offset;
     }
 
+    let order_by = "";
+    if (opts?.order_by) {
+      const order_by_parts = opts.order_by.toLowerCase().split(/\s|,/).filter(
+        (p) => p,
+      );
+      order_by_parts.forEach((part) => {
+        if (["asc", "desc", "nulls", "first", "last"].includes(part)) {
+          order_by = `${order_by} ${part}`;
+        } else {
+          if (order_by.length) {
+            order_by = `${order_by},`;
+          }
+          order_by = `${order_by} records.value ->> '${part}'`;
+        }
+      });
+      if (order_by.length) {
+        order_by = `order by${order_by}`;
+      }
+    }
+
+    let where = "";
+    const where_params: any = [];
+    if (opts?.where) {
+      opts.where.forEach((expr) => {
+        if (expr[0].endsWith("_gt")) {
+          where = `${where} and records.value ->> '${
+            expr[0].replace(/\_gt$/, "")
+          }' > ?`;
+        } else if (expr[0].endsWith("_gte")) {
+          where = `${where} and records.value ->> '${
+            expr[0].replace(/\_gte$/, "")
+          }' >= ?`;
+        } else if (expr[0].endsWith("_lt")) {
+          where = `${where} and records.value ->> '${
+            expr[0].replace(/\_lt$/, "")
+          }' < ?`;
+        } else if (expr[0].endsWith("_lte")) {
+          where = `${where} and records.value ->> '${
+            expr[0].replace(/\_lte$/, "")
+          }' <= ?`;
+        } else if (expr[0].endsWith("_not")) {
+          where = `${where} and records.value ->> '${
+            expr[0].replace(/\_not$/, "")
+          }' != ?`;
+        } else if (expr[0].endsWith("_like")) {
+          where = `${where} and records.value ->> '${
+            expr[0].replace(/\_like$/, "")
+          }' like ?`;
+        } else if (expr[0].endsWith("_ilike")) {
+          where = `${where} and records.value ->> '${
+            expr[0].replace(/\_ilike$/, "")
+          }' like ? collate nocase`;
+        } else {
+          where = `${where} and records.value ->> '${expr[0]}' = ?`;
+        }
+        where_params.push(expr[1]);
+      });
+    }
     const stmt = this.#db.prepare(
-      `select ${select} from contents, json_each(contents.records) as records where contents.key = :key limit :limit offset :offset`,
+      `select ${select} from contents, json_each(contents.records) as records where contents.key = ? ${where} ${order_by} limit ? offset ?`,
     );
-    return stmt.values({ key, limit, offset }).map((r) => JSON.parse(r[0]));
+    return stmt.values([key, ...where_params, limit, offset]).map((r) =>
+      JSON.parse(r[0])
+    );
   }
 
   setDefaults(obj: { [key: string]: unknown }) {

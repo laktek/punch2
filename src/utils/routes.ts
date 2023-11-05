@@ -161,7 +161,7 @@ export function getRouteParams(
   const tmplName = basename(tmplPath).match(/^_(.+)_.*$/);
   let tmplVar: { [key: string]: string } = {};
   if (tmplName) {
-    tmplVar[tmplName[1]] = relative(common([tmplPath, route]), route);
+    tmplVar[tmplName[1]] = relative(common(["/" + tmplPath, route]), route);
   }
 
   return { path: route, segments, ...tmplVar };

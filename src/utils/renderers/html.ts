@@ -5,12 +5,14 @@ export async function renderHTML(
   path: string,
   contents: Contents,
 ): Promise<string> {
-  const raw = await Deno.readTextFile(path);
-  // contents are not escaped, since site owners control the content.
-  const template = handlebarsEnv.compile(raw, { noEscape: true });
+  try {
+    const raw = await Deno.readTextFile(path);
+    // contents are not escaped, since site owners control the content.
+    const template = handlebarsEnv.compile(raw, { noEscape: true });
 
-  // render rest of the page
-  // extract assets
-
-  return template(contents.proxy());
+    return template(contents.proxy());
+    // extract assets
+  } catch (e) {
+    throw new Error(`failed to render HTML template - ${path}`, { cause: e });
+  }
 }

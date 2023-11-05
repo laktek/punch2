@@ -27,6 +27,16 @@ export interface Output {
   errorMessage?: string;
 }
 
+function queryContents(contents: Contents, key: string, options: any) {
+  const { offset, order_by, limit, ...where } = options;
+  return contents.query(key, {
+    limit: limit,
+    where: Object.entries(where).map(([k, v]) => [k, v]),
+    offset: offset,
+    order_by: order_by,
+  });
+}
+
 export class Renderer {
   constructor() {
   }
@@ -50,14 +60,18 @@ export class Renderer {
       // register elements as partials
 
       const helpers = {
-        // (get_one blog slug=slug order_by="created_at asc" limit=10 offset=1)
-        get_one: (contentsObj: any) => {
-          return contentsObj;
+        get_one: (key: string, options: { hash: any }) => {
+          const results = queryContents(contents, key, {
+            ...options.hash,
+            limit: 1,
+          });
+          return results[0];
         },
-        get_all: (contentsObj: any) => {
-          return contentsObj;
+        get_all: (key: string, options: { hash: any }) => {
+          return queryContents(contents, key, options.hash);
         },
       };
+
       handlebarsEnv.registerHelper(helpers);
 
       contents.setDefaults({
@@ -68,11 +82,13 @@ export class Renderer {
       });
 
       const content = await renderHTML(handlebarsEnv, path, contents);
+
       let outputRoute = route;
       const ext = extname(route);
       if (ext === "") {
         outputRoute = join(route, "index.html");
       }
+
       return {
         route: outputRoute,
         contentType: "text/html",

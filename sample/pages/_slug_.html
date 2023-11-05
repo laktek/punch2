@@ -1,4 +1,10 @@
 <html>
   <div>{{ route.path }}</div>
-  {{ about.title}}
+  {{#with (get_one "blog" slug=route.slug)}}
+    <h2>{{ title}}</h2>
+    <div><a href="{{authors.[0].url}}">{{ authors.[0].name}}</a></div>
+    <div>
+      {{ content }}
+    </div>
+  {{/with}}
 </html>

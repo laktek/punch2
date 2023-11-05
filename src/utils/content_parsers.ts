@@ -56,7 +56,7 @@ export async function parseMarkdownFile(path: string): Promise<unknown[]> {
 }
 
 export function getKey(basename: string): string {
-  return basename.toLowerCase().replace(/^[^a-z]+/, "");
+  return basename.toLowerCase().replace(/^[^a-z0-9-_]+/, "");
 }
 
 export async function parseFile(path: string): Promise<Result | null> {
