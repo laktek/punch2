@@ -37,6 +37,11 @@ Future releases:
 * Documentation sites
 * Mini apps
 
+### Marketing
+
+* List on GitHub, Shopify, Canva and Figma marketplaces
+* Zapier integrations
+
 ### How it works?
 
 * Define a sitemap.json with all page URLs (sitemap.toml or sitemap.yaml also supported)

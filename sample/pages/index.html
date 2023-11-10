@@ -1,5 +1,5 @@
-<html>
-  <div>{{ route.path }}</div>
+{{#> layout title=about.title }}
+<div>{{ route.path }}</div>
   {{ about.title }}
 
   <div>
@@ -10,4 +10,4 @@
       {{/each}}
     </div>
   </div>
-</html>
+{{/layout}}

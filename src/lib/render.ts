@@ -5,6 +5,7 @@ import { Contents } from "./contents.ts";
 import { Config } from "../config/config.ts";
 import { findResource, getRouteParams, ResourceType } from "../utils/routes.ts";
 import { renderHTML } from "../utils/renderers/html.ts";
+import { getElements } from "../utils/elements.ts";
 
 export interface Context {
   srcPath: string;
@@ -39,20 +40,34 @@ function queryContents(contents: Contents, key: string, options: any) {
 export class Renderer {
   context: Context;
 
-  #handlebarsEnv: unknown;
+  #handlebarsEnv: any;
 
   constructor(context: Context) {
     this.context = context;
-    this.#setupHandlebars();
+
+    this.setupHandlebars();
   }
 
-  #setupHandlebars() {
-    const { contents } = this.context;
+  static async init(context: Context) {
+    const renderer = new Renderer(context);
+    await renderer.setupHandlebars();
+    return renderer;
+  }
+
+  async setupHandlebars() {
+    const { srcPath, config, contents } = this.context;
 
     this.#handlebarsEnv = Handlebars.create();
 
     // register elements as partials
+    const elementsPath = join(
+      srcPath,
+      config.dirs!.elements!,
+    );
+    const partials = await getElements(elementsPath, this.#handlebarsEnv);
+    this.#handlebarsEnv.registerPartial(partials);
 
+    // register helpers
     const helpers = {
       get_one: (key: string, options: { hash: any }) => {
         const results = queryContents(contents, key, {
@@ -65,7 +80,6 @@ export class Renderer {
         return queryContents(contents, key, options.hash);
       },
     };
-
     this.#handlebarsEnv.registerHelper(helpers);
   }
 

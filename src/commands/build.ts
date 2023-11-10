@@ -71,9 +71,9 @@ export async function build(opts: BuildOpts): Promise<boolean> {
     const { renderer: customRenderer } = await import(
       join(srcPath, config.modifiers?.renderer)
     );
-    renderer = new customRenderer(context);
+    renderer = await customRenderer.init(context);
   } else {
-    renderer = new Renderer(context);
+    renderer = await Renderer.init(context);
   }
 
   // generate pages
