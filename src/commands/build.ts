@@ -92,7 +92,10 @@ export async function build(opts: BuildOpts): Promise<boolean> {
     } else {
       const outputPath = join(destPath, output.route);
       await Deno.mkdir(dirname(outputPath), { recursive: true });
-      await Deno.writeTextFile(join(destPath, output.route), output.content!);
+      await Deno.writeTextFile(
+        join(destPath, output.route),
+        output.content!.toString(),
+      );
     }
   });
 

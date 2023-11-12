@@ -1,10 +1,12 @@
 import { extname, join, relative } from "std/path/mod.ts";
 import Handlebars from "handlebars";
+import { HTMLDocument } from "https://deno.land/x/deno_dom/deno-dom-wasm.ts";
 
 import { Contents } from "./contents.ts";
 import { Config } from "../config/config.ts";
 import { findResource, getRouteParams, ResourceType } from "../utils/routes.ts";
 import { renderHTML } from "../utils/renderers/html.ts";
+import { RenderableDocument } from "../utils/parsers/html.ts";
 import { getElements } from "../utils/elements.ts";
 
 export interface Context {
@@ -13,16 +15,16 @@ export interface Context {
   contents: Contents;
 }
 
-export interface Asset {
-  path: string;
-  contentType: string;
+export enum AssetType {
+  JS = "JS",
+  CSS = "CSS",
 }
 
 export interface Output {
   route: string;
   contentType?: string;
-  content?: string;
-  assets?: Asset[];
+  content?: string | RenderableDocument;
+  assets?: { [key: AssetType]: string[] };
   errorStatus?: number;
   errorMessage?: string;
 }
@@ -106,6 +108,12 @@ export class Renderer {
 
       const content = await renderHTML(this.#handlebarsEnv, path, contents);
 
+      // parse rendered HTML
+      const parsed = new RenderableDocument(content);
+
+      // extract assets (scripts and stylesheets)
+      const assets = getAssets(parsed);
+
       let outputRoute = route;
       const ext = extname(route);
       if (ext === "") {
@@ -115,8 +123,8 @@ export class Renderer {
       return {
         route: outputRoute,
         contentType: "text/html",
-        content,
-        assets: [],
+        content: parsed,
+        assets,
       };
     } else {
       return {
