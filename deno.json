@@ -5,5 +5,6 @@
     "commander": "npm:commander@11.1.0",
     "gray-matter": "npm:gray-matter@4.0.3",
     "marked": "npm:marked@9.1.5",
+    "deno_dom": "https://deno.land/x/deno_dom@v0.1.43/deno-dom-wasm.ts"
   }
 }

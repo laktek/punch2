@@ -85,12 +85,16 @@ export async function build(opts: BuildOpts): Promise<boolean> {
   // TODO: refactor below
   await Deno.mkdir(destPath, { recursive: true });
 
+  const renderedPages = [];
+
   routes.forEach(async (route) => {
     const output = await renderer.render(route);
     if (output.errorStatus) {
       console.error(`${output.errorMessage} (${output.errorStatus})`);
     } else {
       const outputPath = join(destPath, output.route);
+      renderedPages.push(output);
+
       await Deno.mkdir(dirname(outputPath), { recursive: true });
       await Deno.writeTextFile(
         join(destPath, output.route),
