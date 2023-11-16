@@ -1,9 +1,6 @@
 import { DOMParser, Element, HTMLDocument } from "deno_dom";
 
-export enum AssetType {
-  JS = "JS",
-  CSS = "CSS",
-}
+import { AssetType } from "../lib/assets.ts";
 
 export class RenderableDocument {
   document: HTMLDocument | null;
@@ -21,10 +18,10 @@ export class RenderableDocument {
     return `<!doctype html>${documentElement}`;
   }
 
-  get assets(): { [key in AssetType]: string[] } {
-    const assets: { [key in AssetType]: string[] } = {
-      [AssetType.JS]: [],
-      [AssetType.CSS]: [],
+  get assets(): Record<AssetType, string[]> {
+    const assets: Record<AssetType, string[]> = {
+      js: [],
+      css: [],
     };
 
     if (!this.document) {
@@ -36,7 +33,7 @@ export class RenderableDocument {
       const src = s.getAttribute("src");
 
       if (src) {
-        assets[AssetType.JS].push(src);
+        assets.js.push(src);
       }
     });
 
@@ -49,7 +46,7 @@ export class RenderableDocument {
 
       const href = s.getAttribute("href");
       if (href) {
-        assets[AssetType.CSS].push(href);
+        assets.css.push(href);
       }
     });
 

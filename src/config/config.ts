@@ -35,7 +35,9 @@ async function parseConfig(configPath: string): Promise<unknown> {
   }
 }
 
-export async function getConfig(configPath: string): Promise<Config> {
+export async function getConfig(
+  configPath?: string,
+): Promise<Config> {
   const defaultConfig = {
     dirs: {
       public: "public",
@@ -48,6 +50,10 @@ export async function getConfig(configPath: string): Promise<Config> {
     },
     routes: [],
   };
+
+  if (!configPath) {
+    return defaultConfig;
+  }
 
   try {
     const customConfig = await parseConfig(configPath);

@@ -1,6 +1,6 @@
 import { assertEquals } from "std/testing/asserts.ts";
 
-import { AssetType, RenderableDocument } from "./dom.ts";
+import { RenderableDocument } from "./dom.ts";
 
 Deno.test("new RenderableDocument()", async (t) => {
   await t.step(
@@ -54,8 +54,8 @@ Deno.test("getAssets", async (t) => {
       const doc = new RenderableDocument("");
 
       assertEquals(doc.assets, {
-        [AssetType.JS]: [],
-        [AssetType.CSS]: [],
+        js: [],
+        css: [],
       }, "expected an ampty assets object");
     },
   );
@@ -68,8 +68,8 @@ Deno.test("getAssets", async (t) => {
       );
 
       assertEquals(doc.assets, {
-        [AssetType.JS]: [],
-        [AssetType.CSS]: [],
+        js: [],
+        css: [],
       }, "expected inline script to be skipped");
     },
   );
@@ -82,11 +82,11 @@ Deno.test("getAssets", async (t) => {
       );
 
       assertEquals(doc.assets, {
-        [AssetType.JS]: [
+        js: [
           "/js/main.js",
           "https://cdn.com/util.js",
         ],
-        [AssetType.CSS]: [],
+        css: [],
       }, "expected to return external scripts");
     },
   );
@@ -99,8 +99,8 @@ Deno.test("getAssets", async (t) => {
       );
 
       assertEquals(doc.assets, {
-        [AssetType.JS]: [],
-        [AssetType.CSS]: [
+        js: [],
+        css: [
           "/css/main.css",
           "https://cdn.com/util.css",
         ],

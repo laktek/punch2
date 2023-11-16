@@ -4,6 +4,7 @@ import { walk } from "std/fs/mod.ts";
 import { getConfig } from "../config/config.ts";
 import { Contents } from "../lib/contents.ts";
 import { Renderer } from "../lib/render.ts";
+import { AssetMap } from "../lib/assets.ts";
 import { normalizeRoutes, routesFromPages } from "../utils/routes.ts";
 import { commonSkipPaths } from "../utils/paths.ts";
 
@@ -86,6 +87,7 @@ export async function build(opts: BuildOpts): Promise<boolean> {
   await Deno.mkdir(destPath, { recursive: true });
 
   const renderedPages = [];
+  const assetMap = new AssetMap(config);
 
   routes.forEach(async (route) => {
     const output = await renderer.render(route);
@@ -94,6 +96,8 @@ export async function build(opts: BuildOpts): Promise<boolean> {
     } else {
       const outputPath = join(destPath, output.route);
       renderedPages.push(output);
+
+      assetMap.track(output.route, output.content?.assets);
 
       await Deno.mkdir(dirname(outputPath), { recursive: true });
       await Deno.writeTextFile(

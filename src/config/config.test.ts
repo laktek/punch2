@@ -9,6 +9,11 @@ import { getConfig } from "./config.ts";
 Deno.test("getConfig", async (t) => {
   const configDir = await Deno.makeTempDir();
 
+  await t.step("no config file path provided", async () => {
+    const config = await getConfig();
+    assert(config.dirs!.public! === "public", "public path didn't match");
+  });
+
   await t.step("no config file available", async () => {
     const config = await getConfig("./no_config.json");
     assert(config.dirs!.public! === "public", "public path didn't match");

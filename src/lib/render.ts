@@ -18,7 +18,7 @@ export interface Context {
 export interface Output {
   route: string;
   contentType?: string;
-  content?: string | RenderableDocument;
+  content?: RenderableDocument;
   errorStatus?: number;
   errorMessage?: string;
 }
