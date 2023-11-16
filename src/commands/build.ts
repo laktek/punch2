@@ -107,5 +107,11 @@ export async function build(opts: BuildOpts): Promise<boolean> {
     }
   });
 
+  await assetMap.render();
+
+  // update rendered pages with rendered asset paths
+
+  // write rendered pages and assets to the disk
+
   return true;
 }
