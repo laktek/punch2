@@ -68,7 +68,7 @@ export async function build(opts: BuildOpts): Promise<boolean> {
       const outputPath = join(destPath, output.route);
       renderedPages.push(output);
 
-      assetMap.track(output.route, (output.content? as RenderableDocument).assets);
+      assetMap.track(output.route, output.content?.assets);
 
       await Deno.mkdir(dirname(outputPath), { recursive: true });
       await Deno.writeTextFile(
