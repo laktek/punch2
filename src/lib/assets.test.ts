@@ -2,19 +2,30 @@ import { assert, assertEquals, assertRejects } from "std/testing/asserts.ts";
 
 import { getConfig } from "../config/config.ts";
 import { AssetMap } from "./assets.ts";
+import { Renderer } from "./render.ts";
+import { Contents } from "./contents.ts";
 
 Deno.test("AssetMap.track", async (t) => {
+  const config = await getConfig();
+  const contents = new Contents();
+
+  const context = {
+    srcPath: "src/path",
+    config,
+    contents,
+  };
+  const renderer = await Renderer.init(context);
+
   await t.step("no assets provided", async () => {
-    const config = await getConfig();
-    const assetMap = new AssetMap(config);
+    const assetMap = new AssetMap(config, renderer);
 
     assetMap.track("/index.html");
 
     assert([...assetMap.assets.keys()].length === 0);
   });
+
   await t.step("tracks only local JS and CSS assets", async () => {
-    const config = await getConfig();
-    const assetMap = new AssetMap(config);
+    const assetMap = new AssetMap(config, renderer);
 
     assetMap.track("/index.html", {
       "js": [
@@ -31,8 +42,7 @@ Deno.test("AssetMap.track", async (t) => {
   });
 
   await t.step("should not add duplicate entries", async () => {
-    const config = await getConfig();
-    const assetMap = new AssetMap(config);
+    const assetMap = new AssetMap(config, renderer);
 
     assetMap.assets.set("/js/main.ts", {
       assetType: "js",

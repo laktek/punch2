@@ -18,7 +18,7 @@ export interface Context {
 export interface Output {
   route: string;
   contentType?: string;
-  content?: RenderableDocument;
+  content?: RenderableDocument | string;
   errorStatus?: number;
   errorMessage?: string;
 }
@@ -118,6 +118,18 @@ export class Renderer {
         route: outputRoute,
         contentType: "text/html",
         content: doc,
+      };
+    } else if (resourceType === ResourceType.CSS) {
+      return {
+        route,
+        contentType: "text/css",
+        content: "",
+      };
+    } else if (resourceType === ResourceType.JS) {
+      return {
+        route,
+        contentType: "text/javascript",
+        content: "",
       };
     } else {
       return {
