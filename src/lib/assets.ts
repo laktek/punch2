@@ -47,4 +47,7 @@ export class AssetMap {
       this.assets.set(v, record);
     });
   }
+
+  async render() {
+  }
 }

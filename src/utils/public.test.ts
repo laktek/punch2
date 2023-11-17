@@ -2,20 +2,35 @@ import { join, toFileUrl } from "std/path/mod.ts";
 import { assert } from "std/testing/asserts.ts";
 import { exists } from "std/fs/mod.ts";
 
-import { build } from "./build.ts";
+import { copyPublicFiles } from "./public.ts";
 
-Deno.test("build", async (t) => {
-  const srcPath = join(Deno.cwd(), "./testdata/site_1");
+Deno.test("copyPublicFiles", async (t) => {
+  const tmpDir = await Deno.makeTempDir();
+
+  const publicPath = join(tmpDir, "public");
+  await Deno.mkdir(publicPath);
+
+  await Deno.writeTextFile(join(publicPath, "robots.txt"), "robots");
+  await Deno.mkdir(join(publicPath, "path_a"));
+  await Deno.writeTextFile(join(publicPath, "path_a", "a.txt"), "foo");
+  await Deno.writeTextFile(join(publicPath, ".foo"), "foo");
+
+  await Deno.writeTextFile(join(tmpDir, "bar.txt"), "bar");
+  await Deno.symlink(
+    join(tmpDir, "bar.txt"),
+    join(tmpDir, "public", "symlink.txt"),
+  );
+
+  await Deno.writeTextFile(join(tmpDir, "public/path_a", "baz.txt"), "baz");
+  await Deno.symlink(
+    join(tmpDir, "public/path_a", "baz.txt"),
+    join(tmpDir, "public", "symlink2.txt"),
+  );
+
   const destDir = await Deno.makeTempDir();
-  const destPath = destDir;
-
-  const opts = {
-    srcPath,
-    destPath,
-  };
 
   await t.step("copy files in public/", async () => {
-    await build(opts);
+    await copyPublicFiles(publicPath, destDir);
 
     assert(
       await exists(join(destDir, "robots.txt"), { isReadable: true }),
