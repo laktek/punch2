@@ -1,4 +1,4 @@
-import { basename, extname, join } from "std/path/mod.ts";
+import { basename, extname } from "std/path/mod.ts";
 import { parse as yamlParse } from "std/yaml/mod.ts";
 import { parse as tomlParse } from "std/toml/mod.ts";
 import { parse as csvParse } from "std/csv/mod.ts";

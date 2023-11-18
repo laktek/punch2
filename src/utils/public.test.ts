@@ -1,4 +1,4 @@
-import { join, toFileUrl } from "std/path/mod.ts";
+import { join } from "std/path/mod.ts";
 import { assert } from "std/testing/asserts.ts";
 import { exists } from "std/fs/mod.ts";
 

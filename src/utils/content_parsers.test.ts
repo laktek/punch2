@@ -1,4 +1,4 @@
-import { assert, assertEquals } from "std/testing/asserts.ts";
+import { assertEquals } from "std/testing/asserts.ts";
 import { join } from "std/path/mod.ts";
 import { stringify as yamlStringify } from "std/yaml/mod.ts";
 import { stringify as tomlStringify } from "std/toml/mod.ts";
@@ -60,9 +60,9 @@ Deno.test("parseTOMLFile", async (t) => {
   await t.step("file with single record", async () => {
     const record = { "title": "foo", "content": "foo123" };
     const path = join(contentsDir, "single.yaml");
-    await Deno.writeTextFile(path, yamlStringify(record));
+    await Deno.writeTextFile(path, tomlStringify(record));
 
-    const results = await parseYAMLFile(path);
+    const results = await parseTOMLFile(path);
     assertEquals(results, [record], "expected array with the record");
   });
 

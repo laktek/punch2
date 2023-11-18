@@ -1,4 +1,4 @@
-import { dirname, extname, join, relative, resolve } from "std/path/mod.ts";
+import { join, relative, resolve } from "std/path/mod.ts";
 import { walk } from "std/fs/mod.ts";
 
 import { commonSkipPaths } from "./paths.ts";

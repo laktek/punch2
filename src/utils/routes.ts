@@ -5,7 +5,6 @@ import {
   extname,
   join,
   relative,
-  resolve,
   SEP,
 } from "std/path/mod.ts";
 import { exists, expandGlob, walk } from "std/fs/mod.ts";
@@ -92,7 +91,6 @@ export async function findResource(
   }
 
   const resourceDirPath = join(srcPath, resourceDir);
-  const base = basename(route, ext);
 
   let fullPath = join(resourceDirPath, route);
   // TODO: add a test
@@ -168,6 +166,7 @@ export function getRouteParams(
 ): unknown {
   const segments = route.split("/").filter((t) => t);
   const tmplName = basename(tmplPath).match(/^_(.+)_.*$/);
+  // deno-lint-ignore prefer-const
   let tmplVar: { [key: string]: string } = {};
   if (tmplName) {
     tmplVar[tmplName[1]] = relative(common([tmplPath, route]), route);

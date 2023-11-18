@@ -1,5 +1,5 @@
 import { Command } from "commander";
-import { join, resolve } from "std/path/mod.ts";
+import { resolve } from "std/path/mod.ts";
 
 import { build } from "./commands/build.ts";
 
@@ -14,7 +14,7 @@ program.command("new")
   .description("create a new site")
   .argument("[path]", "path to create the new site (default: current path)")
   .option("--template", "URL of the template to use")
-  .action((path: string, options) => {
+  .action((_path: string, _options) => {
     console.log("not implemented");
   });
 

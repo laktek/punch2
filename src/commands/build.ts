@@ -1,5 +1,4 @@
 import { dirname, join } from "std/path/mod.ts";
-import { walk } from "std/fs/mod.ts";
 
 import { getConfig } from "../config/config.ts";
 import { Contents } from "../lib/contents.ts";

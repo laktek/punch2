@@ -1,5 +1,4 @@
-import { extname, join } from "std/path/mod.ts";
-import { exists } from "std/fs/mod.ts";
+import { extname } from "std/path/mod.ts";
 import { parse as yamlParse } from "std/yaml/mod.ts";
 import { parse as tomlParse } from "std/toml/mod.ts";
 import { deepMerge } from "std/collections/deep_merge.ts";

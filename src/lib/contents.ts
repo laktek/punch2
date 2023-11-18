@@ -1,6 +1,6 @@
 import { exists, walk } from "std/fs/mod.ts";
 import { Database } from "https://deno.land/x/sqlite3@0.9.1/mod.ts";
-import { join, resolve } from "std/path/mod.ts";
+import { resolve } from "std/path/mod.ts";
 
 import { commonSkipPaths } from "../utils/paths.ts";
 import { parseDir, parseFile } from "../utils/content_parsers.ts";
@@ -43,7 +43,6 @@ export class Contents {
     for await (
       const entry of walk(contentsPath, { maxDepth: 1, skip: commonSkipPaths })
     ) {
-      let path = null;
       if (entry.isFile) {
         const result = await parseFile(entry.path);
         if (result) {
@@ -167,7 +166,7 @@ export class Contents {
     const defaults = (prop: string) => this.#defaults[prop];
 
     return new Proxy({}, {
-      getOwnPropertyDescriptor(target: unknown, prop: string) {
+      getOwnPropertyDescriptor(_target: unknown, prop: string) {
         // check if the property available in this.#defaults
         const defValue = defaults(prop);
         if (defValue) {
@@ -182,7 +181,7 @@ export class Contents {
         }
       },
 
-      get(target: unknown, prop: string) {
+      get(_target: unknown, prop: string) {
         const defValue = defaults(prop);
         if (defValue) {
           return defValue;

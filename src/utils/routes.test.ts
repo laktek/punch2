@@ -1,4 +1,4 @@
-import { assert, assertEquals } from "std/testing/asserts.ts";
+import { assertEquals } from "std/testing/asserts.ts";
 import { join } from "std/path/mod.ts";
 
 import {
@@ -306,7 +306,7 @@ Deno.test("findResource", async (t) => {
 Deno.test("getRouteParams", async (t) => {
   await t.step(
     "route without a dynamic page template",
-    async () => {
+    () => {
       assertEquals(
         getRouteParams("/path/to/foo", "/path/to/foo.html"),
         { path: "/path/to/foo", segments: ["path", "to", "foo"] },
@@ -316,7 +316,7 @@ Deno.test("getRouteParams", async (t) => {
 
   await t.step(
     "route with a dynamic page template",
-    async () => {
+    () => {
       assertEquals(
         getRouteParams("/path/to/foo", "/path/_slug_.html"),
         {
@@ -341,7 +341,7 @@ Deno.test("getRouteParams", async (t) => {
 Deno.test("normalizeRoutes", async (t) => {
   await t.step(
     "removes leading and trailing slashes",
-    async () => {
+    () => {
       assertEquals(
         normalizeRoutes(["/path/to/foo", "path/to/foo", "path/to/foo/"]),
         ["path/to/foo", "path/to/foo", "path/to/foo"],

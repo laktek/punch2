@@ -1,5 +1,3 @@
-import { join } from "std/path/mod.ts";
-
 import { Config } from "../config/config.ts";
 import { Renderer } from "./render.ts";
 import { RenderableDocument } from "../utils/dom.ts";
@@ -28,7 +26,7 @@ export class AssetMap {
     this.#renderer = renderer;
   }
 
-  track(route: string, content: RenderableDocument | undefined) {
+  track(content: RenderableDocument | undefined) {
     if (!content || !content.assets) {
       return;
     }
@@ -56,7 +54,7 @@ export class AssetMap {
     });
   }
 
-  async render() {
+  render() {
     return Promise.all(
       [...this.assets.entries()].map(async ([route, record]) => {
         const output = await this.#renderer.render(route, {

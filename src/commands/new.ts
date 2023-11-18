@@ -1,4 +1,4 @@
-export default function createNew(path: string, template?: string) {
+export default function createNew(_path: string, template?: string) {
   if (template !== undefined) {
     console.error(
       "creating a new site from template is currently not supported",

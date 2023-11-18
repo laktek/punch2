@@ -1,4 +1,4 @@
-import { assert, assertEquals, assertRejects } from "std/testing/asserts.ts";
+import { assert, assertEquals } from "std/testing/asserts.ts";
 import { join } from "std/path/mod.ts";
 
 import { Contents } from "./contents.ts";
@@ -127,7 +127,7 @@ Deno.test("Contents.prepare", async (t) => {
 });
 
 Deno.test("Contents.insert", async (t) => {
-  await t.step("valid json records", async () => {
+  await t.step("valid json records", () => {
     const contents = new Contents();
     contents.insert("foo", [{ "hello": "world" }, { "hello1": "world1" }]);
     assertEquals(
@@ -138,7 +138,7 @@ Deno.test("Contents.insert", async (t) => {
     contents.close();
   });
 
-  await t.step("empty records", async () => {
+  await t.step("empty records", () => {
     const contents = new Contents();
     contents.insert("foo", []),
       assertEquals(
@@ -151,7 +151,7 @@ Deno.test("Contents.insert", async (t) => {
 });
 
 Deno.test("Contents.query", async (t) => {
-  await t.step("count records", async () => {
+  await t.step("count records", () => {
     const contents = new Contents();
     contents.insert("foo", [{ "hello": "world" }, { "hello1": "world1" }]);
     assertEquals(
@@ -162,7 +162,7 @@ Deno.test("Contents.query", async (t) => {
     contents.close();
   });
 
-  await t.step("limit records", async () => {
+  await t.step("limit records", () => {
     const contents = new Contents();
     contents.insert("foo", [{ "hello": "world" }, { "hello1": "world1" }, {
       "hello2": "world2",
@@ -175,7 +175,7 @@ Deno.test("Contents.query", async (t) => {
     contents.close();
   });
 
-  await t.step("offset records", async () => {
+  await t.step("offset records", () => {
     const contents = new Contents();
     contents.insert("foo", [{ "hello": "world" }, { "hello1": "world1" }, {
       "hello2": "world2",
@@ -190,7 +190,7 @@ Deno.test("Contents.query", async (t) => {
     contents.close();
   });
 
-  await t.step("sort records", async () => {
+  await t.step("sort records", () => {
     const contents = new Contents();
     contents.insert("animals", [
       { "name": "Dog", "legs": 4 },
@@ -255,7 +255,7 @@ Deno.test("Contents.query", async (t) => {
     contents.close();
   });
 
-  await t.step("filter records", async () => {
+  await t.step("filter records", () => {
     const contents = new Contents();
 
     contents.insert("animals", [
@@ -362,7 +362,7 @@ Deno.test("Contents.query", async (t) => {
     contents.close();
   });
 
-  await t.step("return all records", async () => {
+  await t.step("return all records", () => {
     const contents = new Contents();
     contents.insert("foo", [{ "hello": "world" }, { "hello1": "world1" }, {
       "hello2": "world2",
@@ -379,7 +379,7 @@ Deno.test("Contents.query", async (t) => {
 });
 
 Deno.test("Contents.proxy", async (t) => {
-  await t.step("handles defaults", async () => {
+  await t.step("handles defaults", () => {
     const contents = new Contents();
     contents.insert("foo", [{ "hello": "world" }, { "hello1": "world1" }]);
     contents.setDefaults({ "bar": "baz" });
@@ -393,7 +393,7 @@ Deno.test("Contents.proxy", async (t) => {
     contents.close();
   });
 
-  await t.step("proxies to query", async () => {
+  await t.step("proxies to query", () => {
     const contents = new Contents();
     contents.insert("foo", [{ "hello": "world" }, { "hello1": "world1" }]);
     const obj: any = contents.proxy();

@@ -1,7 +1,6 @@
 import { basename, extname } from "std/path/mod.ts";
 import { walk } from "std/fs/mod.ts";
 
-import { Config } from "../config/config.ts";
 import { commonSkipPaths } from "./paths.ts";
 
 export async function getElements(

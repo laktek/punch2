@@ -1,6 +1,5 @@
 import { extname, join, relative } from "std/path/mod.ts";
 import Handlebars from "handlebars";
-import { HTMLDocument } from "deno_dom";
 
 import { Contents } from "./contents.ts";
 import { Config } from "../config/config.ts";
@@ -109,9 +108,6 @@ export class Renderer {
 
       // parse rendered HTML
       const doc = new RenderableDocument(content);
-
-      // extract assets (scripts and stylesheets)
-      const assets = doc.assets;
 
       let outputRoute = route;
       const ext = extname(route);
