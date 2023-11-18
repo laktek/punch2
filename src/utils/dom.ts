@@ -6,7 +6,11 @@ export class RenderableDocument {
   document: HTMLDocument | null;
 
   constructor(content: string) {
-    this.document = new DOMParser().parseFromString(content, "text/html");
+    if (!content) {
+      this.document = null;
+    } else {
+      this.document = new DOMParser().parseFromString(content, "text/html");
+    }
   }
 
   toString(): string {

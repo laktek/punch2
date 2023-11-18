@@ -9,9 +9,9 @@ Deno.test("new RenderableDocument()", async (t) => {
       const doc = new RenderableDocument("");
 
       assertEquals(
-        doc.document!.documentElement!.outerHTML,
-        "<html><head></head><body></body></html>",
-        "expected to return default HTML doc",
+        doc.document,
+        null,
+        "expected to return null for empty content",
       );
     },
   );

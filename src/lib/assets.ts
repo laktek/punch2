@@ -10,7 +10,7 @@ export interface AssetRecord {
   assetType: AssetType;
   content?: string | RenderableDocument | undefined;
   hash?: string;
-  used_by: string[];
+  usedBy: RenderableDocument[];
 }
 
 function generateHash(content: string): string {
@@ -28,41 +28,50 @@ export class AssetMap {
     this.#renderer = renderer;
   }
 
-  track(route: string, assets?: Record<AssetType, string[]>) {
-    if (!assets) {
+  track(route: string, content: RenderableDocument | undefined) {
+    if (!content || !content.assets) {
       return;
     }
 
-    assets.js.forEach((v) => {
+    content.assets.js.forEach((v) => {
       // only track assets in js/ directory
       if (!v.startsWith(`/${this.#config.dirs!.js!}/`)) {
         return;
       }
       const record: AssetRecord = this.assets.get(v) ??
-        { assetType: "js", used_by: [] };
-      record.used_by.push(route);
+        { assetType: "js", usedBy: [] };
+      record.usedBy.push(content);
       this.assets.set(v, record);
     });
 
-    assets.css.forEach((v) => {
+    content.assets.css.forEach((v) => {
       // only track assets in js/ directory
       if (!v.startsWith(`/${this.#config.dirs!.css!}/`)) {
         return;
       }
       const record: AssetRecord = this.assets.get(v) ??
-        { assetType: "js", used_by: [] };
-      record.used_by.push(route);
+        { assetType: "css", usedBy: [] };
+      record.usedBy.push(content);
       this.assets.set(v, record);
     });
   }
 
   async render() {
-    this.assets.forEach(async (record, route) => {
-      const output = await this.#renderer.render(route);
-      const { content } = output;
-      const hash = generateHash(content!.toString());
-      const modifiedRecord = { ...record, content, hash };
-      this.assets.set(route, modifiedRecord);
-    });
+    return Promise.all(
+      [...this.assets.entries()].map(async ([route, record]) => {
+        const output = await this.#renderer.render(route, {
+          usedBy: record.usedBy,
+        });
+        if (output.errorStatus) {
+          console.error(`${output.errorMessage} - ${output.errorStatus}`);
+          return;
+        }
+
+        const { content } = output;
+        const hash = generateHash(content!.toString());
+        const modifiedRecord = { ...record, content, hash };
+        this.assets.set(route, modifiedRecord);
+      }),
+    );
   }
 }

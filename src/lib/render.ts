@@ -6,6 +6,7 @@ import { Contents } from "./contents.ts";
 import { Config } from "../config/config.ts";
 import { findResource, getRouteParams, ResourceType } from "../utils/routes.ts";
 import { renderHTML } from "../utils/renderers/html.ts";
+import { renderCSS } from "../utils/renderers/css.ts";
 import { RenderableDocument } from "../utils/dom.ts";
 import { getElements } from "../utils/elements.ts";
 
@@ -21,6 +22,10 @@ export interface Output {
   content?: RenderableDocument | string;
   errorStatus?: number;
   errorMessage?: string;
+}
+
+export interface RenderOptions {
+  usedBy?: RenderableDocument[];
 }
 
 function queryContents(contents: Contents, key: string, options: any) {
@@ -79,7 +84,7 @@ export class Renderer {
     this.#handlebarsEnv.registerHelper(helpers);
   }
 
-  async render(route: string): Promise<Output> {
+  async render(route: string, opts?: RenderOptions): Promise<Output> {
     const { srcPath, config, contents } = this.context;
 
     const resource = await findResource(srcPath, config, route);
@@ -120,10 +125,11 @@ export class Renderer {
         content: doc,
       };
     } else if (resourceType === ResourceType.CSS) {
+      const content = await renderCSS(path, opts?.usedBy);
       return {
         route,
         contentType: "text/css",
-        content: "",
+        content,
       };
     } else if (resourceType === ResourceType.JS) {
       return {

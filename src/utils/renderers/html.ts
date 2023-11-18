@@ -11,7 +11,6 @@ export async function renderHTML(
     const template = handlebarsEnv.compile(raw, { noEscape: true });
 
     return template(contents.proxy());
-    // extract assets
   } catch (e) {
     throw new Error(`failed to render HTML template - ${path}`, { cause: e });
   }

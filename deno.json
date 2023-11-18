@@ -6,5 +6,8 @@
     "gray-matter": "npm:gray-matter@4.0.3",
     "marked": "npm:marked@9.1.5",
     "deno_dom": "https://deno.land/x/deno_dom@v0.1.43/deno-dom-wasm.ts"
+    "postcss": "npm:postcss@8.4.31",
+    "autoprefixer": "npm:autoprefixer@10.4.16",
+    "tailwindcss": "npm:tailwindcss@3.3.5"
   }
 }

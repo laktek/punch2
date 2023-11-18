@@ -94,8 +94,13 @@ export async function findResource(
   const resourceDirPath = join(srcPath, resourceDir);
   const base = basename(route, ext);
 
+  let fullPath = join(resourceDirPath, route);
+  // TODO: add a test
+  if (route.startsWith("/" + resourceDir)) {
+    fullPath = join(srcPath, route);
+  }
+
   // check if there's an explicit match
-  const fullPath = join(resourceDirPath, route);
   if (await exists(fullPath, { isFile: true, isReadable: true })) {
     return { path: fullPath, resourceType };
   }

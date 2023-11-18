@@ -60,7 +60,7 @@ export async function build(opts: BuildOpts): Promise<boolean> {
   const renderedPages = [];
   const assetMap = new AssetMap(config, renderer);
 
-  routes.forEach(async (route) => {
+  await Promise.all(routes.map(async (route) => {
     const output = await renderer.render(route);
     if (output.errorStatus) {
       console.error(`${output.errorMessage} (${output.errorStatus})`);
@@ -68,7 +68,7 @@ export async function build(opts: BuildOpts): Promise<boolean> {
       const outputPath = join(destPath, output.route);
       renderedPages.push(output);
 
-      assetMap.track(output.route, output.content?.assets);
+      assetMap.track(output.route, output.content);
 
       await Deno.mkdir(dirname(outputPath), { recursive: true });
       await Deno.writeTextFile(
@@ -76,7 +76,7 @@ export async function build(opts: BuildOpts): Promise<boolean> {
         output.content!.toString(),
       );
     }
-  });
+  }));
 
   await assetMap.render();
 

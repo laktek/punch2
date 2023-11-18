@@ -1,9 +1,14 @@
-import { assert, assertEquals, assertRejects } from "std/testing/asserts.ts";
+import {
+  assert,
+  assertArrayIncludes,
+  assertEquals,
+} from "std/testing/asserts.ts";
 
 import { getConfig } from "../config/config.ts";
 import { AssetMap } from "./assets.ts";
 import { Renderer } from "./render.ts";
 import { Contents } from "./contents.ts";
+import { RenderableDocument } from "../utils/dom.ts";
 
 Deno.test("AssetMap.track", async (t) => {
   const config = await getConfig();
@@ -16,10 +21,19 @@ Deno.test("AssetMap.track", async (t) => {
   };
   const renderer = await Renderer.init(context);
 
-  await t.step("no assets provided", async () => {
+  await t.step("no content provided", async () => {
     const assetMap = new AssetMap(config, renderer);
 
-    assetMap.track("/index.html");
+    assetMap.track("/index.html", undefined);
+
+    assert([...assetMap.assets.keys()].length === 0);
+  });
+
+  await t.step("content has no assets", async () => {
+    const assetMap = new AssetMap(config, renderer);
+
+    const content = new RenderableDocument("");
+    assetMap.track("/index.html", content);
 
     assert([...assetMap.assets.keys()].length === 0);
   });
@@ -27,18 +41,14 @@ Deno.test("AssetMap.track", async (t) => {
   await t.step("tracks only local JS and CSS assets", async () => {
     const assetMap = new AssetMap(config, renderer);
 
-    assetMap.track("/index.html", {
-      "js": [
-        "https://cdn.com/utils.js",
-        "/js/main.ts",
-      ],
-      "css": [
-        "https://cdn.com/utils.css",
-        "/css/main.css",
-      ],
-    });
+    const content = new RenderableDocument(
+      `<html><head><link rel='stylesheet' href='/css/main.css'/><link rel='stylesheet' href='https://cdn.com/utils.css'/><script src='/js/main.ts'/><script src='https://cnd.com/utils.ts'/></head>`,
+    );
+    assetMap.track("/index.html", content);
 
     assertEquals([...assetMap.assets.keys()], ["/js/main.ts", "/css/main.css"]);
+    assertEquals(assetMap.assets.get("/css/main.css")!.assetType, "css");
+    assertEquals(assetMap.assets.get("/js/main.ts")!.assetType, "js");
   });
 
   await t.step("should not add duplicate entries", async () => {
@@ -46,29 +56,23 @@ Deno.test("AssetMap.track", async (t) => {
 
     assetMap.assets.set("/js/main.ts", {
       assetType: "js",
-      used_by: ["/index.html"],
+      usedBy: [new RenderableDocument("")],
     });
 
     assetMap.assets.set("/css/main.css", {
       assetType: "css",
-      used_by: ["/index.html"],
+      usedBy: [new RenderableDocument("")],
     });
 
-    assetMap.track("/foo/bar.html", {
-      "js": [
-        "https://cdn.com/utils.js",
-        "/js/main.ts",
-      ],
-      "css": [
-        "https://cdn.com/utils.css",
-        "/css/main.css",
-      ],
-    });
+    const content = new RenderableDocument(
+      `<html><head><link rel='stylesheet' href='/css/main.css'/><script src='/js/main.ts'/></head>`,
+    );
+    assetMap.track("/foo/bar.html", content);
 
     assert([...assetMap.assets.keys()].length === 2);
-    assertEquals(assetMap.assets.get("/js/main.ts")!.used_by, [
-      "/index.html",
-      "/foo/bar.html",
+    assertArrayIncludes(assetMap.assets.get("/css/main.css")!.usedBy, [
+      content,
     ]);
+    assertArrayIncludes(assetMap.assets.get("/js/main.ts")!.usedBy, [content]);
   });
 });
