@@ -70,7 +70,7 @@ export async function findResource(
   if (ext === ".css") {
     resourceDir = config.dirs!.css!;
     resourceType = ResourceType.CSS;
-  } else if (ext === ".js") {
+  } else if ([".js", ".jsx", ".ts", ".tsx"].includes(ext)) {
     resourceDir = config.dirs!.js!;
     resourceType = ResourceType.JS;
   } else if (ext === ".svg") {

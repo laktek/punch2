@@ -4,8 +4,8 @@ import {
   assertEquals,
 } from "std/testing/asserts.ts";
 
+import { AssetMap } from "./asset_map.ts";
 import { getConfig } from "../config/config.ts";
-import { AssetMap } from "./assets.ts";
 import { Renderer } from "./render.ts";
 import { Contents } from "./contents.ts";
 import { RenderableDocument } from "../utils/dom.ts";

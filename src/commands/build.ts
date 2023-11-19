@@ -3,7 +3,7 @@ import { dirname, join } from "std/path/mod.ts";
 import { getConfig } from "../config/config.ts";
 import { Contents } from "../lib/contents.ts";
 import { Renderer } from "../lib/render.ts";
-import { AssetMap } from "../lib/assets.ts";
+import { AssetMap } from "../lib/asset_map.ts";
 import { normalizeRoutes, routesFromPages } from "../utils/routes.ts";
 import { copyPublicFiles } from "../utils/public.ts";
 
@@ -67,7 +67,7 @@ export async function build(opts: BuildOpts): Promise<boolean> {
       const outputPath = join(destPath, output.route);
       renderedPages.push(output);
 
-      assetMap.track(output.route, output.content);
+      assetMap.track(output.content);
 
       await Deno.mkdir(dirname(outputPath), { recursive: true });
       await Deno.writeTextFile(
@@ -77,11 +77,9 @@ export async function build(opts: BuildOpts): Promise<boolean> {
     }
   }));
 
-  await assetMap.render();
+  await assetMap.render(destPath);
 
   // update rendered pages with rendered asset paths
-
-  // write rendered pages and assets to the disk
 
   return true;
 }

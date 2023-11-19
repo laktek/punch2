@@ -146,6 +146,18 @@ Deno.test("findResource", async (t) => {
       join(srcPath, "js", "module.js"),
       "export default foo = 'foo'",
     );
+    await Deno.writeTextFile(
+      join(srcPath, "js", "module.ts"),
+      "export default foo = 'foo'",
+    );
+    await Deno.writeTextFile(
+      join(srcPath, "js", "module.jsx"),
+      "<div>{test}</div>",
+    );
+    await Deno.writeTextFile(
+      join(srcPath, "js", "module.tsx"),
+      "<div>{test}</div>",
+    );
 
     const config = {
       dirs: {
@@ -158,6 +170,27 @@ Deno.test("findResource", async (t) => {
       {
         resourceType: ResourceType.JS,
         path: join(srcPath, "js", "module.js"),
+      },
+    );
+    assertEquals(
+      await findResource(srcPath, config, "/module.ts"),
+      {
+        resourceType: ResourceType.JS,
+        path: join(srcPath, "js", "module.ts"),
+      },
+    );
+    assertEquals(
+      await findResource(srcPath, config, "/module.jsx"),
+      {
+        resourceType: ResourceType.JS,
+        path: join(srcPath, "js", "module.jsx"),
+      },
+    );
+    assertEquals(
+      await findResource(srcPath, config, "/module.tsx"),
+      {
+        resourceType: ResourceType.JS,
+        path: join(srcPath, "js", "module.tsx"),
       },
     );
     assertEquals(

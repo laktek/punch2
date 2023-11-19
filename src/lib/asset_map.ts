@@ -1,22 +1,12 @@
+import { dirname, join } from "std/path/mod.ts";
+
 import { Config } from "../config/config.ts";
 import { Renderer } from "./render.ts";
 import { RenderableDocument } from "../utils/dom.ts";
-
-export type AssetType = "js" | "css";
-
-export interface AssetRecord {
-  assetType: AssetType;
-  content?: string | RenderableDocument | undefined;
-  hash?: string;
-  usedBy: RenderableDocument[];
-}
-
-function generateHash(content: string): string {
-  return content;
-}
+import { Asset } from "../utils/asset.ts";
 
 export class AssetMap {
-  assets: Map<string, AssetRecord>;
+  assets: Map<string, Asset>;
   #config: Config;
   #renderer: Renderer;
 
@@ -36,8 +26,8 @@ export class AssetMap {
       if (!v.startsWith(`/${this.#config.dirs!.js!}/`)) {
         return;
       }
-      const record: AssetRecord = this.assets.get(v) ??
-        { assetType: "js", usedBy: [] };
+      const record: Asset = this.assets.get(v) ??
+        new Asset({ assetType: "js", usedBy: [] });
       record.usedBy.push(content);
       this.assets.set(v, record);
     });
@@ -47,14 +37,14 @@ export class AssetMap {
       if (!v.startsWith(`/${this.#config.dirs!.css!}/`)) {
         return;
       }
-      const record: AssetRecord = this.assets.get(v) ??
-        { assetType: "css", usedBy: [] };
+      const record: Asset = this.assets.get(v) ??
+        new Asset({ assetType: "css", usedBy: [] });
       record.usedBy.push(content);
       this.assets.set(v, record);
     });
   }
 
-  render() {
+  render(destPath: string, write = true) {
     return Promise.all(
       [...this.assets.entries()].map(async ([route, record]) => {
         const output = await this.#renderer.render(route, {
@@ -66,9 +56,20 @@ export class AssetMap {
         }
 
         const { content } = output;
-        const hash = generateHash(content!.toString());
-        const modifiedRecord = { ...record, content, hash };
-        this.assets.set(route, modifiedRecord);
+        record.content = content;
+
+        // update all used by files with new ref
+
+        // write file
+        const path = join(
+          destPath,
+          route,
+        );
+        await Deno.mkdir(dirname(path), { recursive: true });
+        await Deno.writeTextFile(
+          path,
+          record.content!.toString(),
+        );
       }),
     );
   }

@@ -28,6 +28,12 @@
 Future releases:
 * Image optimizations
 
+### TODO
+
+* Support rendering RSS and JSON
+* Support for tsconfig
+* Support for tailwind config
+
 ### What you can build with Punch?
 
 * Marketing sites

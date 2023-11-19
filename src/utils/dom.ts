@@ -1,6 +1,6 @@
 import { DOMParser, Element, HTMLDocument } from "deno_dom";
 
-import { AssetType } from "../lib/assets.ts";
+import { AssetType } from "./asset.ts";
 
 export class RenderableDocument {
   document: HTMLDocument | null;

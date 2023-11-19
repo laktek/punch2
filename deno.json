@@ -8,6 +8,7 @@
     "deno_dom": "https://deno.land/x/deno_dom@v0.1.43/deno-dom-wasm.ts"
     "postcss": "npm:postcss@8.4.31",
     "autoprefixer": "npm:autoprefixer@10.4.16",
-    "tailwindcss": "npm:tailwindcss@3.3.5"
+    "tailwindcss": "npm:tailwindcss@3.3.5",
+    "esbuild": "npm:esbuild@0.19.5"
   }
 }

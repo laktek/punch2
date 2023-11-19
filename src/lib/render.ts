@@ -6,6 +6,7 @@ import { Config } from "../config/config.ts";
 import { findResource, getRouteParams, ResourceType } from "../utils/routes.ts";
 import { renderHTML } from "../utils/renderers/html.ts";
 import { renderCSS } from "../utils/renderers/css.ts";
+import { renderJS } from "../utils/renderers/js.ts";
 import { RenderableDocument } from "../utils/dom.ts";
 import { getElements } from "../utils/elements.ts";
 
@@ -128,10 +129,11 @@ export class Renderer {
         content,
       };
     } else if (resourceType === ResourceType.JS) {
+      const result = await renderJS(path, join(srcPath, config.dirs!.js!));
       return {
         route,
         contentType: "text/javascript",
-        content: "",
+        content: result.outputFiles[0].text,
       };
     } else {
       return {
