@@ -9,6 +9,6 @@
     "postcss": "npm:postcss@8.4.31",
     "autoprefixer": "npm:autoprefixer@10.4.16",
     "tailwindcss": "npm:tailwindcss@3.3.5",
-    "esbuild": "npm:esbuild@0.19.5"
+    "esbuild": "https://deno.land/x/esbuild@v0.19.5/mod.js"
   }
 }

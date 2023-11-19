@@ -2,11 +2,12 @@ import { dirname, join } from "std/path/mod.ts";
 
 import { getConfig } from "../config/config.ts";
 import { Contents } from "../lib/contents.ts";
-import { Renderer } from "../lib/render.ts";
+import { Output, Renderer } from "../lib/render.ts";
 import { AssetMap } from "../lib/asset_map.ts";
 import { normalizeRoutes, routesFromPages } from "../utils/routes.ts";
 import { copyPublicFiles } from "../utils/public.ts";
 import { writeFile } from "../utils/fs.ts";
+import { RenderableDocument } from "../utils/dom.ts";
 
 interface BuildOpts {
   srcPath: string;
@@ -54,7 +55,7 @@ export async function build(opts: BuildOpts): Promise<boolean> {
   const explicitRoutes = await normalizeRoutes(config.routes!);
   const routes = [...pageRoutes, ...explicitRoutes];
 
-  const renderedPages = [];
+  const renderedPages: Output[] = [];
   const assetMap = new AssetMap(config, renderer);
 
   await Promise.all(routes.map(async (route) => {
@@ -64,7 +65,7 @@ export async function build(opts: BuildOpts): Promise<boolean> {
     } else {
       renderedPages.push(output);
 
-      assetMap.track(output.content);
+      assetMap.track(output.content as RenderableDocument);
     }
   }));
 
