@@ -17,7 +17,7 @@
 * Static and dynamic routing
 * Support for i18n (multi-language sites)
 * Easy A/B testing
-* Complaint with Web Vitals recommendations https://web.dev/articles/vitals
+* Compliant with Web Vitals recommendations https://web.dev/articles/vitals
 * Automatic OG image generation
 * Automatic sitemap generation
 * Speculative Loading API (via headers)
@@ -31,8 +31,9 @@ Future releases:
 ### TODO
 
 * Support rendering RSS and JSON
-* Support for tsconfig
-* Support for tailwind config
+* tsconfig
+* tailwind config
+* Sourcemaps
 
 ### What you can build with Punch?
 

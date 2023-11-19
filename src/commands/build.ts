@@ -6,6 +6,7 @@ import { Renderer } from "../lib/render.ts";
 import { AssetMap } from "../lib/asset_map.ts";
 import { normalizeRoutes, routesFromPages } from "../utils/routes.ts";
 import { copyPublicFiles } from "../utils/public.ts";
+import { writeFile } from "../utils/fs.ts";
 
 interface BuildOpts {
   srcPath: string;
@@ -53,9 +54,6 @@ export async function build(opts: BuildOpts): Promise<boolean> {
   const explicitRoutes = await normalizeRoutes(config.routes!);
   const routes = [...pageRoutes, ...explicitRoutes];
 
-  // TODO: refactor below
-  await Deno.mkdir(destPath, { recursive: true });
-
   const renderedPages = [];
   const assetMap = new AssetMap(config, renderer);
 
@@ -64,22 +62,18 @@ export async function build(opts: BuildOpts): Promise<boolean> {
     if (output.errorStatus) {
       console.error(`${output.errorMessage} (${output.errorStatus})`);
     } else {
-      const outputPath = join(destPath, output.route);
       renderedPages.push(output);
 
       assetMap.track(output.content);
-
-      await Deno.mkdir(dirname(outputPath), { recursive: true });
-      await Deno.writeTextFile(
-        join(destPath, output.route),
-        output.content!.toString(),
-      );
     }
   }));
 
   await assetMap.render(destPath);
 
-  // update rendered pages with rendered asset paths
+  await Promise.all(renderedPages.map(async (page) => {
+    const path = join(destPath, page.route);
+    await writeFile(path, page.content!.toString());
+  }));
 
   return true;
 }

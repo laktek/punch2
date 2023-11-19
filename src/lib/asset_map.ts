@@ -1,9 +1,10 @@
-import { dirname, join } from "std/path/mod.ts";
+import { join } from "std/path/mod.ts";
 
 import { Config } from "../config/config.ts";
 import { Renderer } from "./render.ts";
 import { RenderableDocument } from "../utils/dom.ts";
 import { Asset } from "../utils/asset.ts";
+import { writeFile } from "../utils/fs.ts";
 
 export class AssetMap {
   assets: Map<string, Asset>;
@@ -60,14 +61,11 @@ export class AssetMap {
 
         // update all used by files with new ref
 
-        // write file
-        const path = join(
-          destPath,
-          route,
-        );
-        await Deno.mkdir(dirname(path), { recursive: true });
-        await Deno.writeTextFile(
-          path,
+        await writeFile(
+          join(
+            destPath,
+            route,
+          ),
           record.content!.toString(),
         );
       }),
