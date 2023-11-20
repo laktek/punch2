@@ -97,14 +97,15 @@ export class Renderer {
     }
 
     const { path, resourceType } = resource;
-    if (resourceType === ResourceType.HTML) {
-      contents.setDefaults({
-        route: getRouteParams(
-          route,
-          relative(join(srcPath, config.dirs!.pages!), path),
-        ),
-      });
 
+    contents.setDefaults({
+      route: getRouteParams(
+        route,
+        relative(join(srcPath, config.dirs!.pages!), path),
+      ),
+    });
+
+    if (resourceType === ResourceType.HTML) {
       const content = await renderHTML(this.#handlebarsEnv, path, contents);
 
       // parse rendered HTML
@@ -120,6 +121,20 @@ export class Renderer {
         route: outputRoute,
         contentType: "text/html",
         content: doc,
+      };
+    } else if (resourceType === ResourceType.XML) {
+      const content = await renderHTML(this.#handlebarsEnv, path, contents);
+
+      let outputRoute = route;
+      const ext = extname(route);
+      if (ext === "") {
+        outputRoute = join(route, "index.xml");
+      }
+
+      return {
+        route: outputRoute,
+        contentType: "application/rss+xml",
+        content,
       };
     } else if (resourceType === ResourceType.CSS) {
       const content = await renderCSS(path, opts?.usedBy);

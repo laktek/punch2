@@ -49,6 +49,7 @@ export enum ResourceType {
   JS,
   SVG,
   HTML,
+  XML,
 }
 
 interface Resource {
@@ -67,6 +68,7 @@ export async function findResource(
   let resourceDir = null;
   let resourceType = null;
 
+  // TODO refactor to match dirname (eg: js/main.ts, feeds/)
   if (ext === ".css") {
     resourceDir = config.dirs!.css!;
     resourceType = ResourceType.CSS;
@@ -76,6 +78,9 @@ export async function findResource(
   } else if (ext === ".svg") {
     resourceDir = config.dirs!.images!;
     resourceType = ResourceType.SVG;
+  } else if (ext === ".xml") {
+    resourceDir = config.dirs!.feeds!;
+    resourceType = ResourceType.XML;
   } else if (ext === ".html") {
     // match HTML resource (routes without an extensions are treated as HTML)
     resourceDir = config.dirs!.pages!;
@@ -94,7 +99,7 @@ export async function findResource(
 
   let fullPath = join(resourceDirPath, route);
   // TODO: add a test
-  if (route.startsWith("/" + resourceDir)) {
+  if (route.match(new RegExp(`^(\/*)${resourceDir}`))) {
     fullPath = join(srcPath, route);
   }
 

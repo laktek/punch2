@@ -34,6 +34,8 @@ Future releases:
 * tsconfig
 * tailwind config
 * Sourcemaps
+* handlebars helpers
+  - current date (in multiple formats)
 
 ### What you can build with Punch?
 

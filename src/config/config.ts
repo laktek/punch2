@@ -13,6 +13,7 @@ export interface Config {
     css?: string;
     js?: string;
     images?: string;
+    feeds?: string;
   };
   modifiers?: {
     renderer?: string;
@@ -46,6 +47,7 @@ export async function getConfig(
       css: "css",
       js: "js",
       images: "images",
+      feeds: "feeds",
     },
     routes: [],
   };
