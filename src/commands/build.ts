@@ -58,6 +58,7 @@ export async function build(opts: BuildOpts): Promise<boolean> {
   const renderedPages: Output[] = [];
   const assetMap = new AssetMap(config, renderer);
 
+  performance.mark("render-started");
   await Promise.all(routes.map(async (route) => {
     const output = await renderer.render(route);
     if (output.errorStatus) {
@@ -68,13 +69,29 @@ export async function build(opts: BuildOpts): Promise<boolean> {
       assetMap.track(output.content as RenderableDocument);
     }
   }));
+  performance.mark("render-finished");
+
+  const renderDuration = performance.measure(
+    "render-duration",
+    "render-started",
+    "render-finished",
+  );
+  console.log("render duration", renderDuration.duration);
 
   await assetMap.render(destPath);
 
+  performance.mark("write-started");
   await Promise.all(renderedPages.map(async (page) => {
     const path = join(destPath, page.route);
     await writeFile(path, page.content!.toString());
   }));
+  performance.mark("write-finished");
+  const writeDuration = performance.measure(
+    "write-duration",
+    "write-started",
+    "write-finished",
+  );
+  console.log("write duration", writeDuration.duration);
 
   return true;
 }
