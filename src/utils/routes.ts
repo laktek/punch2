@@ -68,17 +68,18 @@ export async function findResource(
   let resourceDir = null;
   let resourceType = null;
 
-  // TODO refactor to match dirname (eg: js/main.ts, feeds/)
-  if (ext === ".css") {
+  if (route.startsWith("/css") || ext === ".css") {
     resourceDir = config.dirs!.css!;
     resourceType = ResourceType.CSS;
-  } else if ([".js", ".jsx", ".ts", ".tsx"].includes(ext)) {
+  } else if (
+    route.startsWith("/js") || [".js", ".jsx", ".ts", ".tsx"].includes(ext)
+  ) {
     resourceDir = config.dirs!.js!;
     resourceType = ResourceType.JS;
-  } else if (ext === ".svg") {
+  } else if (route.startsWith("/images") && ext === ".svg") {
     resourceDir = config.dirs!.images!;
     resourceType = ResourceType.SVG;
-  } else if (ext === ".xml") {
+  } else if (route.startsWith("/feeds") && ext === ".xml") {
     resourceDir = config.dirs!.feeds!;
     resourceType = ResourceType.XML;
   } else if (ext === ".html") {

@@ -62,7 +62,9 @@ export async function build(opts: BuildOpts): Promise<boolean> {
   await Promise.all(routes.map(async (route) => {
     const output = await renderer.render(route);
     if (output.errorStatus) {
-      console.error(`${output.errorMessage} (${output.errorStatus})`);
+      console.error(
+        `${route} - ${output.errorMessage} (${output.errorStatus})`,
+      );
     } else {
       renderedPages.push(output);
 

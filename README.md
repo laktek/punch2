@@ -30,7 +30,8 @@ Future releases:
 
 ### TODO
 
-* Support rendering RSS and JSON
+* Support rendering RSS [x]
+* Support for rendering JSON
 * tsconfig
 * tailwind config
 * Sourcemaps

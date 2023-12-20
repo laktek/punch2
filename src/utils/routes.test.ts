@@ -128,14 +128,14 @@ Deno.test("findResource", async (t) => {
     };
 
     assertEquals(
-      await findResource(srcPath, config, "/styles.css"),
+      await findResource(srcPath, config, "/css/styles.css"),
       {
         path: join(srcPath, "css", "styles.css"),
         resourceType: ResourceType.CSS,
       },
     );
     assertEquals(
-      await findResource(srcPath, config, "/not-exist.css"),
+      await findResource(srcPath, config, "/css/not-exist.css"),
       null,
     );
   });
@@ -158,6 +158,10 @@ Deno.test("findResource", async (t) => {
       join(srcPath, "js", "module.tsx"),
       "<div>{test}</div>",
     );
+    await Deno.writeTextFile(
+      join(srcPath, "js", "data.json"),
+      "{}",
+    );
 
     const config = {
       dirs: {
@@ -166,35 +170,42 @@ Deno.test("findResource", async (t) => {
     };
 
     assertEquals(
-      await findResource(srcPath, config, "/module.js"),
+      await findResource(srcPath, config, "/js/module.js"),
       {
         resourceType: ResourceType.JS,
         path: join(srcPath, "js", "module.js"),
       },
     );
     assertEquals(
-      await findResource(srcPath, config, "/module.ts"),
+      await findResource(srcPath, config, "/js/module.ts"),
       {
         resourceType: ResourceType.JS,
         path: join(srcPath, "js", "module.ts"),
       },
     );
     assertEquals(
-      await findResource(srcPath, config, "/module.jsx"),
+      await findResource(srcPath, config, "/js/module.jsx"),
       {
         resourceType: ResourceType.JS,
         path: join(srcPath, "js", "module.jsx"),
       },
     );
     assertEquals(
-      await findResource(srcPath, config, "/module.tsx"),
+      await findResource(srcPath, config, "/js/module.tsx"),
       {
         resourceType: ResourceType.JS,
         path: join(srcPath, "js", "module.tsx"),
       },
     );
     assertEquals(
-      await findResource(srcPath, config, "/not-exist.js"),
+      await findResource(srcPath, config, "/js/data.json"),
+      {
+        resourceType: ResourceType.JS,
+        path: join(srcPath, "js", "data.json"),
+      },
+    );
+    assertEquals(
+      await findResource(srcPath, config, "/js/not-exist.js"),
       null,
     );
   });
@@ -213,14 +224,48 @@ Deno.test("findResource", async (t) => {
     };
 
     assertEquals(
-      await findResource(srcPath, config, "/sample.svg"),
+      await findResource(srcPath, config, "/images/sample.svg"),
       {
         resourceType: ResourceType.SVG,
         path: join(srcPath, "images", "sample.svg"),
       },
     );
     assertEquals(
-      await findResource(srcPath, config, "/not-exist.svg"),
+      await findResource(srcPath, config, "/images/not-exist.svg"),
+      null,
+    );
+    assertEquals(
+      await findResource(srcPath, config, "/not-images/sample.svg"),
+      null,
+    );
+  });
+
+  await t.step("find feeds (RSS / JSON)", async () => {
+    await Deno.mkdir(join(srcPath, "feeds"));
+    await Deno.writeTextFile(
+      join(srcPath, "feeds", "index.xml"),
+      "<rss></rss>",
+    );
+
+    const config = {
+      dirs: {
+        feeds: "feeds",
+      },
+    };
+
+    assertEquals(
+      await findResource(srcPath, config, "/feeds/index.xml"),
+      {
+        resourceType: ResourceType.XML,
+        path: join(srcPath, "feeds", "index.xml"),
+      },
+    );
+    assertEquals(
+      await findResource(srcPath, config, "/feeds/not-exist.xml"),
+      null,
+    );
+    assertEquals(
+      await findResource(srcPath, config, "/not-feeds/index.xml"),
       null,
     );
   });
