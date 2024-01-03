@@ -1,4 +1,5 @@
 import { dirname, join } from "std/path/mod.ts";
+import { resolve } from "std/path/mod.ts";
 
 import { getConfig } from "../config/config.ts";
 import { Contents } from "../lib/contents.ts";
@@ -10,16 +11,20 @@ import { writeFile } from "../utils/fs.ts";
 import { RenderableDocument } from "../utils/dom.ts";
 
 interface BuildOpts {
-  srcPath: string;
-  destPath: string;
+  srcPath?: string;
+  destPath?: string;
   configPath?: string;
 }
 
 export async function build(opts: BuildOpts): Promise<boolean> {
-  const { srcPath, destPath, configPath } = opts;
+  const srcPath = resolve(Deno.cwd(), opts.srcPath ?? "");
+  const destPath = resolve(Deno.cwd(), opts.output ?? "dist");
+  const configPath = opts.config
+    ? resolve(Deno.cwd(), opts.config)
+    : join(srcPath, "punch.json");
 
   // read the punch config
-  const config = await getConfig(configPath ?? join(srcPath, "punch.json"));
+  const config = await getConfig(configPath);
 
   // copy public files
   // TODO: run this in a worker

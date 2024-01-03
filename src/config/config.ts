@@ -50,6 +50,7 @@ export async function getConfig(
       feeds: "feeds",
     },
     routes: [],
+    redirects: {},
   };
 
   if (!configPath) {

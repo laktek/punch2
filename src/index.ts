@@ -1,7 +1,7 @@
 import { Command } from "commander";
-import { resolve } from "std/path/mod.ts";
 
 import { build } from "./commands/build.ts";
+import { serve } from "./commands/serve.ts";
 
 const program = new Command();
 
@@ -25,21 +25,32 @@ program.command("dev")
   });
 
 program.command("build")
-  .description("generate a static site suitable for hosting")
-  .argument("[path]", "path of the site to build")
-  .option("--output", "output directory for the built site")
-  .action((path: string, options: any) => {
-    const srcPath = resolve(Deno.cwd(), path);
-    const destPath = resolve(Deno.cwd(), options.out ?? "dist");
-    build({ srcPath, destPath });
+  .description("generate a site suitable for hosting")
+  .argument("[SOURCE]", "path of the site to build")
+  .option("-o, --output <DIR>", "output directory for the built site")
+  .option("-c, --config <PATH>", "path for the config file")
+  .action((path = "", options: any) => {
+    build({ srcPath: path, ...options });
   });
 
 program.command("serve")
   .description(
-    "serves a static site in production mode with server-side rendering",
+    "serves a site in production mode",
   )
-  .action(() => {
-    console.log("not implemented");
+  .argument("[path]", "path of the site to build")
+  .option("-o, --output <DIR>", "output directory for the built site")
+  .option("-c, --config <PATH>", "path for the config file")
+  .option("-p, --port <PORT>", "port to listen on", 8008)
+  .option(
+    "-H, --hostname <HOST>",
+    "hostname of the server",
+    "0.0.0.0",
+  )
+  .option("--no-build", "skip the build step")
+  .option("--no-request-logs", "do not emit request logs")
+  .option("--use-utc", "Use UTC time for request log events")
+  .action((path = "", options: any) => {
+    serve({ srcPath: path, ...options });
   });
 
 program.command("publish")
