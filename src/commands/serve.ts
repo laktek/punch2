@@ -87,7 +87,6 @@ export async function serve(opts: ServeOpts): Deno.HttpServer {
     { port, hostname },
     async (req: Request, info: Deno.ServeHandlerInfo) => {
       // set cache headers for files (based on config)
-      // set cookies
       const { pathname } = new URL(req.url);
       let res;
 

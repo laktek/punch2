@@ -16,22 +16,24 @@
 * SQLite DB of contents available for direct access during build and runtime
 * Static and dynamic routing
 * Support for i18n (multi-language sites)
-* Easy A/B testing
 * Compliant with Web Vitals recommendations https://web.dev/articles/vitals
 * Automatic OG image generation
 * Automatic sitemap generation
-* Speculative Loading API (via headers)
 * Deploy to Vercel, Netlify, GitHub Pages or self-host
 * Single command publish to punch.site
-* Migrate Jekyll, 11ty, Astro, and Hugo sites
 
 Future releases:
 * Image optimizations
+* Font optimizations
+* Speculative Loading API (via headers)
+* Migrate Jekyll, 11ty, Astro, and Hugo sites
+* Easy A/B testing
 
 ### TODO
 
 * Support rendering RSS [x]
 * Support for rendering JSON
+* Add content hashes to css/js/images + set cache immutable headers
 * tsconfig
 * tailwind config
 * Sourcemaps

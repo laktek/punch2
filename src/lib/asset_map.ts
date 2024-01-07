@@ -5,6 +5,7 @@ import { Renderer } from "./render.ts";
 import { RenderableDocument } from "../utils/dom.ts";
 import { Asset } from "../utils/asset.ts";
 import { writeFile } from "../utils/fs.ts";
+import { hashContent } from "../utils/content_hash.ts";
 
 export class AssetMap {
   assets: Map<string, Asset>;
@@ -59,6 +60,9 @@ export class AssetMap {
         const { content } = output;
         record.content = content;
 
+        const contentStr = record.content!.toString();
+        const contentHash = hashContent(contentStr);
+
         // update all used by files with new ref
 
         await writeFile(
@@ -66,7 +70,7 @@ export class AssetMap {
             destPath,
             route,
           ),
-          record.content!.toString(),
+          contentStr,
         );
       }),
     );
