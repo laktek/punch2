@@ -1,4 +1,4 @@
-import { assertEquals } from "std/testing/asserts.ts";
+import { assert, assertEquals } from "std/testing/asserts.ts";
 
 import { RenderableDocument } from "./dom.ts";
 
@@ -105,6 +105,65 @@ Deno.test("getAssets", async (t) => {
           "https://cdn.com/util.css",
         ],
       }, "expected to return external css");
+    },
+  );
+});
+
+Deno.test("updateAssetPaths", async (t) => {
+  await t.step(
+    "updates stylesheets path",
+    () => {
+      const doc = new RenderableDocument(
+        '<html><head><link rel="stylesheet" href="/css/main.css" /><link rel="stylesheet" href="https://cdn.com/util.css" /><link rel="icon" href="favicon.ico" /></head></html>',
+      );
+
+      doc.updateAssetPaths("css", "/css/main.css", "/css/main.123.css");
+      assert(
+        doc.document!.querySelectorAll(
+          'link[rel="stylesheet"][href="/css/main.123.css"]',
+        ).length === 1,
+        "expected to return updated css path",
+      );
+      assert(
+        doc.document!.querySelectorAll(
+          'link[rel="stylesheet"][href="/css/main.css"]',
+        ).length === 0,
+        "expected to not return old css path",
+      );
+      assert(
+        doc.document!.querySelectorAll(
+          'link[rel="stylesheet"][href="https://cdn.com/util.css"]',
+        ).length === 1,
+        "expected to other css paths to not be modified",
+      );
+    },
+  );
+  await t.step(
+    "updates script path",
+    () => {
+      const doc = new RenderableDocument(
+        "<html><body><script>alert('foo')</script><script src='/js/main.js'></script><script src='https://cdn.com/util.js'></script></body></html>",
+      );
+
+      doc.updateAssetPaths("js", "/js/main.js", "/js/main.123.js");
+      assert(
+        doc.document!.querySelectorAll(
+          'script[src="/js/main.123.js"]',
+        ).length === 1,
+        "expected to return updated script path",
+      );
+      assert(
+        doc.document!.querySelectorAll(
+          'script[src="/js/main.js"]',
+        ).length === 0,
+        "expected to not return old script path",
+      );
+      assert(
+        doc.document!.querySelectorAll(
+          'script[src="https://cdn.com/util.js"]',
+        ).length === 1,
+        "expected to other script paths to not be modified",
+      );
     },
   );
 });

@@ -5,7 +5,7 @@ import { Renderer } from "./render.ts";
 import { RenderableDocument } from "../utils/dom.ts";
 import { Asset } from "../utils/asset.ts";
 import { writeFile } from "../utils/fs.ts";
-import { hashContent } from "../utils/content_hash.ts";
+import { hashContent, routeWithContentHash } from "../utils/content_hash.ts";
 
 export class AssetMap {
   assets: Map<string, Asset>;
@@ -28,10 +28,10 @@ export class AssetMap {
       if (!v.startsWith(`/${this.#config.dirs!.js!}/`)) {
         return;
       }
-      const record: Asset = this.assets.get(v) ??
+      const asset: Asset = this.assets.get(v) ??
         new Asset({ assetType: "js", usedBy: [] });
-      record.usedBy.push(content);
-      this.assets.set(v, record);
+      asset.usedBy.push(content);
+      this.assets.set(v, asset);
     });
 
     content.assets.css.forEach((v) => {
@@ -39,18 +39,18 @@ export class AssetMap {
       if (!v.startsWith(`/${this.#config.dirs!.css!}/`)) {
         return;
       }
-      const record: Asset = this.assets.get(v) ??
+      const asset: Asset = this.assets.get(v) ??
         new Asset({ assetType: "css", usedBy: [] });
-      record.usedBy.push(content);
-      this.assets.set(v, record);
+      asset.usedBy.push(content);
+      this.assets.set(v, asset);
     });
   }
 
   render(destPath: string, write = true) {
     return Promise.all(
-      [...this.assets.entries()].map(async ([route, record]) => {
+      [...this.assets.entries()].map(async ([route, asset]) => {
         const output = await this.#renderer.render(route, {
-          usedBy: record.usedBy,
+          usedBy: asset.usedBy,
         });
         if (output.errorStatus) {
           console.error(`${output.errorMessage} - ${output.errorStatus}`);
@@ -58,17 +58,21 @@ export class AssetMap {
         }
 
         const { content } = output;
-        record.content = content;
+        asset.content = content;
 
-        const contentStr = record.content!.toString();
-        const contentHash = hashContent(contentStr);
+        const contentStr = asset.content!.toString();
+        const contentHash = await hashContent(contentStr);
+        const assetPath = routeWithContentHash(route, contentHash);
 
         // update all used by files with new ref
+        asset.usedBy.forEach((doc) =>
+          doc.updateAssetPaths(asset.assetType, route, assetPath)
+        );
 
         await writeFile(
           join(
             destPath,
-            route,
+            assetPath,
           ),
           contentStr,
         );

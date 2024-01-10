@@ -22,6 +22,7 @@ export class RenderableDocument {
     return `<!doctype html>${documentElement}`;
   }
 
+  // TODO: Support images and assets loaded via link preload (audio, video, fonts)
   get assets(): Record<AssetType, string[]> {
     const assets: Record<AssetType, string[]> = {
       js: [],
@@ -41,19 +42,44 @@ export class RenderableDocument {
       }
     });
 
-    const stylesheets = Array.from(this.document.getElementsByTagName("link"));
-    stylesheets.forEach((s: Element) => {
-      const rel = s.getAttribute("rel");
-      if (rel !== "stylesheet") {
-        return;
-      }
-
-      const href = s.getAttribute("href");
+    const stylesheets = this.document.querySelectorAll(
+      "link[rel='stylesheet']",
+    );
+    stylesheets.forEach((s) => {
+      const href = (s as Element).getAttribute("href");
       if (href) {
         assets.css.push(href);
       }
     });
 
     return assets;
+  }
+
+  #updateScriptPaths(oldPath: string, newPath: string) {
+    if (!this.document) {
+      return;
+    }
+    const matches = this.document.querySelectorAll(`script[src="${oldPath}"]`);
+    matches.forEach((match) => (match as Element).setAttribute("src", newPath));
+  }
+
+  #updateStylesheetPaths(oldPath: string, newPath: string) {
+    if (!this.document) {
+      return;
+    }
+    const matches = this.document.querySelectorAll(
+      `link[rel='stylesheet'][href="${oldPath}"]`,
+    );
+    matches.forEach((match) =>
+      (match as Element).setAttribute("href", newPath)
+    );
+  }
+
+  updateAssetPaths(assetType: AssetType, oldPath: string, newPath: string) {
+    if (assetType === "js") {
+      this.#updateScriptPaths(oldPath, newPath);
+    } else if (assetType === "css") {
+      this.#updateStylesheetPaths(oldPath, newPath);
+    }
   }
 }
