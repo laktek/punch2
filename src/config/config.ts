@@ -48,6 +48,8 @@ export async function getConfig(
       js: "js",
       images: "images",
       feeds: "feeds",
+      fonts: "fonts",
+      media: "media", // audio, video, 3d files
     },
     routes: [],
     redirects: {},

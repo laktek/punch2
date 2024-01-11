@@ -2,6 +2,8 @@
 
 ## A fast and simple web site builder
 
+### A Static Site Builder + Headless CMS + Web Server
+
 ### Features
 
 * Blazing fast to build
