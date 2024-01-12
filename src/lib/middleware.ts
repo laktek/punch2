@@ -1,4 +1,10 @@
-type Middleware = (req: Request, next: NextFn) => Promise<Response>;
+import { Config } from "../config/config.ts";
+
+type Middleware = (
+  req: Request,
+  config: Config,
+  next: NextFn,
+) => Promise<Response>;
 export type NextFn = () => Middleware | undefined;
 
 export class MiddlewareChain {
@@ -8,26 +14,26 @@ export class MiddlewareChain {
     this.#chain = [];
   }
 
-  append(...middlewares: Middleware[]) {
-    this.#chain.push(...middlewares);
+  append(...middleware: Middleware[]) {
+    this.#chain.push(...middleware);
   }
 
-  prepend(...middlewares: Middleware[]) {
-    this.#chain.unshift(...middlewares);
+  prepend(...middleware: Middleware[]) {
+    this.#chain.unshift(...middleware);
   }
 
   reset() {
     this.#chain = [];
   }
 
-  async run(req: Request): Promise<Response> {
+  async run(req: Request, config: Config): Promise<Response> {
     const getNext = () => {
       return this.#chain.shift();
     };
 
     const next = getNext();
     if (next) {
-      return await next(req, getNext);
+      return await next(req, config, getNext);
     } else {
       return Response.error();
     }

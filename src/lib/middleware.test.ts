@@ -1,5 +1,6 @@
 import { assert, assertEquals } from "std/testing/asserts.ts";
 
+import { Config, getConfig } from "../config/config.ts";
 import { MiddlewareChain, NextFn } from "./middleware.ts";
 
 Deno.test("MiddlewareChain.run", async (t) => {
@@ -7,11 +8,15 @@ Deno.test("MiddlewareChain.run", async (t) => {
     const chain = new MiddlewareChain();
 
     for (let i = 0; i < 5; i++) {
-      const middleware = async (req: Request, next: NextFn) => {
+      const middleware = async (
+        req: Request,
+        config: Config,
+        getNext: NextFn,
+      ) => {
         req.headers.append("x-middleware", `${i}`);
-        const nextMiddleware = next();
-        if (nextMiddleware) {
-          return nextMiddleware(req, next);
+        const next = getNext();
+        if (next) {
+          return next(req, config, getNext);
         } else {
           return new Response("ok", {
             headers: {
@@ -24,7 +29,8 @@ Deno.test("MiddlewareChain.run", async (t) => {
     }
 
     const req = new Request(new URL("https://example.com"));
-    const res = await chain.run(req);
+    const config = await getConfig();
+    const res = await chain.run(req, config);
 
     const headerVal = res.headers.get("x-middleware");
     assert(

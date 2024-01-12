@@ -4,6 +4,7 @@ import { contentType } from "std/media_types/mod.ts";
 
 import { build } from "./build.ts";
 import { getConfig } from "../config/config.ts";
+import { MiddlewareChain } from "../lib/middleware.ts";
 
 interface ServeOpts {
   srcPath?: string;
@@ -81,6 +82,46 @@ export async function serve(opts: ServeOpts): Deno.HttpServer {
     build(opts);
   }
 
+  const defaultMiddleware = [
+    function redirect(req, config, next) {
+      const { pathname } = new URL(req.url);
+      const redirect = config.redirects[pathname];
+      if (redirect) {
+        return Response.redirect(
+          new URL(redirect.destination, req.url),
+          redirect.permanent ? 301 : 302,
+        );
+      } else {
+        return next()(req, config, next);
+      }
+    },
+    async function serveFile(req, config, next) {
+      const { pathname } = new URL(req.url);
+      const filePath = join(destPath, pathname);
+      const ext = extname(pathname);
+      const contents = await getContents(filePath);
+
+      if (contents) {
+        return new Response(contents, {
+          status: 200,
+          headers: {
+            "content-type": contentType(ext) || "text/html; charset=UTF-8",
+          },
+        });
+      } else {
+        return next()(req, config, next);
+      }
+    },
+    async function notFound(req, config, next) {
+      return new Response(await getPageNotFound(join(destPath, "404.html")), {
+        status: 404,
+        headers: {
+          "content-type": "text/html; charset=UTF-8",
+        },
+      });
+    },
+  ];
+
   const { port, hostname, useUtc } = opts;
 
   Deno.serve(
@@ -88,33 +129,10 @@ export async function serve(opts: ServeOpts): Deno.HttpServer {
     async (req: Request, info: Deno.ServeHandlerInfo) => {
       // set cache headers for files (based on config)
       const { pathname } = new URL(req.url);
-      let res;
 
-      const redirect = config.redirects[pathname];
-      if (redirect) {
-        res = Response.redirect(
-          new URL(redirect.destination, req.url),
-          redirect.permanent ? 301 : 302,
-        );
-      } else {
-        const filePath = join(destPath, pathname);
-        const ext = extname(pathname);
-        const contents = await getContents(filePath);
-
-        res = (contents === undefined)
-          ? new Response(await getPageNotFound(join(destPath, "404.html")), {
-            status: 404,
-            headers: {
-              "content-type": "text/html; charset=UTF-8",
-            },
-          })
-          : new Response(contents, {
-            status: 200,
-            headers: {
-              "content-type": contentType(ext) || "text/html; charset=UTF-8",
-            },
-          });
-      }
+      const middleware = new MiddlewareChain();
+      middleware.append(...defaultMiddleware);
+      const res = await middleware.run(req, config);
 
       // log request
       // TODO: do in a worker
