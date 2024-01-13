@@ -76,5 +76,23 @@ Deno.test("getConfig", async (t) => {
     }, "expected to throw an error");
   });
 
+  await t.step("overriding config", async () => {
+    const configFile = join(configDir, "config.json");
+    await Deno.writeTextFile(
+      configFile,
+      JSON.stringify({ dirs: { public: "custom-public" }, "output": "out" }),
+    );
+
+    const config = await getConfig(configFile, {
+      dirs: { public: "overidden-public" },
+    });
+    assert(
+      config.dirs!.public! === "overidden-public",
+      "override config property didn't match'",
+    );
+    assert(config.output! === "out", "custom config property didn't match");
+    assert(config.dirs!.pages! === "pages", "default property didn't match");
+  });
+
   await Deno.remove(configDir, { recursive: true });
 });

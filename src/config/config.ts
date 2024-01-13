@@ -4,6 +4,8 @@ import { parse as tomlParse } from "std/toml/mod.ts";
 import { deepMerge } from "std/collections/deep_merge.ts";
 
 export interface Config {
+  srcPath?: string;
+  output?: string;
   routes?: string[];
   dirs?: {
     public?: string;
@@ -37,8 +39,11 @@ async function parseConfig(configPath: string): Promise<unknown> {
 
 export async function getConfig(
   configPath?: string,
+  overrides?: Record<PropertyKey, unknown>,
 ): Promise<Config> {
   const defaultConfig = {
+    srcPath: "",
+    output: "dist",
     dirs: {
       public: "public",
       pages: "pages",
@@ -60,7 +65,13 @@ export async function getConfig(
   }
 
   try {
-    const customConfig = await parseConfig(configPath);
+    let customConfig = await parseConfig(configPath);
+    if (overrides) {
+      customConfig = deepMerge(
+        customConfig as Record<PropertyKey, unknown>,
+        overrides,
+      );
+    }
     return deepMerge(
       defaultConfig,
       customConfig as Record<PropertyKey, unknown>,

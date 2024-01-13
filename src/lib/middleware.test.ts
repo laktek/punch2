@@ -13,15 +13,13 @@ Deno.test("MiddlewareChain.run", async (t) => {
       ) => {
         req.headers.append("x-middleware", `${i}`);
         const next = getNext();
-        if (next) {
-          return next(ctx, getNext);
-        } else {
-          return new Response("ok", {
-            headers: {
-              "x-middleware": ctx.request.headers.get("x-middleware") || "",
-            },
-          });
-        }
+        const response = new Response("ok", {
+          headers: {
+            "x-middleware": ctx.request.headers.get("x-middleware") || "",
+          },
+        });
+        const newCtx = { ...ctx, response };
+        return next(newCtx, getNext);
       });
     }
 

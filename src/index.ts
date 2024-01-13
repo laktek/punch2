@@ -46,9 +46,6 @@ program.command("serve")
     "hostname of the server",
     "0.0.0.0",
   )
-  .option("--no-build", "skip the build step")
-  .option("--no-request-logs", "do not emit request logs")
-  .option("--use-utc", "Use UTC time for request log events")
   .action((path = "", options: any) => {
     serve({ srcPath: path, ...options });
   });
