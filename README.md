@@ -41,6 +41,7 @@ Future releases:
 * Sourcemaps
 * handlebars helpers
   - current date (in multiple formats)
+* Publish to npm / deno (so it can be imported for customization)
 
 ### What you can build with Punch?
 

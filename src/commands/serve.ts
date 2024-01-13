@@ -24,6 +24,7 @@ interface ServeOpts {
 // TODO: support TLS options
 export async function serve(opts: ServeOpts): Deno.HttpServer {
   const srcPath = resolve(Deno.cwd(), opts.srcPath ?? "");
+
   // read config file, and get options from it
   const configPath = opts.config
     ? resolve(Deno.cwd(), opts.config)
@@ -32,14 +33,22 @@ export async function serve(opts: ServeOpts): Deno.HttpServer {
   // read the punch config
   let config = await getConfig(configPath, opts);
 
-  const defaultMiddleware = [
-    redirect,
-    serveFile,
-    notFound,
-    addCacheHeaders,
-    addMetaHeaders,
-    logRequest,
-  ];
+  let middleware = [];
+  if (config.modifiers?.middleware) {
+    const { default: middlewareFn } = await import(
+      join(srcPath, config.modifiers?.middleware)
+    );
+    middleware = middlewareFn();
+  } else {
+    middleware = [
+      redirect,
+      serveFile,
+      notFound,
+      addCacheHeaders,
+      addMetaHeaders,
+      logRequest,
+    ];
+  }
 
   const { port, hostname } = opts;
 
@@ -48,9 +57,8 @@ export async function serve(opts: ServeOpts): Deno.HttpServer {
     async (req: Request, info: Deno.ServeHandlerInfo) => {
       const { pathname } = new URL(req.url);
 
-      // TODO: make the middleware configurable
-      const middleware = new MiddlewareChain(...defaultMiddleware);
-      const res = await middleware.run(req, config, info.remoteAddr);
+      const middlewareChain = new MiddlewareChain(...middleware);
+      const res = await middlewareChain.run(req, config, info.remoteAddr);
 
       return res;
     },
