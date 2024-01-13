@@ -1,6 +1,7 @@
 import { extname, join, resolve } from "std/path/mod.ts";
 import { exists } from "std/fs/mod.ts";
 import { contentType } from "std/media_types/mod.ts";
+import { calculate as calculateEtag } from "std/http/mod.ts";
 
 import { build } from "./build.ts";
 import { getConfig } from "../config/config.ts";
@@ -35,6 +36,11 @@ function logRequest(
     res.status,
     res.headers.get("content-length"),
   );
+}
+
+function isAssetPath(pathname) {
+  const assetPaths = ["/js", "/css"];
+  return assetPaths.some((p) => pathname.startsWith(p));
 }
 
 async function getContents(filePath: string): Promise<Uint8Array> {
@@ -83,36 +89,67 @@ export async function serve(opts: ServeOpts): Deno.HttpServer {
   }
 
   const defaultMiddleware = [
-    function redirect(req, config, next) {
-      const { pathname } = new URL(req.url);
+    function redirect(ctx, next) {
+      const { config, request } = ctx;
+      const { pathname } = new URL(request.url);
       const redirect = config.redirects[pathname];
       if (redirect) {
         return Response.redirect(
-          new URL(redirect.destination, req.url),
+          new URL(redirect.destination, request.url),
           redirect.permanent ? 301 : 302,
         );
       } else {
-        return next()(req, config, next);
+        return next()(ctx, next);
       }
     },
-    async function serveFile(req, config, next) {
-      const { pathname } = new URL(req.url);
+    async function serveFile(ctx, next) {
+      const { config, request } = ctx;
+      const { pathname } = new URL(request.url);
       const filePath = join(destPath, pathname);
       const ext = extname(pathname);
       const contents = await getContents(filePath);
 
+      const newCtx = { config, request };
       if (contents) {
-        return new Response(contents, {
+        newCtx.response = new Response(contents, {
           status: 200,
           headers: {
             "content-type": contentType(ext) || "text/html; charset=UTF-8",
           },
         });
-      } else {
-        return next()(req, config, next);
       }
+
+      return next()(newCtx, next);
     },
-    async function notFound(req, config, next) {
+    async function addCacheHeaders(ctx, next) {
+      if (!ctx.response) {
+        return next()(ctx, next);
+      }
+
+      const { request, response } = ctx;
+      const { pathname } = new URL(request.url);
+
+      let cacheHeaderValue = "public,max-age=0,must-revalidate";
+      if (isAssetPath(pathname)) {
+        cacheHeaderValue = "public,max-age=31536000,immutable";
+      }
+      response.headers.set("Cache-Control", cacheHeaderValue);
+
+      // set etag
+      const clonedRes = response.clone();
+      const bodyReader = clonedRes.body.getReader();
+      const { value } = await bodyReader.read();
+      const etag = await calculateEtag(value);
+      response.headers.set("Etag", etag);
+
+      const newCtx = { config, request, response };
+      return next()(newCtx, next);
+    },
+    async function notFound(ctx, next) {
+      if (ctx.response) {
+        return ctx.response;
+      }
+
       return new Response(await getPageNotFound(join(destPath, "404.html")), {
         status: 404,
         headers: {
@@ -130,8 +167,8 @@ export async function serve(opts: ServeOpts): Deno.HttpServer {
       // set cache headers for files (based on config)
       const { pathname } = new URL(req.url);
 
-      const middleware = new MiddlewareChain();
-      middleware.append(...defaultMiddleware);
+      // TODO: make the middleware configurable
+      const middleware = new MiddlewareChain(...defaultMiddleware);
       const res = await middleware.run(req, config);
 
       // log request

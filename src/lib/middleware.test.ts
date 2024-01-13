@@ -1,33 +1,31 @@
 import { assert, assertEquals } from "std/testing/asserts.ts";
 
 import { Config, getConfig } from "../config/config.ts";
-import { MiddlewareChain, NextFn } from "./middleware.ts";
+import { Context, MiddlewareChain, NextFn } from "./middleware.ts";
 
 Deno.test("MiddlewareChain.run", async (t) => {
   await t.step("calls all middleware in chain", async () => {
-    const chain = new MiddlewareChain();
-
+    const middleware = [];
     for (let i = 0; i < 5; i++) {
-      const middleware = async (
-        req: Request,
-        config: Config,
+      middleware.push(async (
+        ctx: Context,
         getNext: NextFn,
       ) => {
         req.headers.append("x-middleware", `${i}`);
         const next = getNext();
         if (next) {
-          return next(req, config, getNext);
+          return next(ctx, getNext);
         } else {
           return new Response("ok", {
             headers: {
-              "x-middleware": req.headers.get("x-middleware") || "",
+              "x-middleware": ctx.request.headers.get("x-middleware") || "",
             },
           });
         }
-      };
-      chain.append(middleware);
+      });
     }
 
+    const chain = new MiddlewareChain(...middleware);
     const req = new Request(new URL("https://example.com"));
     const config = await getConfig();
     const res = await chain.run(req, config);
