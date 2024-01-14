@@ -1,4 +1,6 @@
-export default async function (ctx, next) {
+import { Context, NextFn } from "../lib/middleware.ts";
+
+export default async function (ctx: Context, next: NextFn) {
   if (!ctx.response) {
     return next()(ctx, next);
   }

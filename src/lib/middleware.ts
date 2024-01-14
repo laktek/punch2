@@ -7,7 +7,7 @@ export interface Context {
   remoteAddr?: Deno.NetAddr;
 }
 
-type Middleware = (
+export type Middleware = (
   ctx: Context,
   next: NextFn,
 ) => Promise<Response>;

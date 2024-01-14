@@ -1,7 +1,9 @@
 import { extname, join, resolve } from "std/path/mod.ts";
 import { contentType } from "std/media_types/mod.ts";
 
-async function getContents(filePath: string): Promise<Uint8Array> {
+import { Context, NextFn } from "../lib/middleware.ts";
+
+async function getContents(filePath: string): Promise<Uint8Array | undefined> {
   try {
     return await Deno.readFile(filePath);
   } catch (e) {
@@ -15,9 +17,9 @@ async function getContents(filePath: string): Promise<Uint8Array> {
   }
 }
 
-export default async function (ctx, next) {
+export default async function (ctx: Context, next: NextFn) {
   const { config, request } = ctx;
-  const destPath = resolve(Deno.cwd(), config.output);
+  const destPath = resolve(Deno.cwd(), config.output!);
   const { pathname } = new URL(request.url);
   const filePath = join(destPath, pathname);
   const ext = extname(pathname);

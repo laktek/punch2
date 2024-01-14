@@ -1,21 +1,27 @@
 import { join, resolve } from "std/path/mod.ts";
 
+import { Context, NextFn } from "../lib/middleware.ts";
+
 const defaultPageNotFound =
   `<html><head><title>Page Not Found</title></head><body><h1>Page Not Found</h1></body></html>`;
 
-async function getPageNotFound(filePath: string): Promise<Uint8Array> {
+async function getPageNotFound(
+  filePath: string,
+): Promise<Uint8Array> {
   try {
     return await Deno.readFile(filePath);
   } catch (e) {
-    if (e instanceof Deno.errors.NotFound) {
-      const enc = new TextEncoder();
-      return enc.encode(defaultPageNotFound);
+    // log errors other than file not found
+    if (!(e instanceof Deno.errors.NotFound)) {
+      console.error(e);
     }
+    const enc = new TextEncoder();
+    return enc.encode(defaultPageNotFound);
   }
 }
 
-export default async function (ctx, next) {
-  const destPath = resolve(Deno.cwd(), ctx.config.output);
+export default async function (ctx: Context, next: NextFn) {
+  const destPath = resolve(Deno.cwd(), ctx.config.output!);
   let newCtx = { ...ctx };
   if (!ctx.response) {
     newCtx.response = new Response(

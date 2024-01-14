@@ -40,7 +40,7 @@ program.command("serve")
   .argument("[path]", "path of the site to build")
   .option("-o, --output <DIR>", "output directory for the built site")
   .option("-c, --config <PATH>", "path for the config file")
-  .option("-p, --port <PORT>", "port to listen on", 8008)
+  .option("-p, --port <PORT>", "port to listen on", "8008")
   .option(
     "-H, --hostname <HOST>",
     "hostname of the server",

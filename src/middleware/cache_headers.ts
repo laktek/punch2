@@ -1,11 +1,13 @@
 import { calculate as calculateEtag } from "std/http/mod.ts";
 
-function isAssetPath(pathname) {
+import { Context, NextFn } from "../lib/middleware.ts";
+
+function isAssetPath(pathname: string) {
   const assetPaths = ["/js", "/css"];
   return assetPaths.some((p) => pathname.startsWith(p));
 }
 
-export default async function (ctx, next) {
+export default async function (ctx: Context, next: NextFn) {
   if (!ctx.response) {
     return next()(ctx, next);
   }
@@ -21,10 +23,14 @@ export default async function (ctx, next) {
 
   // set etag
   const clonedRes = response.clone();
-  const bodyReader = clonedRes.body.getReader();
-  const { value } = await bodyReader.read();
-  const etag = await calculateEtag(value);
-  response.headers.set("Etag", etag);
+  if (clonedRes.body) {
+    const bodyReader = clonedRes.body.getReader();
+    const { value } = await bodyReader.read();
+    const etag = await calculateEtag(value || "");
+    if (etag) {
+      response.headers.set("Etag", etag);
+    }
+  }
 
   const newCtx = { ...ctx, response };
   return next()(newCtx, next);

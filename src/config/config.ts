@@ -3,10 +3,16 @@ import { parse as yamlParse } from "std/yaml/mod.ts";
 import { parse as tomlParse } from "std/toml/mod.ts";
 import { deepMerge } from "std/collections/deep_merge.ts";
 
+interface RedirectValue {
+  destination: string;
+  permanent: boolean;
+}
+
 export interface Config {
   srcPath?: string;
   output?: string;
   routes?: string[];
+  redirects?: Record<string, RedirectValue>;
   dirs?: {
     public?: string;
     pages?: string;
@@ -19,6 +25,7 @@ export interface Config {
   };
   modifiers?: {
     renderer?: string;
+    middleware?: string;
   };
 }
 

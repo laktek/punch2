@@ -2,7 +2,7 @@ import { join, resolve } from "std/path/mod.ts";
 
 import { build } from "./build.ts";
 import { getConfig } from "../config/config.ts";
-import { MiddlewareChain } from "../lib/middleware.ts";
+import { Middleware, MiddlewareChain } from "../lib/middleware.ts";
 
 import {
   addCacheHeaders,
@@ -15,14 +15,14 @@ import {
 
 interface ServeOpts {
   srcPath?: string;
-  destPath?: string;
-  configPath?: string;
+  output?: string;
+  config?: string;
   port: number;
   hostname: string;
 }
 
 // TODO: support TLS options
-export async function serve(opts: ServeOpts): Deno.HttpServer {
+export async function serve(opts: ServeOpts): Promise<void> {
   const srcPath = resolve(Deno.cwd(), opts.srcPath ?? "");
 
   // read config file, and get options from it
@@ -31,9 +31,12 @@ export async function serve(opts: ServeOpts): Deno.HttpServer {
     : join(srcPath, "punch.json");
 
   // read the punch config
-  let config = await getConfig(configPath, opts);
+  let config = await getConfig(
+    configPath,
+    opts as any,
+  );
 
-  let middleware = [];
+  let middleware: Middleware[] = [];
   if (config.modifiers?.middleware) {
     const { default: middlewareFn } = await import(
       join(srcPath, config.modifiers?.middleware)

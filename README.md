@@ -33,9 +33,8 @@ Future releases:
 
 ### TODO
 
-* Support rendering RSS [x]
-* Support for rendering JSON
-* Add content hashes to css/js/images + set cache immutable headers
+* Support images / fonts / media with content hash and immutable cache headers
+* Support serving multiple sites
 * tsconfig
 * tailwind config
 * Sourcemaps

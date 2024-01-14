@@ -12,8 +12,8 @@ import { RenderableDocument } from "../utils/dom.ts";
 
 interface BuildOpts {
   srcPath?: string;
-  destPath?: string;
-  configPath?: string;
+  output?: string;
+  config?: string;
 }
 
 export async function build(opts: BuildOpts): Promise<boolean> {
