@@ -8,6 +8,11 @@ interface RedirectValue {
   permanent: boolean;
 }
 
+interface ServeLoggingOpts {
+  disabled: boolean;
+  path: string;
+}
+
 export interface Config {
   srcPath?: string;
   output?: string;
@@ -26,6 +31,10 @@ export interface Config {
   modifiers?: {
     renderer?: string;
     middleware?: string;
+  };
+  serve?: {
+    logging?: ServeLoggingOpts;
+    timestamp?: "utc" | "local";
   };
 }
 

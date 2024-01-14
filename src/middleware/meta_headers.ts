@@ -6,8 +6,10 @@ export default async function (ctx: Context, next: NextFn) {
   }
   const { response } = ctx;
   response.headers.set("Server", "Punch");
-  // TODO: timestamp from config (utc / local)
-  response.headers.set("Date", new Date().toUTCString());
+  const date = ctx.config.serve?.timestamp === "local"
+    ? new Date().toString()
+    : new Date().toUTCString();
+  response.headers.set("Date", date);
 
   const newCtx = { ...ctx, response };
   return next()(ctx, next);
