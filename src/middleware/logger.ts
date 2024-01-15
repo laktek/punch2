@@ -3,7 +3,7 @@ import { join } from "std/path/mod.ts";
 import { Context, NextFn } from "../lib/middleware.ts";
 
 export default async function (ctx: Context, next: NextFn) {
-  const { request, response, config, remoteAddr } = ctx;
+  const { request, response, config, srcPath, remoteAddr } = ctx;
 
   // skip logging
   if (config.serve?.logging?.disabled) {
@@ -24,7 +24,7 @@ export default async function (ctx: Context, next: NextFn) {
 
   const loggerPath = config.serve?.logging?.path;
   if (loggerPath) {
-    await Deno.writeTextFile(join(config.srcPath!, loggerPath), `${event},\n`, {
+    await Deno.writeTextFile(join(srcPath, loggerPath), `${event},\n`, {
       append: true,
     });
   } else {

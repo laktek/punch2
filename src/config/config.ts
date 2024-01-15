@@ -14,7 +14,6 @@ interface ServeLoggingOpts {
 }
 
 export interface Config {
-  srcPath?: string;
   output?: string;
   routes?: string[];
   redirects?: Record<string, RedirectValue>;
@@ -58,7 +57,6 @@ export async function getConfig(
   overrides?: Record<PropertyKey, unknown>,
 ): Promise<Config> {
   const defaultConfig = {
-    srcPath: "",
     output: "dist",
     dirs: {
       public: "public",
@@ -95,6 +93,29 @@ export async function getConfig(
   } catch (e) {
     if ((e instanceof Deno.errors.NotFound)) {
       return defaultConfig;
+    }
+    throw e;
+  }
+}
+
+export interface SiteConfig {
+  srcPath: string;
+  configPath?: string;
+}
+
+export async function getSitesConfig(
+  configPath: string,
+): Promise<Record<string, SiteConfig> | undefined> {
+  try {
+    let config = await parseConfig(configPath) as Record<string, SiteConfig>;
+    return config;
+  } catch (e) {
+    if ((e instanceof Deno.errors.NotFound)) {
+      return {
+        "*": {
+          srcPath: "",
+        },
+      };
     }
     throw e;
   }

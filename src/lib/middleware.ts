@@ -3,6 +3,7 @@ import { Config } from "../config/config.ts";
 export interface Context {
   request: Request;
   response?: Response;
+  srcPath: string;
   config: Config;
   remoteAddr?: Deno.NetAddr;
 }
@@ -22,6 +23,7 @@ export class MiddlewareChain {
 
   async run(
     request: Request,
+    srcPath: string,
     config: Config,
     remoteAddr?: Deno.NetAddr,
   ): Promise<Response> {
@@ -41,6 +43,6 @@ export class MiddlewareChain {
     };
 
     const next = getNext();
-    return await next({ request, config, remoteAddr }, getNext);
+    return await next({ request, srcPath, config, remoteAddr }, getNext);
   }
 }

@@ -25,8 +25,9 @@ Deno.test("MiddlewareChain.run", async (t) => {
 
     const chain = new MiddlewareChain(...middleware);
     const req = new Request(new URL("https://example.com"));
+    const srcPath = "";
     const config = await getConfig();
-    const res = await chain.run(req, config);
+    const res = await chain.run(req, srcPath, config);
 
     const headerVal = res.headers.get("x-middleware");
     assert(

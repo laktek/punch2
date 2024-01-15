@@ -37,17 +37,15 @@ program.command("serve")
   .description(
     "serves a site in production mode",
   )
-  .argument("[path]", "path of the site to build")
-  .option("-o, --output <DIR>", "output directory for the built site")
-  .option("-c, --config <PATH>", "path for the config file")
+  .option("-S, --sites <PATH>", "path for the multi-site config", "sites.json")
   .option("-p, --port <PORT>", "port to listen on", "8008")
   .option(
     "-H, --hostname <HOST>",
     "hostname of the server",
     "0.0.0.0",
   )
-  .action((path = "", options: any) => {
-    serve({ srcPath: path, ...options });
+  .action((options: any) => {
+    serve({ ...options });
   });
 
 program.command("publish")

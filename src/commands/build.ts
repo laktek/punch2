@@ -18,13 +18,11 @@ interface BuildOpts {
 
 export async function build(opts: BuildOpts): Promise<boolean> {
   const srcPath = resolve(Deno.cwd(), opts.srcPath ?? "");
-  const destPath = resolve(Deno.cwd(), opts.output ?? "dist");
-  const configPath = opts.config
-    ? resolve(Deno.cwd(), opts.config)
-    : join(srcPath, "punch.json");
+  const configPath = resolve(srcPath, opts.config ?? "punch.json");
 
   // read the punch config
-  const config = await getConfig(configPath);
+  const config = await getConfig(configPath, opts as any);
+  const destPath = resolve(srcPath, config.output ?? "dist");
 
   // copy public files
   // TODO: run this in a worker

@@ -33,8 +33,12 @@ Future releases:
 
 ### TODO
 
-* Support images / fonts / media with content hash and immutable cache headers
 * Support serving multiple sites
+* Create new site
+* Support images / fonts / media with content hash and immutable cache headers
+* on-demand rendering
+* Content API
+* punch dev
 * tsconfig
 * tailwind config
 * Sourcemaps

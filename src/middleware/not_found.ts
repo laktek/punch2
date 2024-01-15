@@ -21,7 +21,7 @@ async function getPageNotFound(
 }
 
 export default async function (ctx: Context, next: NextFn) {
-  const destPath = resolve(Deno.cwd(), ctx.config.output!);
+  const destPath = resolve(ctx.srcPath, ctx.config.output!);
   let newCtx = { ...ctx };
   if (!ctx.response) {
     newCtx.response = new Response(

@@ -19,7 +19,7 @@ async function getContents(filePath: string): Promise<Uint8Array | undefined> {
 
 export default async function (ctx: Context, next: NextFn) {
   const { config, request } = ctx;
-  const destPath = resolve(Deno.cwd(), config.output!);
+  const destPath = resolve(ctx.srcPath, config.output!);
   const { pathname } = new URL(request.url);
   const filePath = join(destPath, pathname);
   const ext = extname(pathname);
