@@ -44,6 +44,14 @@ program.command("serve")
     "hostname of the server",
     "0.0.0.0",
   )
+  .option(
+    "--cert-path <PATH>",
+    "path for the cert to be used for HTTPS in PEM format",
+  )
+  .option(
+    "--key-path <PATH>",
+    "path for the private key used for HTTPS in PEM format",
+  )
   .action((options: any) => {
     serve({ ...options });
   });

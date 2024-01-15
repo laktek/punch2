@@ -17,7 +17,6 @@
 * Website contents can be stored in different formats and sources (JSON, Markdown, CSV, or external sources like Notion)
 * SQLite DB of contents available for direct access during build and runtime
 * Static and dynamic routing
-* Support for i18n (multi-language sites)
 * Compliant with Web Vitals recommendations https://web.dev/articles/vitals
 * Automatic OG image generation
 * Automatic sitemap generation
@@ -30,10 +29,10 @@ Future releases:
 * Speculative Loading API (via headers)
 * Migrate Jekyll, 11ty, Astro, and Hugo sites
 * Easy A/B testing
+* Support for i18n (multi-language sites)
 
 ### TODO
 
-* Support serving multiple sites
 * Create new site
 * Support images / fonts / media with content hash and immutable cache headers
 * on-demand rendering

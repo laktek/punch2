@@ -61,7 +61,6 @@ async function prepareSite(siteConfig: SiteConfig): Promise<Site> {
   return { srcPath, config, middleware };
 }
 
-// TODO: support TLS options
 export async function serve(opts: ServeOpts): Promise<void> {
   const sitesConfigPath = resolve(Deno.cwd(), opts.sites || "");
 
@@ -76,10 +75,20 @@ export async function serve(opts: ServeOpts): Promise<void> {
     sites.set(hostname, site);
   }
 
-  const { port, hostname } = opts;
+  const { port, hostname, certPath, keyPath } = opts;
+
+  let cert, key;
+  if (certPath && keyPath) {
+    cert = await Deno.readTextFile(
+      resolve(Deno.cwd(), certPath),
+    );
+    key = await Deno.readTextFile(
+      resolve(Deno.cwd(), keyPath),
+    );
+  }
 
   Deno.serve(
-    { port, hostname },
+    { port, hostname, cert, key },
     async (req: Request, info: Deno.ServeHandlerInfo) => {
       const { hostname, pathname } = new URL(req.url);
       const site = sites.get(hostname) || sites.get("*");
