@@ -22,6 +22,8 @@ interface ServeOpts {
   sites?: string;
   port: number;
   hostname: string;
+  certPath: string;
+  keyPath: string;
 }
 
 interface Site {

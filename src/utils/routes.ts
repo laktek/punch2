@@ -135,8 +135,8 @@ function withoutTrailingSlash(p: string): string {
   return p.replace(new RegExp(`[${SEP}]+$`), "");
 }
 
-function withoutLeadingSlash(p: string): string {
-  return p.replace(new RegExp(`^[${SEP}]+`), "");
+function withLeadingSlash(p: string): string {
+  return join("/", p);
 }
 
 async function findClosestTemplate(
@@ -170,6 +170,7 @@ export function getRouteParams(
   route: string,
   tmplPath: string,
 ): unknown {
+  tmplPath = normalizeRoutes([tmplPath])[0];
   const segments = route.split("/").filter((t) => t);
   const tmplName = basename(tmplPath).match(/^_(.+)_.*$/);
   // deno-lint-ignore prefer-const
@@ -177,10 +178,11 @@ export function getRouteParams(
   if (tmplName) {
     tmplVar[tmplName[1]] = relative(common([tmplPath, route]), route);
   }
+  console.log({ tmplVar });
 
   return { path: route, segments, ...tmplVar };
 }
 
 export function normalizeRoutes(routes: string[]): string[] {
-  return routes.map((r) => withoutTrailingSlash(withoutLeadingSlash(r)));
+  return routes.map((r) => withoutTrailingSlash(withLeadingSlash(r)));
 }

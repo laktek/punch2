@@ -409,6 +409,14 @@ Deno.test("Contents.proxy", async (t) => {
       2,
       "expected to return all records for the key",
     );
+
+    contents.insert("bar", [{ "title": "baz" }]);
+    assertEquals(
+      obj.bar.title,
+      "baz",
+      "expected to return single record",
+    );
+
     contents.close();
   });
 });

@@ -418,12 +418,12 @@ Deno.test("getRouteParams", async (t) => {
 
 Deno.test("normalizeRoutes", async (t) => {
   await t.step(
-    "removes leading and trailing slashes",
+    "removes trailing slash and adds a leading slash",
     () => {
       assertEquals(
         normalizeRoutes(["/path/to/foo", "path/to/foo", "path/to/foo/"]),
-        ["path/to/foo", "path/to/foo", "path/to/foo"],
-        "should remove the leading & trailing slashes",
+        ["/path/to/foo", "/path/to/foo", "/path/to/foo"],
+        "should remove the trailing slash and add a leading slash",
       );
     },
   );
