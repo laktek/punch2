@@ -14,7 +14,7 @@ program
 program.command("new")
   .description("create a new site")
   .argument("[path]", "path to create the new site (default: current path)")
-  .option("--template", "URL of the template to use")
+  .option("-f, --force", "overwrite existing files")
   .action((path: string, options: any) => {
     newSite(path, options);
   });

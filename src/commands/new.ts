@@ -1,22 +1,22 @@
 import { join } from "std/path/mod.ts";
 
 interface NewSiteOpts {
-  template: string;
+  force: boolean;
 }
 
 function createDirs(path: string) {
   Deno.mkdirSync(path, { recursive: true });
   Deno.mkdirSync(join(path, "pages", "blog"), { recursive: true });
-  Deno.mkdirSync(join(path, "public"));
+  Deno.mkdirSync(join(path, "public"), { recursive: true });
   Deno.mkdirSync(join(path, "contents", "blog"), { recursive: true });
-  Deno.mkdirSync(join(path, "elements"));
-  Deno.mkdirSync(join(path, "css"));
-  Deno.mkdirSync(join(path, "js"));
-  Deno.mkdirSync(join(path, "images"));
-  Deno.mkdirSync(join(path, "feeds"));
+  Deno.mkdirSync(join(path, "elements"), { recursive: true });
+  Deno.mkdirSync(join(path, "css"), { recursive: true });
+  Deno.mkdirSync(join(path, "js"), { recursive: true });
+  Deno.mkdirSync(join(path, "images"), { recursive: true });
+  Deno.mkdirSync(join(path, "feeds"), { recursive: true });
 }
 
-async function copyTemplates(path: string) {
+async function copyTemplates(path: string, force: boolean) {
   const gitignore = `# default output directory
 dist/
 
@@ -162,69 +162,86 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut odio lacus, sagittis
     redirects: {},
   };
 
+  const writeTextFile = async (p: string, content: string) => {
+    try {
+      await Deno.writeTextFile(
+        p,
+        content,
+        { createNew: !force },
+      );
+    } catch (e) {
+      if (e instanceof Deno.errors.AlreadyExists) {
+        throw new Error(
+          `${p} alrady exists. If you wish to overwrite existing files run the command with --force option.`,
+        );
+        return;
+      } else {
+        throw e;
+      }
+    }
+  };
+
   return Promise.all([
-    Deno.writeTextFile(
+    writeTextFile(
       join(path, ".gitignore"),
       gitignore,
     ),
 
-    Deno.writeTextFile(
+    writeTextFile(
       join(path, "punch.json"),
       JSON.stringify(punchJson, null, "\t"),
     ),
-    Deno.writeTextFile(
+    writeTextFile(
       join(path, "css", "main.css"),
       mainCSS,
     ),
-    Deno.writeTextFile(
+    writeTextFile(
       join(path, "contents", "site.json"),
       JSON.stringify(siteContents, null, "\t"),
     ),
-    Deno.writeTextFile(
+    writeTextFile(
       join(path, "feeds", "rss.xml"),
       feed,
     ),
-    Deno.writeTextFile(
+    writeTextFile(
       join(path, "elements", "head.html"),
       headElement,
     ),
-    Deno.writeTextFile(
+    writeTextFile(
       join(path, "pages", "index.html"),
       indexPage,
     ),
-    Deno.writeTextFile(
+    writeTextFile(
       join(path, "pages", "404.html"),
       notFoundPage,
     ),
-    Deno.writeTextFile(
+    writeTextFile(
       join(path, "pages", "blog", "_slug_.html"),
       blogPage,
     ),
-    Deno.writeTextFile(
+    writeTextFile(
       join(path, "contents", "blog", "hello-world.md"),
       helloWorldPost,
     ),
-    Deno.writeTextFile(
+    writeTextFile(
       join(path, "contents", "blog", "another-post.md"),
       anotherPost,
     ),
   ]);
 }
 
-async function createDefaultSite(path: string) {
-  createDirs(path);
-  await copyTemplates(path);
+async function createDefaultSite(path: string, force: boolean) {
+  try {
+    createDirs(path);
+    await copyTemplates(path, force);
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 export async function newSite(
   path: string,
   opts: NewSiteOpts,
 ): Promise<void> {
-  if (opts.template !== undefined) {
-    console.error(
-      "creating a new site from template is currently not supported",
-    );
-  }
-
-  await createDefaultSite(path);
+  await createDefaultSite(path, opts.force);
 }
