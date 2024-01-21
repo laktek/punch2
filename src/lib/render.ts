@@ -98,15 +98,20 @@ export class Renderer {
 
     const { path, resourceType } = resource;
 
-    contents.setDefaults({
+    const builtins = {
       route: getRouteParams(
         route,
         relative(join(srcPath, config.dirs!.pages!), path),
       ),
-    });
+    };
 
     if (resourceType === ResourceType.HTML) {
-      const content = await renderHTML(this.#handlebarsEnv, path, contents);
+      const content = await renderHTML(
+        this.#handlebarsEnv,
+        path,
+        contents,
+        builtins,
+      );
 
       // parse rendered HTML
       const doc = new RenderableDocument(content);
@@ -123,7 +128,12 @@ export class Renderer {
         content: doc,
       };
     } else if (resourceType === ResourceType.XML) {
-      const content = await renderHTML(this.#handlebarsEnv, path, contents);
+      const content = await renderHTML(
+        this.#handlebarsEnv,
+        path,
+        contents,
+        builtins,
+      );
 
       let outputRoute = route;
       const ext = extname(route);

@@ -379,16 +379,15 @@ Deno.test("Contents.query", async (t) => {
 });
 
 Deno.test("Contents.proxy", async (t) => {
-  await t.step("handles defaults", () => {
+  await t.step("handles temp properties", () => {
     const contents = new Contents();
     contents.insert("foo", [{ "hello": "world" }, { "hello1": "world1" }]);
-    contents.setDefaults({ "bar": "baz" });
-    const obj: any = contents.proxy();
+    const obj: any = contents.proxy({ "bar": "baz" });
 
     assertEquals(
       obj.bar,
       "baz",
-      "expected proxy to match defaults",
+      "expected proxy to match temp properties",
     );
     contents.close();
   });

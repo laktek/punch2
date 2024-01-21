@@ -34,8 +34,6 @@ Future releases:
 ### TODO
 
 * Create new site
-* Route not available in default pages (eg: index)
-  - route slugs are not correctly set
 * Support images / fonts / media with content hash and immutable cache headers
 * on-demand rendering
 * Content API

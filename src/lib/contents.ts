@@ -19,12 +19,10 @@ interface QueryOpts {
 
 export class Contents {
   #db: Database;
-  #defaults: { [key: string]: unknown };
 
   constructor(opts?: ContentOpts) {
     const dbPath = opts?.dbPath ?? ":memory:";
     this.#db = new Database(dbPath);
-    this.#defaults = {};
 
     // create the contents table
     this.#db.exec(`create table if not exists 'contents' (key, records)`);
@@ -157,20 +155,15 @@ export class Contents {
     );
   }
 
-  setDefaults(obj: { [key: string]: unknown }) {
-    this.#defaults = obj;
-  }
-
-  proxy() {
+  proxy(temp?: { [key: string]: unknown }) {
     const query = (prop: string) => this.query(prop);
-    const defaults = (prop: string) => this.#defaults[prop];
 
     return new Proxy({}, {
       getOwnPropertyDescriptor(_target: unknown, prop: string) {
-        // check if the property available in this.#defaults
-        const defValue = defaults(prop);
-        if (defValue) {
-          return { configurable: true, enumerable: true, value: defValue };
+        // check if the property available in temp
+        const tempValue = temp && temp[prop];
+        if (tempValue) {
+          return { configurable: true, enumerable: true, value: tempValue };
         }
 
         const results = query(prop);
@@ -182,9 +175,10 @@ export class Contents {
       },
 
       get(_target: unknown, prop: string) {
-        const defValue = defaults(prop);
-        if (defValue) {
-          return defValue;
+        // check if the property available in temp
+        const tempValue = temp && temp[prop];
+        if (tempValue) {
+          return tempValue;
         }
 
         const results = query(prop);

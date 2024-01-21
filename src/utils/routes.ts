@@ -166,19 +166,19 @@ async function findClosestTemplate(
   }
 }
 
+// TODO: refactor
 export function getRouteParams(
   route: string,
   tmplPath: string,
 ): unknown {
-  tmplPath = normalizeRoutes([tmplPath])[0];
   const segments = route.split("/").filter((t) => t);
-  const tmplName = basename(tmplPath).match(/^_(.+)_.*$/);
+  const tmplPathWithSlash = join("/", tmplPath);
+  const tmplName = basename(tmplPathWithSlash).match(/^_(.+)_.*$/);
   // deno-lint-ignore prefer-const
   let tmplVar: { [key: string]: string } = {};
   if (tmplName) {
-    tmplVar[tmplName[1]] = relative(common([tmplPath, route]), route);
+    tmplVar[tmplName[1]] = relative(common([tmplPathWithSlash, route]), route);
   }
-  console.log({ tmplVar });
 
   return { path: route, segments, ...tmplVar };
 }

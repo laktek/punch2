@@ -16,13 +16,6 @@ function createDirs(path: string) {
   Deno.mkdirSync(join(path, "feeds"));
 }
 
-function createGitIgnore(path: string) {
-  Deno.writeTextFileSync(
-    join(path, ".gitignore"),
-    gitignore,
-  );
-}
-
 async function copyTemplates(path: string) {
   const gitignore = `# default output directory
 dist/
@@ -70,7 +63,7 @@ node_modules/`;
   const blogPage = `<!doctype html>
 <html lang={{ site.language }}>
   {{#with (get_one "blog" slug=route.slug)}}
-    {{> head site=site title=title}}
+    {{> head site=../site title=title}}
 
     <body>
       <h2 class="text-3xl">{{ title }}</h2>
@@ -99,20 +92,6 @@ node_modules/`;
   </body>
 </html>`;
 
-  // hello world blog post
-  const helloWorldPost = `---
-title: "Hello World"
-authors:
-  - name: Lakshan Perera
-    url: https://laktek.com
-publishDate: 2024-01-01T10:00-07:00
-description: "Sample blog post for Punch"
-slug: "hello-world"
-published: true
----
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut odio lacus, sagittis sit amet est ultricies, varius tincidunt neque. Vivamus venenatis magna eget vulputate luctus. Nunc vitae rutrum justo, ut gravida libero.`;
-
   // public/favicon
 
   // images/punch-logo.svg
@@ -123,7 +102,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut odio lacus, sagittis
     <title>{{ site.title }}</title>
     <link>{{ site.url }}</link>
     <description>{{ site.description }}</description>
-    <pubDate>{{ blog.publishDate }}</pubDate>
+    <pubDate>{{ blog.[1].publishDate }}</pubDate>
     <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
     <generator>https://github.com/laktek/punch</generator>
     <language>{{ site.language }}</language>
@@ -152,10 +131,34 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut odio lacus, sagittis
     language: "en-US",
   };
 
+  // hello world blog post
+  const helloWorldPost = `---
+title: "Hello World"
+authors:
+  - name: Lakshan Perera
+    url: https://laktek.com
+publishDate: 2024-01-01T10:00-07:00
+description: "Sample blog post for Punch"
+---
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut odio lacus, sagittis sit amet est ultricies, varius tincidunt neque. Vivamus venenatis magna eget vulputate luctus. Nunc vitae rutrum justo, ut gravida libero.`;
+
+  // another blog post
+  const anotherPost = `---
+title: "This is another post"
+authors:
+  - name: Lakshan Perera
+    url: https://laktek.com
+publishDate: 2024-01-21T10:00-07:00
+description: "Another sample blog post for Punch"
+---
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut odio lacus, sagittis sit amet est ultricies, varius tincidunt neque. Vivamus venenatis magna eget vulputate luctus. Nunc vitae rutrum justo, ut gravida libero.`;
+
   // punch.json
   const punchJson = {
     output: "dist",
-    routes: ["/blog/hello-world", "/feeds/rss.xml"],
+    routes: ["/blog/hello-world", "/blog/another-post", "/feeds/rss.xml"],
     redirects: {},
   };
 
@@ -200,6 +203,10 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut odio lacus, sagittis
     Deno.writeTextFile(
       join(path, "contents", "blog", "hello-world.md"),
       helloWorldPost,
+    ),
+    Deno.writeTextFile(
+      join(path, "contents", "blog", "another-post.md"),
+      anotherPost,
     ),
   ]);
 }

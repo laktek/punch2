@@ -405,6 +405,15 @@ Deno.test("getRouteParams", async (t) => {
       );
 
       assertEquals(
+        getRouteParams("/path/to/foo", "path/_slug_.html"),
+        {
+          path: "/path/to/foo",
+          segments: ["path", "to", "foo"],
+          slug: "to/foo",
+        },
+      );
+
+      assertEquals(
         getRouteParams("/path/to/foo", "/path/to/_id_.html"),
         {
           path: "/path/to/foo",
