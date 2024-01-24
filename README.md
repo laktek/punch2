@@ -33,7 +33,6 @@ Future releases:
 
 ### TODO
 
-* Create new site
 * Support images / fonts / media with content hash and immutable cache headers
 * on-demand rendering
 * Content API
