@@ -1,0 +1,9 @@
+{
+	"output": "dist",
+	"routes": [
+		"/blog/hello-world",
+		"/blog/another-post",
+		"/feeds/rss.xml"
+	],
+	"redirects": {}
+}

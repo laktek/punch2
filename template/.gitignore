@@ -1,0 +1,5 @@
+# default output directory
+dist/
+
+# npm dependencies
+node_modules/
