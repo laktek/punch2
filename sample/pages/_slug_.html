@@ -1,9 +1,0 @@
-{{#with (get_one "blog" slug=route.slug)}}
-  {{#> layout title=title }}
-    <h2 class="text-3xl sm:text-xl text-slate dark:text-slate-200">{{ title}}</h2>
-    <div class="text-lg"><a class="underline" href="{{authors.[0].url}}">{{ authors.[0].name}}</a></div>
-    <div>
-      {{ content }}
-    </div>
-  {{/layout}}
-{{/with}}
