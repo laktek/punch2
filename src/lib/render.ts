@@ -7,6 +7,7 @@ import { findResource, getRouteParams, ResourceType } from "../utils/routes.ts";
 import { renderHTML } from "../utils/renderers/html.ts";
 import { renderCSS } from "../utils/renderers/css.ts";
 import { renderJS } from "../utils/renderers/js.ts";
+import { renderImage } from "../utils/renderers/image.ts";
 import { RenderableDocument } from "../utils/dom.ts";
 import { getElements } from "../utils/elements.ts";
 
@@ -18,8 +19,8 @@ export interface Context {
 
 export interface Output {
   route: string;
-  contentType?: string;
-  content?: RenderableDocument | string;
+  content?: RenderableDocument | Uint8Array;
+  hash?: string;
   errorStatus?: number;
   errorMessage?: string;
 }
@@ -105,6 +106,8 @@ export class Renderer {
       ),
     };
 
+    const encoder = new TextEncoder();
+
     if (resourceType === ResourceType.HTML) {
       const content = await renderHTML(
         this.#handlebarsEnv,
@@ -124,7 +127,6 @@ export class Renderer {
 
       return {
         route: outputRoute,
-        contentType: "text/html",
         content: doc,
       };
     } else if (resourceType === ResourceType.XML) {
@@ -143,22 +145,25 @@ export class Renderer {
 
       return {
         route: outputRoute,
-        contentType: "application/rss+xml",
-        content,
+        content: encoder.encode(content),
       };
     } else if (resourceType === ResourceType.CSS) {
       const content = await renderCSS(path, opts?.usedBy);
       return {
         route,
-        contentType: "text/css",
-        content,
+        content: encoder.encode(content),
       };
     } else if (resourceType === ResourceType.JS) {
       const result = await renderJS(path, join(srcPath, config.dirs!.js!));
       return {
         route,
-        contentType: "text/javascript",
-        content: result.outputFiles[0].text,
+        content: encoder.encode(result.outputFiles[0].text),
+      };
+    } else if (resourceType === ResourceType.IMAGE) {
+      const { content } = await renderImage(path);
+      return {
+        route,
+        content,
       };
     } else {
       return {

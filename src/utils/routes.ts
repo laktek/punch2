@@ -47,7 +47,7 @@ export async function routesFromPages(
 export enum ResourceType {
   CSS = 1,
   JS,
-  SVG,
+  IMAGE,
   HTML,
   XML,
 }
@@ -76,9 +76,9 @@ export async function findResource(
   ) {
     resourceDir = config.dirs!.js!;
     resourceType = ResourceType.JS;
-  } else if (route.startsWith("/images") && ext === ".svg") {
+  } else if (route.startsWith("/images")) {
     resourceDir = config.dirs!.images!;
-    resourceType = ResourceType.SVG;
+    resourceType = ResourceType.IMAGE;
   } else if (route.startsWith("/feeds") && ext === ".xml") {
     resourceDir = config.dirs!.feeds!;
     resourceType = ResourceType.XML;

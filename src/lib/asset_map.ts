@@ -24,7 +24,6 @@ export class AssetMap {
     }
 
     content.assets.js.forEach((v) => {
-      // only track assets in js/ directory
       if (!v.startsWith(`/${this.#config.dirs!.js!}/`)) {
         return;
       }
@@ -35,12 +34,22 @@ export class AssetMap {
     });
 
     content.assets.css.forEach((v) => {
-      // only track assets in js/ directory
       if (!v.startsWith(`/${this.#config.dirs!.css!}/`)) {
         return;
       }
       const asset: Asset = this.assets.get(v) ??
         new Asset({ assetType: "css", usedBy: [] });
+      asset.usedBy.push(content);
+      this.assets.set(v, asset);
+    });
+
+    content.assets.image.forEach((v) => {
+      // only track assets in js/ directory
+      if (!v.startsWith(`/${this.#config.dirs!.images!}/`)) {
+        return;
+      }
+      const asset: Asset = this.assets.get(v) ??
+        new Asset({ assetType: "image", usedBy: [] });
       asset.usedBy.push(content);
       this.assets.set(v, asset);
     });
@@ -53,16 +62,16 @@ export class AssetMap {
           usedBy: asset.usedBy,
         });
         if (output.errorStatus) {
-          console.error(`${output.errorMessage} - ${output.errorStatus}`);
+          console.error(
+            `${route} - ${output.errorMessage} (${output.errorStatus})`,
+          );
           return;
         }
 
         const { content } = output;
-        asset.content = content;
 
-        const contentStr = asset.content!.toString();
-        const contentHash = await hashContent(contentStr);
-        const assetPath = routeWithContentHash(route, contentHash);
+        const hash = await hashContent(content! as Uint8Array);
+        const assetPath = routeWithContentHash(route, hash);
 
         // update all used by files with new ref
         asset.usedBy.forEach((doc) =>
@@ -74,7 +83,7 @@ export class AssetMap {
             destPath,
             assetPath,
           ),
-          contentStr,
+          content! as Uint8Array,
         );
       }),
     );

@@ -70,8 +70,9 @@ export async function build(opts: BuildOpts): Promise<boolean> {
       );
     } else {
       renderedPages.push(output);
-
-      assetMap.track(output.content as RenderableDocument);
+      if (output.content instanceof RenderableDocument) {
+        assetMap.track(output.content as RenderableDocument);
+      }
     }
   }));
   performance.mark("render-finished");
@@ -86,9 +87,18 @@ export async function build(opts: BuildOpts): Promise<boolean> {
   await assetMap.render(destPath);
 
   performance.mark("write-started");
+  const textEncoder = new TextEncoder();
   await Promise.all(renderedPages.map(async (page) => {
     const path = join(destPath, page.route);
-    await writeFile(path, page.content!.toString());
+
+    let encoded: Uint8Array;
+    if (page.content instanceof Uint8Array) {
+      encoded = page.content;
+    } else {
+      const contentStr = page.content!.toString();
+      encoded = textEncoder.encode(contentStr);
+    }
+    await writeFile(path, encoded);
   }));
   performance.mark("write-finished");
   const writeDuration = performance.measure(

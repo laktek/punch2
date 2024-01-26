@@ -210,7 +210,7 @@ Deno.test("findResource", async (t) => {
     );
   });
 
-  await t.step("find SVG resources", async () => {
+  await t.step("find image resources", async () => {
     await Deno.mkdir(join(srcPath, "images"));
     await Deno.writeTextFile(
       join(srcPath, "images", "sample.svg"),
@@ -226,7 +226,7 @@ Deno.test("findResource", async (t) => {
     assertEquals(
       await findResource(srcPath, config, "/images/sample.svg"),
       {
-        resourceType: ResourceType.SVG,
+        resourceType: ResourceType.IMAGE,
         path: join(srcPath, "images", "sample.svg"),
       },
     );

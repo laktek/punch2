@@ -56,6 +56,9 @@ Deno.test("getAssets", async (t) => {
       assertEquals(doc.assets, {
         js: [],
         css: [],
+        image: [],
+        audio: [],
+        video: [],
       }, "expected an ampty assets object");
     },
   );
@@ -70,6 +73,9 @@ Deno.test("getAssets", async (t) => {
       assertEquals(doc.assets, {
         js: [],
         css: [],
+        image: [],
+        audio: [],
+        video: [],
       }, "expected inline script to be skipped");
     },
   );
@@ -87,6 +93,9 @@ Deno.test("getAssets", async (t) => {
           "https://cdn.com/util.js",
         ],
         css: [],
+        image: [],
+        audio: [],
+        video: [],
       }, "expected to return external scripts");
     },
   );
@@ -104,7 +113,32 @@ Deno.test("getAssets", async (t) => {
           "/css/main.css",
           "https://cdn.com/util.css",
         ],
+        image: [],
+        audio: [],
+        video: [],
       }, "expected to return external css");
+    },
+  );
+
+  await t.step(
+    "returns images URLs set in src and srcset attributes",
+    () => {
+      const doc = new RenderableDocument(
+        '<html><body><img src="image.png"/><img src="default.png" srcset="small.png 1x, large.png 2x"/></body></html>',
+      );
+
+      assertEquals(doc.assets, {
+        js: [],
+        css: [],
+        image: [
+          "image.png",
+          "default.png",
+          "small.png",
+          "large.png",
+        ],
+        audio: [],
+        video: [],
+      }, "expected to return img sources");
     },
   );
 });
@@ -163,6 +197,39 @@ Deno.test("updateAssetPaths", async (t) => {
           'script[src="https://cdn.com/util.js"]',
         ).length === 1,
         "expected to other script paths to not be modified",
+      );
+    },
+  );
+  await t.step(
+    "updates img path",
+    () => {
+      const doc = new RenderableDocument(
+        '<html><body><img src="image.png"/><img src="/images/default.png" srcset="/images/default.png 1x, /images/large.png 2x"/></body></html>',
+      );
+
+      doc.updateAssetPaths(
+        "image",
+        "/images/default.png",
+        "/images/default.123.png",
+      );
+      assert(
+        doc.document!.querySelectorAll(
+          'img[src="/images/default.123.png"]',
+        ).length === 1,
+        "expected to return updated img path in src",
+      );
+      assertEquals(
+        doc.document!.querySelector(
+          "img[srcset]",
+        )!.getAttribute("srcset"),
+        "/images/default.123.png 1x, /images/large.png 2x",
+        "expected to return updated img path in srcset",
+      );
+      assert(
+        doc.document!.querySelectorAll(
+          'script[src="/images/default.png"]',
+        ).length === 0,
+        "expected to not return old img path",
       );
     },
   );

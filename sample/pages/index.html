@@ -2,6 +2,7 @@
 <div>{{ route.path }}</div>
   {{ about.title }}
 
+  <img src="/images/logo.png" />
   <div>
     <div>
       {{#each (get_all "blog" limit=5 order_by="created_at desc")}}

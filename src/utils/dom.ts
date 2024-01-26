@@ -2,6 +2,23 @@ import { DOMParser, Element, HTMLDocument } from "deno_dom";
 
 import { AssetType } from "./asset.ts";
 
+interface SrcsetItem {
+  url: string;
+  size: string;
+}
+
+function parseSrcset(srcset: string): SrcsetItem[] {
+  const srcs = srcset.split(",");
+  return srcs.map((src) => {
+    const [url, size] = src.trim().split(" ");
+    return { url, size };
+  });
+}
+
+function stringifySrcset(srcset: SrcsetItem[]): string {
+  return srcset.map(({ url, size }) => `${url} ${size}`).join(", ");
+}
+
 export class RenderableDocument {
   document: HTMLDocument | null;
 
@@ -22,11 +39,14 @@ export class RenderableDocument {
     return `<!doctype html>${documentElement}`;
   }
 
-  // TODO: Support images and assets loaded via link preload (audio, video, fonts)
+  // TODO: Support images, picture, and assets loaded via link preload (audio, video, fonts)
   get assets(): Record<AssetType, string[]> {
     const assets: Record<AssetType, string[]> = {
       js: [],
       css: [],
+      image: [],
+      audio: [],
+      video: [],
     };
 
     if (!this.document) {
@@ -52,6 +72,29 @@ export class RenderableDocument {
       }
     });
 
+    // image
+    const images = this.document.querySelectorAll(
+      "img",
+    );
+    images.forEach((i) => {
+      const src = (i as Element).getAttribute("src");
+      if (src) {
+        assets.image.push(src);
+      }
+      const srcset = (i as Element).getAttribute("srcset");
+      if (srcset) {
+        parseSrcset(srcset).forEach(
+          ({ url, size }: { url: string; size: string }) => {
+            assets.image.push(url);
+          },
+        );
+      }
+    });
+
+    // picture
+    // audio
+    // video
+
     return assets;
   }
 
@@ -75,11 +118,43 @@ export class RenderableDocument {
     );
   }
 
+  #updateImagePaths(oldPath: string, newPath: string) {
+    if (!this.document) {
+      return;
+    }
+    const srcMatches = this.document.querySelectorAll(`img[src="${oldPath}"]`);
+    srcMatches.forEach((match) =>
+      (match as Element).setAttribute("src", newPath)
+    );
+
+    const srcsetMatches = this.document.querySelectorAll(
+      `img[srcset*="${oldPath}"]`,
+    );
+    srcsetMatches.forEach((match) => {
+      const srcsetVal = (match as Element).getAttribute("srcset");
+      if (srcsetVal) {
+        const srcSet = parseSrcset(srcsetVal);
+        const updatedSrcset = srcSet.map(({ url, size }): SrcsetItem => {
+          if (url === oldPath) {
+            return { url: newPath, size };
+          }
+          return { url, size };
+        });
+        (match as Element).setAttribute(
+          "srcset",
+          stringifySrcset(updatedSrcset),
+        );
+      }
+    });
+  }
+
   updateAssetPaths(assetType: AssetType, oldPath: string, newPath: string) {
     if (assetType === "js") {
       this.#updateScriptPaths(oldPath, newPath);
     } else if (assetType === "css") {
       this.#updateStylesheetPaths(oldPath, newPath);
+    } else if (assetType === "image") {
+      this.#updateImagePaths(oldPath, newPath);
     }
   }
 }
