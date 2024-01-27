@@ -8,6 +8,7 @@ import { renderHTML } from "../utils/renderers/html.ts";
 import { renderCSS } from "../utils/renderers/css.ts";
 import { renderJS } from "../utils/renderers/js.ts";
 import { renderImage } from "../utils/renderers/image.ts";
+import { renderMedia } from "../utils/renderers/media.ts";
 import { RenderableDocument } from "../utils/dom.ts";
 import { getElements } from "../utils/elements.ts";
 
@@ -161,6 +162,12 @@ export class Renderer {
       };
     } else if (resourceType === ResourceType.IMAGE) {
       const { content } = await renderImage(path);
+      return {
+        route,
+        content,
+      };
+    } else if (resourceType === ResourceType.MEDIA) {
+      const { content } = await renderMedia(path);
       return {
         route,
         content,

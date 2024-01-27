@@ -141,6 +141,48 @@ Deno.test("getAssets", async (t) => {
       }, "expected to return img sources");
     },
   );
+
+  await t.step(
+    "returns audio URLs set in src and source child elements",
+    () => {
+      const doc = new RenderableDocument(
+        '<html><body><audio src="/media/song.wav"> <source src="/media/song.mp3" type="audio/mpeg" /><source src="/media/song.ogg" type="audio/ogg" /></audio></body></html>',
+      );
+
+      assertEquals(doc.assets, {
+        js: [],
+        css: [],
+        image: [],
+        audio: [
+          "/media/song.wav",
+          "/media/song.mp3",
+          "/media/song.ogg",
+        ],
+        video: [],
+      }, "expected to return audio sources");
+    },
+  );
+
+  await t.step(
+    "returns video URLs set in src and source child elements",
+    () => {
+      const doc = new RenderableDocument(
+        '<html><body><video src="/media/flower.mp4"><source src="/media/flower.webm"/><source src="/media/flower.avi"/></video></body></html>',
+      );
+
+      assertEquals(doc.assets, {
+        js: [],
+        css: [],
+        image: [],
+        audio: [],
+        video: [
+          "/media/flower.mp4",
+          "/media/flower.webm",
+          "/media/flower.avi",
+        ],
+      }, "expected to return video sources");
+    },
+  );
 });
 
 Deno.test("updateAssetPaths", async (t) => {
@@ -227,9 +269,73 @@ Deno.test("updateAssetPaths", async (t) => {
       );
       assert(
         doc.document!.querySelectorAll(
-          'script[src="/images/default.png"]',
+          'img[src="/images/default.png"]',
         ).length === 0,
         "expected to not return old img path",
+      );
+    },
+  );
+  await t.step(
+    "updates audio path",
+    () => {
+      const doc = new RenderableDocument(
+        '<html><body><audio src="/media/song.mp3"/><audio><source src="/media/song.mp3" type="audio/mpeg" /><source src="/media/song.ogg" type="audio/ogg" /></audio></body></html>',
+      );
+
+      doc.updateAssetPaths(
+        "audio",
+        "/media/song.mp3",
+        "/media/song.123.mp3",
+      );
+      assert(
+        doc.document!.querySelectorAll(
+          'audio[src="/media/song.123.mp3"]',
+        ).length === 1,
+        "expected to return updated audio path in src",
+      );
+      assert(
+        doc.document!.querySelectorAll(
+          "audio > source[src='/media/song.123.mp3']",
+        ).length === 1,
+        "expected to return updated audio path in source tag",
+      );
+      assert(
+        doc.document!.querySelectorAll(
+          'audio[src="/media/song.mp3"]',
+        ).length === 0,
+        "expected to not return old audio path",
+      );
+    },
+  );
+  await t.step(
+    "updates video path",
+    () => {
+      const doc = new RenderableDocument(
+        '<html><body><video src="/media/flower.mp4"/><video><source src="/media/flower.mp4"/><source src="/media/flower.avi"/></video></body></html>',
+      );
+
+      doc.updateAssetPaths(
+        "video",
+        "/media/flower.mp4",
+        "/media/flower.123.mp4",
+      );
+      assert(
+        doc.document!.querySelectorAll(
+          'video[src="/media/flower.123.mp4"]',
+        ).length === 1,
+        "expected to return updated video path in src",
+      );
+      assert(
+        doc.document!.querySelectorAll(
+          "video > source[src='/media/flower.123.mp4']",
+        ).length === 1,
+        "expected to return updated video path in source tag",
+      );
+      assert(
+        doc.document!.querySelectorAll(
+          'video[src="/media/flower.mp4"]',
+        ).length === 0,
+        "expected to not return old video path",
       );
     },
   );

@@ -44,12 +44,31 @@ export class AssetMap {
     });
 
     content.assets.image.forEach((v) => {
-      // only track assets in js/ directory
       if (!v.startsWith(`/${this.#config.dirs!.images!}/`)) {
         return;
       }
       const asset: Asset = this.assets.get(v) ??
         new Asset({ assetType: "image", usedBy: [] });
+      asset.usedBy.push(content);
+      this.assets.set(v, asset);
+    });
+
+    content.assets.audio.forEach((v) => {
+      if (!v.startsWith(`/${this.#config.dirs!.media!}/`)) {
+        return;
+      }
+      const asset: Asset = this.assets.get(v) ??
+        new Asset({ assetType: "audio", usedBy: [] });
+      asset.usedBy.push(content);
+      this.assets.set(v, asset);
+    });
+
+    content.assets.video.forEach((v) => {
+      if (!v.startsWith(`/${this.#config.dirs!.media!}/`)) {
+        return;
+      }
+      const asset: Asset = this.assets.get(v) ??
+        new Asset({ assetType: "video", usedBy: [] });
       asset.usedBy.push(content);
       this.assets.set(v, asset);
     });

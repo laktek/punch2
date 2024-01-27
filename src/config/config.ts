@@ -26,6 +26,7 @@ export interface Config {
     js?: string;
     images?: string;
     feeds?: string;
+    media?: string;
   };
   modifiers?: {
     renderer?: string;

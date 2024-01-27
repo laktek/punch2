@@ -73,6 +73,7 @@ export class RenderableDocument {
     });
 
     // image
+    // TODO: support <picture>
     const images = this.document.querySelectorAll(
       "img",
     );
@@ -91,9 +92,39 @@ export class RenderableDocument {
       }
     });
 
-    // picture
-    // audio
-    // video
+    const audios = this.document.querySelectorAll(
+      "audio",
+    );
+    audios.forEach((i) => {
+      const src = (i as Element).getAttribute("src");
+      if (src) {
+        assets.audio.push(src);
+      }
+      const srcElements = (i as Element).querySelectorAll("source");
+      srcElements.forEach((se) => {
+        const src = (se as Element).getAttribute("src");
+        if (src) {
+          assets.audio.push(src);
+        }
+      });
+    });
+
+    const videos = this.document.querySelectorAll(
+      "video",
+    );
+    videos.forEach((i) => {
+      const src = (i as Element).getAttribute("src");
+      if (src) {
+        assets.video.push(src);
+      }
+      const srcElements = (i as Element).querySelectorAll("source");
+      srcElements.forEach((se) => {
+        const src = (se as Element).getAttribute("src");
+        if (src) {
+          assets.video.push(src);
+        }
+      });
+    });
 
     return assets;
   }
@@ -148,6 +179,56 @@ export class RenderableDocument {
     });
   }
 
+  #updateAudioPaths(oldPath: string, newPath: string) {
+    if (!this.document) {
+      return;
+    }
+    const srcMatches = this.document.querySelectorAll(
+      `audio[src="${oldPath}"]`,
+    );
+    srcMatches.forEach((match) =>
+      (match as Element).setAttribute("src", newPath)
+    );
+
+    const sourceTagMatches = this.document.querySelectorAll(
+      `audio > source[src="${oldPath}"]`,
+    );
+    sourceTagMatches.forEach((match) => {
+      const srcAttr = (match as Element).getAttribute("src");
+      if (srcAttr) {
+        (match as Element).setAttribute(
+          "src",
+          newPath,
+        );
+      }
+    });
+  }
+
+  #updateVideoPaths(oldPath: string, newPath: string) {
+    if (!this.document) {
+      return;
+    }
+    const srcMatches = this.document.querySelectorAll(
+      `video[src="${oldPath}"]`,
+    );
+    srcMatches.forEach((match) =>
+      (match as Element).setAttribute("src", newPath)
+    );
+
+    const sourceTagMatches = this.document.querySelectorAll(
+      `video > source[src="${oldPath}"]`,
+    );
+    sourceTagMatches.forEach((match) => {
+      const srcAttr = (match as Element).getAttribute("src");
+      if (srcAttr) {
+        (match as Element).setAttribute(
+          "src",
+          newPath,
+        );
+      }
+    });
+  }
+
   updateAssetPaths(assetType: AssetType, oldPath: string, newPath: string) {
     if (assetType === "js") {
       this.#updateScriptPaths(oldPath, newPath);
@@ -155,6 +236,10 @@ export class RenderableDocument {
       this.#updateStylesheetPaths(oldPath, newPath);
     } else if (assetType === "image") {
       this.#updateImagePaths(oldPath, newPath);
+    } else if (assetType === "audio") {
+      this.#updateAudioPaths(oldPath, newPath);
+    } else if (assetType === "video") {
+      this.#updateVideoPaths(oldPath, newPath);
     }
   }
 }

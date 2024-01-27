@@ -38,7 +38,7 @@ Deno.test("AssetMap.track", async (t) => {
     assert([...assetMap.assets.keys()].length === 0);
   });
 
-  await t.step("tracks only local JS and CSS assets", () => {
+  await t.step("tracks only local assets", () => {
     const assetMap = new AssetMap(config, renderer);
 
     const content = new RenderableDocument(
@@ -49,6 +49,8 @@ Deno.test("AssetMap.track", async (t) => {
     assertEquals([...assetMap.assets.keys()], ["/js/main.ts", "/css/main.css"]);
     assertEquals(assetMap.assets.get("/css/main.css")!.assetType, "css");
     assertEquals(assetMap.assets.get("/js/main.ts")!.assetType, "js");
+
+    // TODO: Add tests for image, audio, video
   });
 
   await t.step("should not add duplicate entries", () => {
