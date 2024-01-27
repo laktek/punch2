@@ -3,7 +3,7 @@ import { calculate as calculateEtag } from "std/http/mod.ts";
 import { Context, NextFn } from "../lib/middleware.ts";
 
 function isAssetPath(pathname: string) {
-  const assetPaths = ["/js", "/css"];
+  const assetPaths = ["/js", "/css", "/images", "/media"];
   return assetPaths.some((p) => pathname.startsWith(p));
 }
 
