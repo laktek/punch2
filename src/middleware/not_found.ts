@@ -22,7 +22,7 @@ async function getPageNotFound(
 
 export default async function (ctx: Context, next: NextFn) {
   const destPath = resolve(ctx.srcPath, ctx.config.output!);
-  let newCtx = { ...ctx };
+  const newCtx = { ...ctx };
   if (!ctx.response) {
     newCtx.response = new Response(
       await getPageNotFound(join(destPath, "404.html")),

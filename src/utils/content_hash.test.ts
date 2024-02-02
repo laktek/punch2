@@ -12,7 +12,7 @@ Deno.test("hashContent", async (t) => {
 });
 
 Deno.test("routeWithContentHash", async (t) => {
-  await t.step("when hash is empty return route unmodified", async () => {
+  await t.step("when hash is empty return route unmodified", () => {
     assertEquals(
       routeWithContentHash("/js/main.js", undefined),
       "/js/main.js",
@@ -24,7 +24,7 @@ Deno.test("routeWithContentHash", async (t) => {
       "expected route to not change",
     );
   });
-  await t.step("returns a route with content hash appended", async () => {
+  await t.step("returns a route with content hash appended", () => {
     assertEquals(
       routeWithContentHash("/js/main.js", "abcd1234"),
       "/js/main.abcd1234.js",

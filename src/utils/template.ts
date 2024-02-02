@@ -27,13 +27,17 @@ export const indexPage = `<!doctype html>
   <body>
     <div>
       <h1 class="text-3xl">Welcome to {{ site.title }}</h1>
+      <div>
+        <img src="/images/logo.png" alt="Punch logo" />
+      </div>
       <p>{{ site.description }}</p>
     </div>
     <footer>
       <p>Powered by Punch</p>
     </footer>
   </body>
-</html>`;
+</html>
+`;
 export const blogPage = `<!doctype html>
 <html lang={{ site.language }}>
   {{#with (get_one "blog" slug=route.slug)}}

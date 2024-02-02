@@ -78,6 +78,3 @@ Deno.test("AssetMap.track", async (t) => {
     assertArrayIncludes(assetMap.assets.get("/js/main.ts")!.usedBy, [content]);
   });
 });
-
-Deno.test("AssetMap.render", async (t) => {
-});

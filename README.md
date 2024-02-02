@@ -33,8 +33,10 @@ Future releases:
 
 ### TODO
 
-* Support images / fonts / media with content hash and immutable cache headers
+* refactor URL pattern matching
 * on-demand rendering
+* Opengraph images with Resvg
+* Sitemaps
 * Content API
 * punch dev
 * tsconfig

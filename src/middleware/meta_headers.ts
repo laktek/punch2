@@ -1,6 +1,6 @@
 import { Context, NextFn } from "../lib/middleware.ts";
 
-export default async function (ctx: Context, next: NextFn) {
+export default function (ctx: Context, next: NextFn) {
   if (!ctx.response) {
     return next()(ctx, next);
   }
@@ -11,6 +11,5 @@ export default async function (ctx: Context, next: NextFn) {
     : new Date().toUTCString();
   response.headers.set("Date", date);
 
-  const newCtx = { ...ctx, response };
   return next()(ctx, next);
 }

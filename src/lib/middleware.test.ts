@@ -1,13 +1,13 @@
-import { assert, assertEquals } from "std/testing/asserts.ts";
+import { assert } from "std/testing/asserts.ts";
 
-import { Config, getConfig } from "../config/config.ts";
+import { getConfig } from "../config/config.ts";
 import { Context, MiddlewareChain, NextFn } from "./middleware.ts";
 
 Deno.test("MiddlewareChain.run", async (t) => {
   await t.step("calls all middleware in chain", async () => {
     const middleware = [];
     for (let i = 0; i < 5; i++) {
-      middleware.push(async (
+      middleware.push((
         ctx: Context,
         getNext: NextFn,
       ) => {

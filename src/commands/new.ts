@@ -32,7 +32,7 @@ function createDirs(path: string) {
   Deno.mkdirSync(join(path, "feeds"), { recursive: true });
 }
 
-async function copyTemplates(path: string, force: boolean) {
+function copyTemplates(path: string, force: boolean) {
   // images/punch-logo.svg
 
   const writeTextFile = async (p: string, content: string) => {
@@ -52,7 +52,6 @@ async function copyTemplates(path: string, force: boolean) {
         throw new Error(
           `${p} alrady exists. If you wish to overwrite existing files run the command with --force option.`,
         );
-        return;
       } else {
         throw e;
       }

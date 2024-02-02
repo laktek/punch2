@@ -108,7 +108,7 @@ export async function getSitesConfig(
   configPath: string,
 ): Promise<Record<string, SiteConfig> | undefined> {
   try {
-    let config = await parseConfig(configPath) as Record<string, SiteConfig>;
+    const config = await parseConfig(configPath) as Record<string, SiteConfig>;
     return config;
   } catch (e) {
     if ((e instanceof Deno.errors.NotFound)) {

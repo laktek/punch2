@@ -1,6 +1,6 @@
 import { Context, NextFn } from "../lib/middleware.ts";
 
-export default async function (ctx: Context, next: NextFn): Promise<Response> {
+export default function (ctx: Context, next: NextFn): Promise<Response> {
   const { config, request } = ctx;
   const { pathname } = new URL(request.url);
   const redirect = config.redirects && config.redirects[pathname];

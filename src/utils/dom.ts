@@ -85,7 +85,7 @@ export class RenderableDocument {
       const srcset = (i as Element).getAttribute("srcset");
       if (srcset) {
         parseSrcset(srcset).forEach(
-          ({ url, size }: { url: string; size: string }) => {
+          ({ url }: { url: string; size: string }) => {
             assets.image.push(url);
           },
         );

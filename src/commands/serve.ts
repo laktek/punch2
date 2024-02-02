@@ -1,6 +1,5 @@
 import { join, resolve } from "std/path/mod.ts";
 
-import { build } from "./build.ts";
 import {
   Config,
   getConfig,
@@ -39,7 +38,7 @@ async function prepareSite(siteConfig: SiteConfig): Promise<Site> {
   const configPath = resolve(srcPath, siteConfig.configPath ?? "punch.json");
 
   // read the punch config
-  let config = await getConfig(
+  const config = await getConfig(
     configPath,
   );
 
@@ -92,7 +91,7 @@ export async function serve(opts: ServeOpts): Promise<void> {
   Deno.serve(
     { port, hostname, cert, key },
     async (req: Request, info: Deno.ServeHandlerInfo) => {
-      const { hostname, pathname } = new URL(req.url);
+      const { hostname } = new URL(req.url);
       const site = sites.get(hostname) || sites.get("*");
       if (!site) {
         console.error("no site configured for the domain");

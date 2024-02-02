@@ -97,13 +97,15 @@ export class AssetMap {
           doc.updateAssetPaths(asset.assetType, route, assetPath)
         );
 
-        await writeFile(
-          join(
-            destPath,
-            assetPath,
-          ),
-          content! as Uint8Array,
-        );
+        if (write) {
+          await writeFile(
+            join(
+              destPath,
+              assetPath,
+            ),
+            content! as Uint8Array,
+          );
+        }
       }),
     );
   }

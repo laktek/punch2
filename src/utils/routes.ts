@@ -1,6 +1,5 @@
 import {
   basename,
-  common,
   dirname,
   extname,
   join,
@@ -179,9 +178,12 @@ export function getRouteParams(
   const tmplPathWithSlash = join("/", tmplPath);
   const tmplName = basename(tmplPathWithSlash).match(/^_(.+)_.*$/);
   // deno-lint-ignore prefer-const
-  let tmplVar: { [key: string]: string } = {};
+  let tmplVar: Record<string, string | undefined> = {};
   if (tmplName) {
-    tmplVar[tmplName[1]] = relative(common([tmplPathWithSlash, route]), route);
+    const pattern = new URLPattern({
+      pathname: join(dirname(tmplPathWithSlash), `:${tmplName[1]}(.*)`),
+    });
+    tmplVar = pattern.exec({ pathname: route })?.pathname.groups || {};
   }
 
   return { path: route, segments, ...tmplVar };

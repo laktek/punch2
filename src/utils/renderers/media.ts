@@ -1,5 +1,3 @@
-import { extname } from "std/path/mod.ts";
-
 interface Result {
   content: Uint8Array;
 }

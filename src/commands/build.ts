@@ -1,4 +1,4 @@
-import { dirname, join } from "std/path/mod.ts";
+import { join } from "std/path/mod.ts";
 import { resolve } from "std/path/mod.ts";
 
 import { getConfig } from "../config/config.ts";
