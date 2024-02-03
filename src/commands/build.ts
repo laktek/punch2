@@ -25,7 +25,6 @@ export async function build(opts: BuildOpts): Promise<boolean> {
   const destPath = resolve(srcPath, config.output ?? "dist");
 
   // copy public files
-  // TODO: run this in a worker
   const publicPath = join(srcPath, config.dirs!.public!);
   await copyPublicFiles(publicPath, destPath);
 

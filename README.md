@@ -33,7 +33,6 @@ Future releases:
 
 ### TODO
 
-* refactor URL pattern matching
 * on-demand rendering
 * Opengraph images with Resvg
 * Sitemaps

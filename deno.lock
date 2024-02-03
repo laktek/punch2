@@ -1161,5 +1161,16 @@
     "https://deno.land/x/sqlite3@0.9.1/src/ffi.ts": "b83f6d16179be7a97a298d6e8172941dbf532058e7c2b3df3a708beefe285c90",
     "https://deno.land/x/sqlite3@0.9.1/src/statement.ts": "4773bc8699a9084b93e65126cd5f9219c248de1fce447270bdae2c3630637150",
     "https://deno.land/x/sqlite3@0.9.1/src/util.ts": "3892904eb057271d4072215c3e7ffe57a9e59e4df78ac575046eb278ca6239cd"
+  },
+  "workspace": {
+    "dependencies": [
+      "npm:autoprefixer@10.4.16",
+      "npm:commander@11.1.0",
+      "npm:gray-matter@4.0.3",
+      "npm:handlebars@4.7.8",
+      "npm:marked@9.1.5",
+      "npm:postcss@8.4.31",
+      "npm:tailwindcss@3.3.5"
+    ]
   }
 }

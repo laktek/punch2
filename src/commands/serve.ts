@@ -13,6 +13,7 @@ import {
   addMetaHeaders,
   logRequest,
   notFound,
+  onDemandRender,
   redirect,
   serveFile,
 } from "../middleware/index.ts";
@@ -52,6 +53,7 @@ async function prepareSite(siteConfig: SiteConfig): Promise<Site> {
     middleware = [
       redirect,
       serveFile,
+      onDemandRender,
       notFound,
       addCacheHeaders,
       addMetaHeaders,
