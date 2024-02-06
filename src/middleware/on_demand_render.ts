@@ -2,17 +2,15 @@ import { extname, join, resolve } from "std/path/mod.ts";
 import { contentType } from "std/media_types/mod.ts";
 
 import { Context, NextFn } from "../lib/middleware.ts";
-import { Contents } from "../lib/contents.ts";
 import { Output, Renderer } from "../lib/render.ts";
 
 export default async function (ctx: Context, next: NextFn) {
-  const { srcPath, config, request } = ctx;
+  // if there's already a response, skip on-demand-render
+  if (ctx.response) {
+    return next()(ctx, next);
+  }
 
-  // prepare contents
-  const contentsPath = join(srcPath, config.dirs!.contents!);
-  // TODO: configure path for the DB
-  const contents = new Contents();
-  await contents.prepare(contentsPath);
+  const { srcPath, config, contents, request } = ctx;
 
   // setup renderer
   const renderCtx = {

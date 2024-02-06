@@ -1,10 +1,12 @@
 import { Config } from "../config/config.ts";
+import { Contents } from "./contents.ts";
 
 export interface Context {
   request: Request;
   response?: Response;
   srcPath: string;
   config: Config;
+  contents?: Contents;
   remoteAddr?: Deno.NetAddr;
 }
 
@@ -25,6 +27,7 @@ export class MiddlewareChain {
     request: Request,
     srcPath: string,
     config: Config,
+    contents?: Contents,
     remoteAddr?: Deno.NetAddr,
   ): Promise<Response> {
     const getNext = (): Middleware => {
@@ -43,6 +46,9 @@ export class MiddlewareChain {
     };
 
     const next = getNext();
-    return await next({ request, srcPath, config, remoteAddr }, getNext);
+    return await next(
+      { request, srcPath, config, contents, remoteAddr },
+      getNext,
+    );
   }
 }

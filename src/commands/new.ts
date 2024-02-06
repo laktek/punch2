@@ -10,6 +10,7 @@ import {
   headElement,
   helloWorldPost,
   indexPage,
+  logo,
   mainCSS,
   notFoundPage,
   punchJson,
@@ -66,7 +67,7 @@ function copyTemplates(path: string, force: boolean) {
 
     writeTextFile(
       join(path, "punch.json"),
-      JSON.stringify(punchJson, null, "\t"),
+      punchJson,
     ),
     writeTextFile(
       join(path, "css", "main.css"),
@@ -74,7 +75,7 @@ function copyTemplates(path: string, force: boolean) {
     ),
     writeTextFile(
       join(path, "contents", "site.json"),
-      JSON.stringify(siteContents, null, "\t"),
+      siteContents,
     ),
     writeTextFile(
       join(path, "feeds", "rss.xml"),
@@ -107,6 +108,10 @@ function copyTemplates(path: string, force: boolean) {
     writeFile(
       join(path, "public", "favicon.ico"),
       b64decode(favicon),
+    ),
+    writeFile(
+      join(path, "images", "logo.png"),
+      b64decode(logo),
     ),
   ]);
 }

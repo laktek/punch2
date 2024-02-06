@@ -7,6 +7,7 @@ import {
   SiteConfig,
 } from "../config/config.ts";
 import { Middleware, MiddlewareChain } from "../lib/middleware.ts";
+import { Contents } from "../lib/contents.ts";
 
 import {
   addCacheHeaders,
@@ -29,6 +30,7 @@ interface ServeOpts {
 interface Site {
   srcPath: string;
   config: Config;
+  contents: Contents;
   middleware: Middleware[];
 }
 
@@ -42,6 +44,13 @@ async function prepareSite(siteConfig: SiteConfig): Promise<Site> {
   const config = await getConfig(
     configPath,
   );
+
+  // prepare contents
+  const contentsPath = join(srcPath, config.dirs!.contents!);
+  // TODO: configure path for the DB
+  const contents = new Contents();
+  // TODO: if the `contents` table already exists, skip prepare
+  await contents.prepare(contentsPath);
 
   let middleware: Middleware[] = [];
   if (config.modifiers?.middleware) {
@@ -61,7 +70,7 @@ async function prepareSite(siteConfig: SiteConfig): Promise<Site> {
     ];
   }
 
-  return { srcPath, config, middleware };
+  return { srcPath, config, contents, middleware };
 }
 
 export async function serve(opts: ServeOpts): Promise<void> {
@@ -101,13 +110,14 @@ export async function serve(opts: ServeOpts): Promise<void> {
           status: 500,
         });
       }
-      const { config, srcPath, middleware } = site;
+      const { config, srcPath, contents, middleware } = site;
 
       const middlewareChain = new MiddlewareChain(...middleware);
       const res = await middlewareChain.run(
         req,
         srcPath,
         config,
+        contents,
         info.remoteAddr,
       );
 

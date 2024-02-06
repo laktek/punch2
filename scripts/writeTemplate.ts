@@ -53,8 +53,12 @@ const punchJson = await Deno.readTextFile(
 src += `export const punchJson = \`${punchJson}\`;\n`;
 
 // favicon
-const favicon = await Deno.readFile("template/favicon.ico");
+const favicon = await Deno.readFile("template/public/favicon.ico");
 src += `export const favicon = '${b64encode(favicon)}';\n`;
+
+// logo.png
+const logo = await Deno.readFile("template/images/logo.png");
+src += `export const logo = '${b64encode(logo)}';\n`;
 
 await Deno.writeTextFile("src/utils/template.ts", src);
 console.info("wrote src/utils/template.ts");
