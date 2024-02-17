@@ -9,7 +9,7 @@ const program = new Command();
 program
   .name("punch")
   .description("A fast and simple static site builder")
-  .version("0.0.1");
+  .version("0.0.1-alpha");
 
 program.command("new")
   .description("create a new site")
@@ -36,7 +36,7 @@ program.command("build")
 
 program.command("serve")
   .description(
-    "serves a site in production mode",
+    "serve site(s) in production mode",
   )
   .option("-S, --sites <PATH>", "path for the multi-site config", "sites.json")
   .option("-p, --port <PORT>", "port to listen on", "8008")
@@ -68,6 +68,14 @@ program.command("publish")
 program.command("import")
   .description(
     "import any existing website and converts it to a Punch compatible site",
+  )
+  .action(() => {
+    console.log("not implemented");
+  });
+
+program.command("upgrade")
+  .description(
+    "upgrade Punch to the latest version",
   )
   .action(() => {
     console.log("not implemented");

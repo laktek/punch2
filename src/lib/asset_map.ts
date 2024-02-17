@@ -92,6 +92,8 @@ export class AssetMap {
         const hash = await hashContent(content! as Uint8Array);
         const assetPath = routeWithContentHash(route, hash);
 
+        asset.hash = hash;
+
         // update all used by files with new ref
         asset.usedBy.forEach((doc) =>
           doc.updateAssetPaths(asset.assetType, route, assetPath)

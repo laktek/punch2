@@ -5,6 +5,7 @@ export type AssetType = "js" | "css" | "image" | "audio" | "video";
 export class Asset {
   assetType: AssetType;
   usedBy: RenderableDocument[];
+  hash?: string;
 
   constructor(
     opts: {

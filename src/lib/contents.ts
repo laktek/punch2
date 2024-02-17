@@ -1,13 +1,9 @@
 import { exists, walk } from "std/fs/mod.ts";
-import { Database } from "https://deno.land/x/sqlite3@0.9.1/mod.ts";
+import { Database } from "sqlite";
 import { resolve } from "std/path/mod.ts";
 
 import { commonSkipPaths } from "../utils/paths.ts";
 import { parseDir, parseFile } from "../utils/content_parsers.ts";
-
-export interface ContentOpts {
-  dbPath?: string;
-}
 
 interface QueryOpts {
   count?: boolean;
@@ -20,16 +16,11 @@ interface QueryOpts {
 export class Contents {
   #db: Database;
 
-  constructor(opts?: ContentOpts) {
-    const dbPath = opts?.dbPath ?? ":memory:";
-    this.#db = new Database(dbPath);
+  constructor(db?: Database) {
+    this.#db = db ?? new Database(":memory");
 
     // create the contents table
     this.#db.exec(`create table if not exists 'contents' (key, records)`);
-  }
-
-  close() {
-    this.#db.close();
   }
 
   async prepare(contentsPath: string): Promise<void> {

@@ -8,8 +8,9 @@
     "deno_dom": "https://deno.land/x/deno_dom@v0.1.43/deno-dom-wasm.ts"
     "postcss": "npm:postcss@8.4.31",
     "autoprefixer": "npm:autoprefixer@10.4.16",
-    "tailwindcss": "npm:tailwindcss@3.3.5",
-    "esbuild": "https://deno.land/x/esbuild@v0.19.5/mod.js"
+    "tailwindcss": "npm:tailwindcss@3.4.1",
+    "esbuild": "https://deno.land/x/esbuild@v0.19.5/mod.js",
+    "sqlite": "https://deno.land/x/sqlite3@0.9.1/mod.ts"
   },
   "unstable": ["ffi"]
 }

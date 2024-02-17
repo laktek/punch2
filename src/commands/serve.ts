@@ -1,4 +1,5 @@
 import { join, resolve } from "std/path/mod.ts";
+import { Database } from "sqlite";
 
 import {
   Config,
@@ -8,6 +9,7 @@ import {
 } from "../config/config.ts";
 import { Middleware, MiddlewareChain } from "../lib/middleware.ts";
 import { Contents } from "../lib/contents.ts";
+import { Resources } from "../lib/resources.ts";
 
 import {
   addCacheHeaders,
@@ -47,10 +49,14 @@ async function prepareSite(siteConfig: SiteConfig): Promise<Site> {
 
   // prepare contents
   const contentsPath = join(srcPath, config.dirs!.contents!);
-  // TODO: configure path for the DB
-  const contents = new Contents();
+
+  const db = new Database(resolve(srcPath, config.db ?? "punch.db"));
+
+  const contents = new Contents(db);
   // TODO: if the `contents` table already exists, skip prepare
   await contents.prepare(contentsPath);
+
+  const resources = new Resources(db);
 
   let middleware: Middleware[] = [];
   if (config.modifiers?.middleware) {
@@ -70,7 +76,7 @@ async function prepareSite(siteConfig: SiteConfig): Promise<Site> {
     ];
   }
 
-  return { srcPath, config, contents, middleware };
+  return { srcPath, config, contents, resources, middleware };
 }
 
 export async function serve(opts: ServeOpts): Promise<void> {
@@ -110,7 +116,7 @@ export async function serve(opts: ServeOpts): Promise<void> {
           status: 500,
         });
       }
-      const { config, srcPath, contents, middleware } = site;
+      const { config, srcPath, contents, resources, middleware } = site;
 
       const middlewareChain = new MiddlewareChain(...middleware);
       const res = await middlewareChain.run(
@@ -118,6 +124,7 @@ export async function serve(opts: ServeOpts): Promise<void> {
         srcPath,
         config,
         contents,
+        resources,
         info.remoteAddr,
       );
 

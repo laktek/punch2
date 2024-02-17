@@ -1,8 +1,10 @@
 import { join } from "std/path/mod.ts";
 import { resolve } from "std/path/mod.ts";
+import { Database } from "sqlite";
 
 import { getConfig } from "../config/config.ts";
 import { Contents } from "../lib/contents.ts";
+import { Resources } from "../lib/resources.ts";
 import { Output, Renderer } from "../lib/render.ts";
 import { AssetMap } from "../lib/asset_map.ts";
 import { normalizeRoutes, routesFromPages } from "../utils/routes.ts";
@@ -30,14 +32,18 @@ export async function build(opts: BuildOpts): Promise<boolean> {
 
   // prepare contents
   const contentsPath = join(srcPath, config.dirs!.contents!);
-  // TODO: configure path for the DB
-  const contents = new Contents();
+  const db = new Database(resolve(srcPath, config.db ?? "punch.db"));
+
+  const contents = new Contents(db);
   await contents.prepare(contentsPath);
+
+  const resources = new Resources(db);
 
   const context = {
     srcPath,
     config,
     contents,
+    resources,
   };
 
   // setup renderer
@@ -85,6 +91,7 @@ export async function build(opts: BuildOpts): Promise<boolean> {
 
   await assetMap.render(destPath);
 
+  const resourcesArr = [];
   performance.mark("write-started");
   const textEncoder = new TextEncoder();
   await Promise.all(renderedPages.map(async (page) => {
@@ -98,7 +105,9 @@ export async function build(opts: BuildOpts): Promise<boolean> {
       encoded = textEncoder.encode(contentStr);
     }
     await writeFile(path, encoded);
+    resourcesArr.push({ route: page.route, hash: "", build: "" });
   }));
+
   performance.mark("write-finished");
   const writeDuration = performance.measure(
     "write-duration",
@@ -106,6 +115,19 @@ export async function build(opts: BuildOpts): Promise<boolean> {
     "write-finished",
   );
   console.log("write duration", writeDuration.duration);
+
+  // write resources to DB
+  assetMap.assets.forEach((asset, route) =>
+    resourcesArr.push({
+      route,
+      hash: asset.hash,
+      build: "",
+    })
+  );
+  resources.insertAll(resourcesArr);
+
+  // close DB
+  db.close();
 
   return true;
 }

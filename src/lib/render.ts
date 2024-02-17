@@ -2,6 +2,7 @@ import { extname, join, relative } from "std/path/mod.ts";
 import Handlebars from "handlebars";
 
 import { Contents } from "./contents.ts";
+import { Resources } from "./resources.ts";
 import { Config } from "../config/config.ts";
 import { findResource, getRouteParams, ResourceType } from "../utils/routes.ts";
 import { renderHTML } from "../utils/renderers/html.ts";
@@ -16,6 +17,7 @@ export interface Context {
   srcPath: string;
   config: Config;
   contents: Contents;
+  resources: Resources;
 }
 
 export interface Output {

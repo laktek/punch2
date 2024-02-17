@@ -33,17 +33,23 @@ Future releases:
 
 ### TODO
 
-* on-demand rendering
+* on-demand rendering [~]
+* store generated resources in DB [~]
+* replace scripts/ with deno task
 * Opengraph images with Resvg
 * Sitemaps
 * Content API
 * punch dev
+* immutable builds
+  - serve can choose which build to use
+  - build refs are stored in DB
 * tsconfig
 * tailwind config
 * Sourcemaps
 * handlebars helpers
   - current date (in multiple formats)
 * Publish to npm / deno (so it can be imported for customization)
+* punch upgrade command
 
 ### What you can build with Punch?
 

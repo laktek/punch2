@@ -1,5 +1,6 @@
 import { Config } from "../config/config.ts";
 import { Contents } from "./contents.ts";
+import { Resources } from "./resources.ts";
 
 export interface Context {
   request: Request;
@@ -7,6 +8,7 @@ export interface Context {
   srcPath: string;
   config: Config;
   contents?: Contents;
+  resources?: Resources;
   remoteAddr?: Deno.NetAddr;
 }
 
@@ -28,6 +30,7 @@ export class MiddlewareChain {
     srcPath: string,
     config: Config,
     contents?: Contents,
+    resources?: Resources,
     remoteAddr?: Deno.NetAddr,
   ): Promise<Response> {
     const getNext = (): Middleware => {
@@ -47,7 +50,7 @@ export class MiddlewareChain {
 
     const next = getNext();
     return await next(
-      { request, srcPath, config, contents, remoteAddr },
+      { request, srcPath, config, contents, resources, remoteAddr },
       getNext,
     );
   }

@@ -3,6 +3,9 @@ import { contentType } from "std/media_types/mod.ts";
 
 import { Context, NextFn } from "../lib/middleware.ts";
 import { Output, Renderer } from "../lib/render.ts";
+import { AssetMap } from "../lib/asset_map.ts";
+import { RenderableDocument } from "../utils/dom.ts";
+import { routeWithContentHash } from "../utils/content_hash.ts";
 
 export default async function (ctx: Context, next: NextFn) {
   // if there's already a response, skip on-demand-render
@@ -10,7 +13,7 @@ export default async function (ctx: Context, next: NextFn) {
     return next()(ctx, next);
   }
 
-  const { srcPath, config, contents, request } = ctx;
+  const { srcPath, config, contents, resources, request } = ctx;
 
   // setup renderer
   const renderCtx = {
@@ -39,8 +42,19 @@ export default async function (ctx: Context, next: NextFn) {
       `${pathname} - ${output.errorMessage} (${output.errorStatus})`,
     );
   } else {
-    // TODO: Update asset paths
     // TODO: write rendered output to a file in a worker
+
+    // TODO: refactor use of AssetMap
+    const assetMap = new AssetMap(config, renderer);
+    if (output.content instanceof RenderableDocument) {
+      assetMap.track(output.content as RenderableDocument);
+    }
+
+    assetMap.assets.forEach((asset, route) => {
+      const resource = resources.get(route);
+      const assetPath = routeWithContentHash(route, resource.hash);
+      output.content.updateAssetPaths(asset.assetType, route, assetPath);
+    });
 
     let encoded: Uint8Array;
     if (output.content instanceof Uint8Array) {
@@ -50,7 +64,6 @@ export default async function (ctx: Context, next: NextFn) {
       encoded = (new TextEncoder()).encode(contentStr);
     }
 
-    // TODO: output should provide the content type
     const ext = extname(pathname);
     newCtx.response = new Response(encoded, {
       status: 200,

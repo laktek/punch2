@@ -15,6 +15,7 @@ interface ServeLoggingOpts {
 
 export interface Config {
   output?: string;
+  db?: string;
   routes?: string[];
   redirects?: Record<string, RedirectValue>;
   dirs?: {
@@ -59,6 +60,7 @@ export async function getConfig(
 ): Promise<Config> {
   const defaultConfig = {
     output: "dist",
+    db: "punch.db",
     dirs: {
       public: "public",
       pages: "pages",
