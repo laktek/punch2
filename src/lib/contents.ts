@@ -17,7 +17,7 @@ export class Contents {
   #db: Database;
 
   constructor(db?: Database) {
-    this.#db = db ?? new Database(":memory");
+    this.#db = db ?? new Database(":memory:");
 
     // create the contents table
     this.#db.exec(`create table if not exists 'contents' (key, records)`);

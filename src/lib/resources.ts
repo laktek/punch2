@@ -10,10 +10,10 @@ export class Resources {
   #db: Database;
   #insertStmt: Statement;
 
-  insertAll: (resources: Resource[]) => void;
+  insertAll: (resources: Record<string, string>[]) => void;
 
   constructor(db?: Database) {
-    this.#db = db ?? new Database(":memory");
+    this.#db = db ?? new Database(":memory:");
 
     // create the contents table
     this.#db.exec(
@@ -25,17 +25,19 @@ export class Resources {
       `insert into "resources" (route, hash, build) values(:route, :hash, :build)`,
     );
 
-    this.insertAll = this.#db.transaction((resources: Resource[]) => {
-      for (const resource of resources) {
-        this.#insertStmt.run(resource);
-      }
-    });
+    this.insertAll = this.#db.transaction(
+      (resources: Record<string, string>[]) => {
+        for (const resource of resources) {
+          this.#insertStmt.run(resource);
+        }
+      },
+    );
   }
 
-  get(route: string): Resource {
+  get(route: string) {
     const stmt = this.#db.prepare(
       `select * from resources where route = ? limit 1`,
     );
-    return stmt.get<Resource>(route);
+    return stmt.get(route);
   }
 }

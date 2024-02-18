@@ -12,5 +12,9 @@
     "esbuild": "https://deno.land/x/esbuild@v0.19.5/mod.js",
     "sqlite": "https://deno.land/x/sqlite3@0.9.1/mod.ts"
   },
+  "tasks": {
+    "test": "deno test -A --unstable-ffi ./src"
+    "testdata": "deno run -A scripts/testdata.ts"
+  },
   "unstable": ["ffi"]
 }

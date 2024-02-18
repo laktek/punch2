@@ -8,16 +8,19 @@ import { AssetMap } from "./asset_map.ts";
 import { getConfig } from "../config/config.ts";
 import { Renderer } from "./render.ts";
 import { Contents } from "./contents.ts";
+import { Resources } from "./resources.ts";
 import { RenderableDocument } from "../utils/dom.ts";
 
 Deno.test("AssetMap.track", async (t) => {
   const config = await getConfig();
   const contents = new Contents();
+  const resources = new Resources();
 
   const context = {
     srcPath: "src/path",
     config,
     contents,
+    resources,
   };
   const renderer = await Renderer.init(context);
 
