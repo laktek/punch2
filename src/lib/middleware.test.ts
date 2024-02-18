@@ -2,6 +2,8 @@ import { assert } from "std/testing/asserts.ts";
 
 import { getConfig } from "../config/config.ts";
 import { Context, MiddlewareChain, NextFn } from "./middleware.ts";
+import { Contents } from "./contents.ts";
+import { Resources } from "./resources.ts";
 
 Deno.test("MiddlewareChain.run", async (t) => {
   await t.step("calls all middleware in chain", async () => {
@@ -27,7 +29,9 @@ Deno.test("MiddlewareChain.run", async (t) => {
     const req = new Request(new URL("https://example.com"));
     const srcPath = "";
     const config = await getConfig();
-    const res = await chain.run(req, srcPath, config);
+    const contents = new Contents();
+    const resources = new Resources();
+    const res = await chain.run(req, srcPath, config, contents, resources);
 
     const headerVal = res.headers.get("x-middleware");
     assert(

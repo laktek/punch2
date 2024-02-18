@@ -1,16 +1,16 @@
 import { Database, Statement } from "sqlite";
 
-interface Resource {
+export type Resource = {
   route: string;
   hash: string;
   build: string;
-}
+};
 
 export class Resources {
   #db: Database;
   #insertStmt: Statement;
 
-  insertAll: (resources: Record<string, string>[]) => void;
+  insertAll: (resources: Resource[]) => void;
 
   constructor(db?: Database) {
     this.#db = db ?? new Database(":memory:");
@@ -34,10 +34,10 @@ export class Resources {
     );
   }
 
-  get(route: string) {
+  get(route: string): Resource | undefined {
     const stmt = this.#db.prepare(
       `select * from resources where route = ? limit 1`,
     );
-    return stmt.get(route);
+    return stmt.get<Resource>(route);
   }
 }

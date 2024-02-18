@@ -4,7 +4,7 @@ import { Database } from "sqlite";
 
 import { getConfig } from "../config/config.ts";
 import { Contents } from "../lib/contents.ts";
-import { Resources } from "../lib/resources.ts";
+import { Resource, Resources } from "../lib/resources.ts";
 import { Output, Renderer } from "../lib/render.ts";
 import { AssetMap } from "../lib/asset_map.ts";
 import { normalizeRoutes, routesFromPages } from "../utils/routes.ts";
@@ -91,7 +91,7 @@ export async function build(opts: BuildOpts): Promise<boolean> {
 
   await assetMap.render(destPath);
 
-  const resourcesArr = [];
+  const resourcesArr: Resource[] = [];
   performance.mark("write-started");
   const textEncoder = new TextEncoder();
   await Promise.all(renderedPages.map(async (page) => {
@@ -120,7 +120,7 @@ export async function build(opts: BuildOpts): Promise<boolean> {
   assetMap.assets.forEach((asset, route) =>
     resourcesArr.push({
       route,
-      hash: asset.hash,
+      hash: asset.hash || "",
       build: "",
     })
   );

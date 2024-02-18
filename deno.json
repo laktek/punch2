@@ -13,8 +13,10 @@
     "sqlite": "https://deno.land/x/sqlite3@0.9.1/mod.ts"
   },
   "tasks": {
-    "test": "deno test -A --unstable-ffi ./src"
-    "testdata": "deno run -A scripts/testdata.ts"
+    "test": "deno test -A --unstable-ffi ./src",
+    "testdata": "deno run -A scripts/testdata.ts",
+    "install": "rm -rf ./bin && deno run -A -c deno.json ./scripts/writeTemplate.ts && deno install -A -c deno.json --root . --name punch ./src/index.ts",
+    "compile": "rm -rf ./bin && deno run -A -c deno.json ./scripts/writeTemplate.ts && deno compile -A -c deno.json --output bin/punch --reload ./src/index.ts"
   },
   "unstable": ["ffi"]
 }

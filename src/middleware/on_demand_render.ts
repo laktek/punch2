@@ -6,6 +6,7 @@ import { Output, Renderer } from "../lib/render.ts";
 import { AssetMap } from "../lib/asset_map.ts";
 import { RenderableDocument } from "../utils/dom.ts";
 import { routeWithContentHash } from "../utils/content_hash.ts";
+import { Resource } from "../lib/resources.ts";
 
 export default async function (ctx: Context, next: NextFn) {
   // if there's already a response, skip on-demand-render
@@ -20,6 +21,7 @@ export default async function (ctx: Context, next: NextFn) {
     srcPath,
     config,
     contents,
+    resources,
   };
   let renderer: Renderer;
   if (config.modifiers?.renderer) {
@@ -50,11 +52,16 @@ export default async function (ctx: Context, next: NextFn) {
       assetMap.track(output.content as RenderableDocument);
     }
 
-    assetMap.assets.forEach((asset, route) => {
-      const resource = resources.get(route);
-      const assetPath = routeWithContentHash(route, resource.hash);
-      output.content.updateAssetPaths(asset.assetType, route, assetPath);
-    });
+    if (resources) {
+      assetMap.assets.forEach((asset, route) => {
+        const resource: Resource | undefined = resources.get(
+          route,
+        );
+        const assetPath = routeWithContentHash(route, resource?.hash || "");
+        const doc = output.content as RenderableDocument;
+        doc.updateAssetPaths(asset.assetType, route, assetPath);
+      });
+    }
 
     let encoded: Uint8Array;
     if (output.content instanceof Uint8Array) {

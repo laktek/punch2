@@ -7,8 +7,8 @@ export interface Context {
   response?: Response;
   srcPath: string;
   config: Config;
-  contents?: Contents;
-  resources?: Resources;
+  contents: Contents;
+  resources: Resources;
   remoteAddr?: Deno.NetAddr;
 }
 
@@ -29,8 +29,8 @@ export class MiddlewareChain {
     request: Request,
     srcPath: string,
     config: Config,
-    contents?: Contents,
-    resources?: Resources,
+    contents: Contents,
+    resources: Resources,
     remoteAddr?: Deno.NetAddr,
   ): Promise<Response> {
     const getNext = (): Middleware => {

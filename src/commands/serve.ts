@@ -33,6 +33,7 @@ interface Site {
   srcPath: string;
   config: Config;
   contents: Contents;
+  resources: Resources;
   middleware: Middleware[];
 }
 
