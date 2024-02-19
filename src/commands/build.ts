@@ -11,6 +11,7 @@ import { normalizeRoutes, routesFromPages } from "../utils/routes.ts";
 import { copyPublicFiles } from "../utils/public.ts";
 import { writeFile } from "../utils/fs.ts";
 import { RenderableDocument } from "../utils/dom.ts";
+import { hashContent } from "../utils/content_hash.ts";
 
 interface BuildOpts {
   srcPath?: string;
@@ -43,7 +44,6 @@ export async function build(opts: BuildOpts): Promise<boolean> {
     srcPath,
     config,
     contents,
-    resources,
   };
 
   // setup renderer
@@ -89,7 +89,15 @@ export async function build(opts: BuildOpts): Promise<boolean> {
   );
   console.log("render duration", renderDuration.duration);
 
+  performance.mark("assets-started");
   await assetMap.render(destPath);
+  performance.mark("assets-finished");
+  const assetsDuration = performance.measure(
+    "assets-duration",
+    "assets-started",
+    "assets-finished",
+  );
+  console.log("assets duration", assetsDuration.duration);
 
   const resourcesArr: Resource[] = [];
   performance.mark("write-started");
@@ -104,17 +112,10 @@ export async function build(opts: BuildOpts): Promise<boolean> {
       const contentStr = page.content!.toString();
       encoded = textEncoder.encode(contentStr);
     }
+    const hash = await hashContent(encoded);
+    resourcesArr.push({ route: page.route, hash, build: "" });
     await writeFile(path, encoded);
-    resourcesArr.push({ route: page.route, hash: "", build: "" });
   }));
-
-  performance.mark("write-finished");
-  const writeDuration = performance.measure(
-    "write-duration",
-    "write-started",
-    "write-finished",
-  );
-  console.log("write duration", writeDuration.duration);
 
   // write resources to DB
   assetMap.assets.forEach((asset, route) =>
@@ -125,6 +126,14 @@ export async function build(opts: BuildOpts): Promise<boolean> {
     })
   );
   resources.insertAll(resourcesArr);
+
+  performance.mark("write-finished");
+  const writeDuration = performance.measure(
+    "write-duration",
+    "write-started",
+    "write-finished",
+  );
+  console.log("write duration", writeDuration.duration);
 
   // close DB
   db.close();

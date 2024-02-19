@@ -4,7 +4,7 @@ function generateRandomHTML() {
   const content = generateRandomString(50);
   return `<!DOCTYPE html>
 <html lang="en">
-{{> head site=site title=${title}}}
+{{> head site=site title="${title}"}}
 <body>
   <h1>${title}</h1>
   <p>${content}</p>
@@ -14,8 +14,9 @@ function generateRandomHTML() {
 
 // Function to generate random string
 function generateRandomString(length) {
-  const characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let result = '';
+  const characters =
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let result = "";
   for (let i = 0; i < length; i++) {
     result += characters.charAt(Math.floor(Math.random() * characters.length));
   }
@@ -32,11 +33,14 @@ async function createRandomHTMLFiles(n, outputPath) {
     promises.push(Deno.writeTextFile(filePath, htmlContent));
   }
   await Promise.all(promises);
-  return Array.from({ length: n }, (_, i) => `${outputPath}/file_${i + 1}.html`);
+  return Array.from(
+    { length: n },
+    (_, i) => `${outputPath}/file_${i + 1}.html`,
+  );
 }
 
 // Example usage: Generate 5 random HTML files and write them to the specified directory
 const numberOfFiles = 5000;
-const outputDirectory = './abc123/pages'; // Specify your output directory here
+const outputDirectory = "./abc123/pages"; // Specify your output directory here
 await createRandomHTMLFiles(numberOfFiles, outputDirectory);
 console.log(`Generated ${numberOfFiles} HTML files in ${outputDirectory}`);

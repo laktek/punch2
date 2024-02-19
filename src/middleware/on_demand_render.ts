@@ -21,7 +21,6 @@ export default async function (ctx: Context, next: NextFn) {
     srcPath,
     config,
     contents,
-    resources,
   };
   let renderer: Renderer;
   if (config.modifiers?.renderer) {

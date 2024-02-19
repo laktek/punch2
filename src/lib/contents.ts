@@ -23,10 +23,17 @@ export class Contents {
     this.#db.exec(`create table if not exists 'contents' (key, records)`);
   }
 
+  clear() {
+    this.#db.exec(`delete from 'contents'`);
+  }
+
   async prepare(contentsPath: string): Promise<void> {
     if (!(await exists(contentsPath))) {
       return;
     }
+
+    // clear table before adding new entries
+    this.clear();
 
     // walk content directory
     for await (

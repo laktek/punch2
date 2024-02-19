@@ -30,19 +30,19 @@ Future releases:
 * Migrate Jekyll, 11ty, Astro, and Hugo sites
 * Easy A/B testing
 * Support for i18n (multi-language sites)
+* Immutable builds
+  - serve can choose which build to use
+  - build refs are stored in DB
 
 ### TODO
 
 * on-demand rendering [~]
 * store generated resources in DB [~]
-* replace scripts/ with deno task
 * Opengraph images with Resvg
 * Sitemaps
 * Content API
 * punch dev
-* immutable builds
-  - serve can choose which build to use
-  - build refs are stored in DB
+
 * tsconfig
 * tailwind config
 * Sourcemaps
