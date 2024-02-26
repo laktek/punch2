@@ -60,11 +60,47 @@ export async function dev(opts: DevOpts): Promise<void> {
   // in a worker:
   // start watching files
   // on changes run build
-  //push a message when new build is available
+  // push a message when new build is available
+  const watcher = new Worker(import.meta.resolve("../lib/dev_watcher.ts"), {
+    type: "module",
+  });
+  // send srcPath
+  watcher.postMessage({ srcPath });
+  watcher.onmessage = (e) => {
+    const { paths } = e.data;
+    dispatchEvent(new CustomEvent("file_changed", { detail: { paths } }));
+  };
 
   Deno.serve(
     { port },
     async (req: Request, info: Deno.ServeHandlerInfo) => {
+      const pathname = new URL(req.url).pathname;
+
+      if (pathname === "/_punch/events") {
+        const encoder = new TextEncoder();
+        const abortController = new AbortController();
+        const signal = abortController.signal;
+
+        const body = new ReadableStream({
+          start(controller) {
+            addEventListener("file_changed", (e) => {
+              console.log("file changed");
+              const data = JSON.stringify({ paths: e.detail.paths });
+              const msg = encoder.encode(`data: ${data}\r\n\r\n`);
+              controller.enqueue(msg);
+            }, { signal });
+          },
+          cancel() {
+            abortController.abort();
+          },
+        });
+        return new Response(body, {
+          headers: {
+            "Content-Type": "text/event-stream",
+          },
+        });
+      }
+
       const middlewareChain = new MiddlewareChain(...middleware);
       const res = await middlewareChain.run(
         req,
