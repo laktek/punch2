@@ -8,6 +8,7 @@ import { Resources } from "../lib/resources.ts";
 
 import {
   addMetaHeaders,
+  devReload,
   logRequest,
   notFound,
   onDemandRender,
@@ -44,6 +45,7 @@ export async function dev(opts: DevOpts): Promise<void> {
       notFound,
       addMetaHeaders,
       logRequest,
+      devReload,
     ];
   }
 
@@ -57,17 +59,14 @@ export async function dev(opts: DevOpts): Promise<void> {
 
   const resources = new Resources(db);
 
-  // in a worker:
-  // start watching files
-  // on changes run build
-  // push a message when new build is available
   const watcher = new Worker(import.meta.resolve("../lib/dev_watcher.ts"), {
     type: "module",
   });
-  // send srcPath
   watcher.postMessage({ srcPath });
-  watcher.onmessage = (e) => {
+  watcher.onmessage = async (e) => {
     const { paths } = e.data;
+    // TODO: do only if contents change
+    await contents.prepare(contentsPath);
     dispatchEvent(new CustomEvent("file_changed", { detail: { paths } }));
   };
 
@@ -84,7 +83,6 @@ export async function dev(opts: DevOpts): Promise<void> {
         const body = new ReadableStream({
           start(controller) {
             addEventListener("file_changed", (e) => {
-              console.log("file changed");
               const data = JSON.stringify({ paths: e.detail.paths });
               const msg = encoder.encode(`data: ${data}\r\n\r\n`);
               controller.enqueue(msg);
@@ -113,9 +111,6 @@ export async function dev(opts: DevOpts): Promise<void> {
 
       return res;
 
-      //start server
-      // on-demand render requested pages
-      //
       //inject a SSE script
       //reload on new build
     },
