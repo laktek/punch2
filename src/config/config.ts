@@ -33,6 +33,9 @@ export interface Config {
     renderer?: string;
     middleware?: string;
   };
+  build?: {
+    batchSize: number;
+  };
   serve?: {
     logging?: ServeLoggingOpts;
     timestamp?: "utc" | "local";
@@ -75,6 +78,9 @@ export async function getConfig(
     },
     routes: [],
     redirects: {},
+    build: {
+      batchSize: 100,
+    },
   };
 
   if (!configPath) {

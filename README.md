@@ -38,10 +38,10 @@ Future releases:
 
 * on-demand rendering [~]
 * store generated resources in DB [~]
+* punch dev
 * Opengraph images with Resvg
 * Sitemaps
 * Content API
-* punch dev
 
 * tsconfig
 * tailwind config

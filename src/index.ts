@@ -3,6 +3,7 @@ import { Command } from "commander";
 import { build } from "./commands/build.ts";
 import { serve } from "./commands/serve.ts";
 import { newSite } from "./commands/new.ts";
+import { dev } from "./commands/dev.ts";
 
 const program = new Command();
 
@@ -20,9 +21,12 @@ program.command("new")
   });
 
 program.command("dev")
-  .description("run the site in dev mode (detects and rebuilds changed pages)")
-  .action(() => {
-    console.log("not implemented");
+  .description("run the site in dev mode (watch and rebuild on changes)")
+  .argument("[SOURCE]", "path of the site to build")
+  .option("-p, --port <PORT>", "port to listen on", "8008")
+  .option("-c, --config <PATH>", "path for the config file")
+  .action((path = "", options: any) => {
+    dev({ srcPath: path, ...options });
   });
 
 program.command("build")
@@ -39,7 +43,7 @@ program.command("serve")
     "serve site(s) in production mode",
   )
   .option("-S, --sites <PATH>", "path for the multi-site config", "sites.json")
-  .option("-p, --port <PORT>", "port to listen on", "8008")
+  .option("-p, --port <PORT>", "port to listen on", "8080")
   .option(
     "-H, --hostname <HOST>",
     "hostname of the server",
@@ -62,7 +66,7 @@ program.command("publish")
     "publish the site to punch.site",
   )
   .action(() => {
-    console.log("not implemented");
+    console.log("This feature is not implemented yet.");
   });
 
 program.command("import")
@@ -70,7 +74,7 @@ program.command("import")
     "import any existing website and converts it to a Punch compatible site",
   )
   .action(() => {
-    console.log("not implemented");
+    console.log("This feature is not implemented yet.");
   });
 
 program.command("upgrade")
@@ -78,7 +82,7 @@ program.command("upgrade")
     "upgrade Punch to the latest version",
   )
   .action(() => {
-    console.log("not implemented");
+    console.log("This feature is not implemented yet.");
   });
 
 program.parse();

@@ -2,7 +2,7 @@ import { join } from "std/path/mod.ts";
 import { resolve } from "std/path/mod.ts";
 import { Database } from "sqlite";
 
-import { getConfig } from "../config/config.ts";
+import { Config, getConfig } from "../config/config.ts";
 import { Contents } from "../lib/contents.ts";
 import { Resource, Resources } from "../lib/resources.ts";
 import { Output, Renderer } from "../lib/render.ts";
@@ -14,9 +14,92 @@ import { RenderableDocument } from "../utils/dom.ts";
 import { hashContent } from "../utils/content_hash.ts";
 
 interface BuildOpts {
-  srcPath?: string;
+  srcPath: string;
   output?: string;
   config?: string;
+}
+
+interface BatchedRenderResult {
+  pages: Output[];
+  assetMap: AssetMap;
+}
+
+async function batchedRender(
+  config: Config,
+  renderer: Renderer,
+  routes: string[],
+): Promise<BatchedRenderResult> {
+  const pages: Output[] = [];
+  const assetMap = new AssetMap(config, renderer);
+  const { batchSize } = config.build!;
+
+  const renderRoute = async (route: string) => {
+    const output = await renderer.render(route);
+    if (output.errorStatus) {
+      console.error(
+        `${route} - ${output.errorMessage} (${output.errorStatus})`,
+      );
+    } else {
+      pages.push(output);
+      if (output.content instanceof RenderableDocument) {
+        assetMap.track(output.content as RenderableDocument);
+      }
+    }
+  };
+
+  performance.mark("render-started");
+  for (let i = 0; i < routes.length; i += batchSize) {
+    const batch = routes.slice(i, i + batchSize);
+    await Promise.all(batch.map(renderRoute));
+  }
+  performance.mark("render-finished");
+
+  const renderDuration = performance.measure(
+    "render-duration",
+    "render-started",
+    "render-finished",
+  );
+  console.log("render duration", renderDuration.duration);
+
+  return { pages, assetMap };
+}
+
+async function batchedWrite(
+  config: Config,
+  destPath: string,
+  pages: Output[],
+): Promise<void> {
+  const { batchSize } = config.build!;
+  performance.mark("write-started");
+  const textEncoder = new TextEncoder();
+
+  const writePage = async (page: Output) => {
+    const path = join(destPath, page.route);
+
+    let encoded: Uint8Array;
+    if (page.content instanceof Uint8Array) {
+      encoded = page.content;
+    } else {
+      const contentStr = page.content!.toString();
+      encoded = textEncoder.encode(contentStr);
+    }
+    // const hash = await hashContent(encoded);
+    //resourcesArr.push({ route: page.route, hash, build: "" });
+    await writeFile(path, encoded);
+  };
+
+  for (let i = 0; i < pages.length; i += batchSize) {
+    const batch = pages.slice(i, i + batchSize);
+    await Promise.all(batch.map(writePage));
+  }
+
+  performance.mark("write-finished");
+  const writeDuration = performance.measure(
+    "write-duration",
+    "write-started",
+    "write-finished",
+  );
+  console.log("write duration", writeDuration.duration);
 }
 
 export async function build(opts: BuildOpts): Promise<boolean> {
@@ -63,31 +146,7 @@ export async function build(opts: BuildOpts): Promise<boolean> {
   const explicitRoutes = await normalizeRoutes(config.routes!);
   const routes = [...pageRoutes, ...explicitRoutes];
 
-  const renderedPages: Output[] = [];
-  const assetMap = new AssetMap(config, renderer);
-
-  performance.mark("render-started");
-  await Promise.all(routes.map(async (route) => {
-    const output = await renderer.render(route);
-    if (output.errorStatus) {
-      console.error(
-        `${route} - ${output.errorMessage} (${output.errorStatus})`,
-      );
-    } else {
-      renderedPages.push(output);
-      if (output.content instanceof RenderableDocument) {
-        assetMap.track(output.content as RenderableDocument);
-      }
-    }
-  }));
-  performance.mark("render-finished");
-
-  const renderDuration = performance.measure(
-    "render-duration",
-    "render-started",
-    "render-finished",
-  );
-  console.log("render duration", renderDuration.duration);
+  const { pages, assetMap } = await batchedRender(config, renderer, routes);
 
   performance.mark("assets-started");
   await assetMap.render(destPath);
@@ -99,24 +158,9 @@ export async function build(opts: BuildOpts): Promise<boolean> {
   );
   console.log("assets duration", assetsDuration.duration);
 
+  await batchedWrite(config, destPath, pages);
+
   const resourcesArr: Resource[] = [];
-  performance.mark("write-started");
-  const textEncoder = new TextEncoder();
-  await Promise.all(renderedPages.map(async (page) => {
-    const path = join(destPath, page.route);
-
-    let encoded: Uint8Array;
-    if (page.content instanceof Uint8Array) {
-      encoded = page.content;
-    } else {
-      const contentStr = page.content!.toString();
-      encoded = textEncoder.encode(contentStr);
-    }
-    const hash = await hashContent(encoded);
-    resourcesArr.push({ route: page.route, hash, build: "" });
-    await writeFile(path, encoded);
-  }));
-
   // write resources to DB
   assetMap.assets.forEach((asset, route) =>
     resourcesArr.push({
@@ -127,15 +171,6 @@ export async function build(opts: BuildOpts): Promise<boolean> {
   );
   resources.insertAll(resourcesArr);
 
-  performance.mark("write-finished");
-  const writeDuration = performance.measure(
-    "write-duration",
-    "write-started",
-    "write-finished",
-  );
-  console.log("write duration", writeDuration.duration);
-
-  // close DB
   db.close();
 
   return true;
