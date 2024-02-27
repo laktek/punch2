@@ -66,7 +66,7 @@ export async function dev(opts: DevOpts): Promise<void> {
   watcher.postMessage({ srcPath });
   watcher.onmessage = async (e) => {
     const { paths } = e.data;
-    const contentsChanged = paths.some((p) =>
+    const contentsChanged = paths.some((p: string) =>
       p.startsWith(join(Deno.cwd(), contentsPath))
     );
     if (contentsChanged) {
@@ -82,8 +82,8 @@ export async function dev(opts: DevOpts): Promise<void> {
         console.info(`Punch dev server running on ${hostname}:${port}`);
       },
     },
-    async (req: Request, info: Deno.ServeHandlerInfo) => {
-      const pathname = new URL(req.url).pathname;
+    async (request: Request, info: Deno.ServeHandlerInfo) => {
+      const pathname = new URL(request.url).pathname;
 
       if (pathname === "/_punch/events") {
         const encoder = new TextEncoder();
@@ -93,7 +93,9 @@ export async function dev(opts: DevOpts): Promise<void> {
         const body = new ReadableStream({
           start(controller) {
             addEventListener("file_changed", (e) => {
-              const data = JSON.stringify({ paths: e.detail.paths });
+              const data = JSON.stringify({
+                paths: (e as CustomEvent).detail.paths,
+              });
               const msg = encoder.encode(`data: ${data}\r\n\r\n`);
               controller.enqueue(msg);
             }, { signal });
@@ -111,12 +113,15 @@ export async function dev(opts: DevOpts): Promise<void> {
 
       const middlewareChain = new MiddlewareChain(...middleware);
       const res = await middlewareChain.run(
-        req,
-        srcPath,
-        config,
-        contents,
-        resources,
-        info.remoteAddr,
+        {
+          request,
+          srcPath,
+          config,
+          contents,
+          resources,
+          remoteAddr: info.remoteAddr,
+          devMode: true,
+        },
       );
 
       return res;

@@ -27,6 +27,7 @@ Future releases:
 * Image optimizations
 * Font optimizations
 * Speculative Loading API (via headers)
+* Full-text search
 * Migrate Jekyll, 11ty, Astro, and Hugo sites
 * Easy A/B testing
 * Support for i18n (multi-language sites)
@@ -38,7 +39,8 @@ Future releases:
 
 * on-demand rendering [~]
 * store generated resources in DB [~]
-* punch dev
+* punch dev [~]
+  * support rendering CSS (tailwind classses)
 * Opengraph images with Resvg
 * Sitemaps
 * Content API

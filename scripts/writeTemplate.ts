@@ -1,4 +1,4 @@
-import { encode as b64encode } from "std/encoding/base64.ts";
+import { encodeBase64 as b64encode } from "std/encoding/base64.ts";
 
 let src = "";
 

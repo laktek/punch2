@@ -14,7 +14,7 @@ export default async function (ctx: Context, next: NextFn) {
     return next()(ctx, next);
   }
 
-  const { srcPath, config, contents, resources, request } = ctx;
+  const { srcPath, config, contents, resources, request, devMode } = ctx;
 
   // setup renderer
   const renderCtx = {

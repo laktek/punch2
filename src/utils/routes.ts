@@ -4,7 +4,7 @@ import {
   extname,
   join,
   relative,
-  SEP,
+  SEPARATOR,
 } from "std/path/mod.ts";
 import { exists, expandGlob, walk } from "std/fs/mod.ts";
 
@@ -135,7 +135,7 @@ export async function findResource(
 }
 
 function withoutTrailingSlash(p: string): string {
-  return p.replace(new RegExp(`[${SEP}]+$`), "");
+  return p.replace(new RegExp(`[${SEPARATOR}]+$`), "");
 }
 
 function withLeadingSlash(p: string): string {

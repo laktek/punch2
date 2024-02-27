@@ -6,9 +6,13 @@ export default async function (ctx: Context, next: NextFn) {
   const { request, response, config, srcPath, remoteAddr } = ctx;
 
   const newCtx = { ...ctx };
-  if (response.headers.get("content-type").startsWith("text/html")) {
+  if (
+    response && response.body &&
+    response.headers?.get("content-type")?.startsWith("text/html")
+  ) {
     const clonedRes = response.clone();
-    const bodyReader = clonedRes.body.getReader();
+
+    const bodyReader = clonedRes.body!.getReader();
     const { value } = await bodyReader.read();
     const decoded = new TextDecoder().decode(value);
 

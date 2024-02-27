@@ -116,8 +116,8 @@ export async function serve(opts: ServeOpts): Promise<void> {
         console.info(`Punch server running on ${hostname}:${port}`);
       },
     },
-    async (req: Request, info: Deno.ServeHandlerInfo) => {
-      const { hostname } = new URL(req.url);
+    async (request: Request, info: Deno.ServeHandlerInfo) => {
+      const { hostname } = new URL(request.url);
       const site = sites.get(hostname) || sites.get("*");
       if (!site) {
         console.error("no site configured for the domain");
@@ -129,12 +129,14 @@ export async function serve(opts: ServeOpts): Promise<void> {
 
       const middlewareChain = new MiddlewareChain(...middleware);
       const res = await middlewareChain.run(
-        req,
-        srcPath,
-        config,
-        contents,
-        resources,
-        info.remoteAddr,
+        {
+          request,
+          srcPath,
+          config,
+          contents,
+          resources,
+          remoteAddr: info.remoteAddr,
+        },
       );
 
       return res;

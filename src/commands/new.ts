@@ -1,5 +1,5 @@
 import { join } from "std/path/mod.ts";
-import { decode as b64decode } from "std/encoding/base64.ts";
+import { decodeBase64 } from "std/encoding/base64.ts";
 
 import {
   anotherPost,
@@ -107,11 +107,11 @@ function copyTemplates(path: string, force: boolean) {
     ),
     writeFile(
       join(path, "public", "favicon.ico"),
-      b64decode(favicon),
+      decodeBase64(favicon),
     ),
     writeFile(
       join(path, "images", "logo.png"),
-      b64decode(logo),
+      decodeBase64(logo),
     ),
   ]);
 }

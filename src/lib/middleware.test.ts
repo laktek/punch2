@@ -13,7 +13,7 @@ Deno.test("MiddlewareChain.run", async (t) => {
         ctx: Context,
         getNext: NextFn,
       ) => {
-        req.headers.append("x-middleware", `${i}`);
+        ctx.request.headers.append("x-middleware", `${i}`);
         const next = getNext();
         const response = new Response("ok", {
           headers: {
@@ -26,12 +26,18 @@ Deno.test("MiddlewareChain.run", async (t) => {
     }
 
     const chain = new MiddlewareChain(...middleware);
-    const req = new Request(new URL("https://example.com"));
+    const request = new Request(new URL("https://example.com"));
     const srcPath = "";
     const config = await getConfig();
     const contents = new Contents();
     const resources = new Resources();
-    const res = await chain.run(req, srcPath, config, contents, resources);
+    const res = await chain.run({
+      request,
+      srcPath,
+      config,
+      contents,
+      resources,
+    });
 
     const headerVal = res.headers.get("x-middleware");
     assert(

@@ -17,16 +17,16 @@ export class Resources {
 
     // create the contents table
     this.#db.exec(
-      `create table if not exists 'resources' (route, hash, build)`,
+      `create table if not exists 'resources' (route, hash, content, build)`,
     );
 
     // prepare insert statement
     this.#insertStmt = this.#db.prepare(
-      `insert into "resources" (route, hash, build) values(:route, :hash, :build)`,
+      `insert into "resources" (route, hash, content, build) values(:route, :hash, :content, :build)`,
     );
 
     this.insertAll = this.#db.transaction(
-      (resources: Record<string, string>[]) => {
+      (resources: Resource[]) => {
         for (const resource of resources) {
           this.#insertStmt.run(resource);
         }

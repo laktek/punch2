@@ -4,12 +4,14 @@ import { Resources } from "./resources.ts";
 
 export interface Context {
   request: Request;
-  response?: Response;
   srcPath: string;
   config: Config;
   contents: Contents;
   resources: Resources;
   remoteAddr?: Deno.NetAddr;
+  devMode?: boolean;
+
+  response?: Response;
 }
 
 export type Middleware = (
@@ -25,14 +27,7 @@ export class MiddlewareChain {
     this.#chain = [...middleware];
   }
 
-  async run(
-    request: Request,
-    srcPath: string,
-    config: Config,
-    contents: Contents,
-    resources: Resources,
-    remoteAddr?: Deno.NetAddr,
-  ): Promise<Response> {
+  async run(ctxInit: Context): Promise<Response> {
     const getNext = (): Middleware => {
       if (this.#chain.length) {
         return this.#chain.shift() as Middleware;
@@ -50,7 +45,7 @@ export class MiddlewareChain {
 
     const next = getNext();
     return await next(
-      { request, srcPath, config, contents, resources, remoteAddr },
+      ctxInit,
       getNext,
     );
   }
