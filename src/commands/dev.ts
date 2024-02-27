@@ -22,7 +22,8 @@ interface DevOpts {
 }
 
 export async function dev(opts: DevOpts): Promise<void> {
-  const { port, srcPath } = opts;
+  const srcPath = resolve(Deno.cwd(), opts.srcPath ?? "");
+  const { port } = opts;
   // read config file, and get options from it
   const configPath = resolve(srcPath, opts.config ?? "punch.json");
 
@@ -65,13 +66,22 @@ export async function dev(opts: DevOpts): Promise<void> {
   watcher.postMessage({ srcPath });
   watcher.onmessage = async (e) => {
     const { paths } = e.data;
-    // TODO: do only if contents change
-    await contents.prepare(contentsPath);
+    const contentsChanged = paths.some((p) =>
+      p.startsWith(join(Deno.cwd(), contentsPath))
+    );
+    if (contentsChanged) {
+      await contents.prepare(contentsPath);
+    }
     dispatchEvent(new CustomEvent("file_changed", { detail: { paths } }));
   };
 
   Deno.serve(
-    { port },
+    {
+      port,
+      onListen: ({ hostname, port }) => {
+        console.info(`Punch dev server running on ${hostname}:${port}`);
+      },
+    },
     async (req: Request, info: Deno.ServeHandlerInfo) => {
       const pathname = new URL(req.url).pathname;
 
@@ -110,9 +120,6 @@ export async function dev(opts: DevOpts): Promise<void> {
       );
 
       return res;
-
-      //inject a SSE script
-      //reload on new build
     },
   );
 }

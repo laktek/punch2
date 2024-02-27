@@ -107,7 +107,15 @@ export async function serve(opts: ServeOpts): Promise<void> {
   }
 
   Deno.serve(
-    { port, hostname, cert, key },
+    {
+      port,
+      hostname,
+      cert,
+      key,
+      onListen: ({ hostname, port }) => {
+        console.info(`Punch server running on ${hostname}:${port}`);
+      },
+    },
     async (req: Request, info: Deno.ServeHandlerInfo) => {
       const { hostname } = new URL(req.url);
       const site = sites.get(hostname) || sites.get("*");
