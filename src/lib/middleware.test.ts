@@ -4,6 +4,8 @@ import { getConfig } from "../config/config.ts";
 import { Context, MiddlewareChain, NextFn } from "./middleware.ts";
 import { Contents } from "./contents.ts";
 import { Resources } from "./resources.ts";
+import { AssetMap } from "../lib/asset_map.ts";
+import { Renderer } from "../lib/render.ts";
 
 Deno.test("MiddlewareChain.run", async (t) => {
   await t.step("calls all middleware in chain", async () => {
@@ -31,12 +33,23 @@ Deno.test("MiddlewareChain.run", async (t) => {
     const config = await getConfig();
     const contents = new Contents();
     const resources = new Resources();
+
+    const renderCtx = {
+      srcPath,
+      config,
+      contents,
+    };
+    const renderer = await Renderer.init(renderCtx);
+    const assetMap = new AssetMap(config, renderer);
+
     const res = await chain.run({
       request,
       srcPath,
       config,
       contents,
       resources,
+      renderer,
+      assetMap,
     });
 
     const headerVal = res.headers.get("x-middleware");

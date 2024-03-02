@@ -10,6 +10,8 @@ import {
 import { Middleware, MiddlewareChain } from "../lib/middleware.ts";
 import { Contents } from "../lib/contents.ts";
 import { Resources } from "../lib/resources.ts";
+import { AssetMap } from "../lib/asset_map.ts";
+import { Renderer } from "../lib/render.ts";
 
 import {
   addCacheHeaders,
@@ -34,6 +36,8 @@ interface Site {
   config: Config;
   contents: Contents;
   resources: Resources;
+  assetMap: AssetMap;
+  renderer: Renderer;
   middleware: Middleware[];
 }
 
@@ -59,6 +63,24 @@ async function prepareSite(siteConfig: SiteConfig): Promise<Site> {
 
   const resources = new Resources(db);
 
+  // setup renderer
+  const renderCtx = {
+    srcPath,
+    config,
+    contents,
+  };
+  let renderer: Renderer;
+  if (config.modifiers?.renderer) {
+    const { renderer: customRenderer } = await import(
+      join(srcPath, config.modifiers?.renderer)
+    );
+    renderer = await customRenderer.init(renderCtx);
+  } else {
+    renderer = await Renderer.init(renderCtx);
+  }
+
+  const assetMap = new AssetMap(config, renderer);
+
   let middleware: Middleware[] = [];
   if (config.modifiers?.middleware) {
     const { default: middlewareFn } = await import(
@@ -77,7 +99,15 @@ async function prepareSite(siteConfig: SiteConfig): Promise<Site> {
     ];
   }
 
-  return { srcPath, config, contents, resources, middleware };
+  return {
+    srcPath,
+    config,
+    contents,
+    resources,
+    renderer,
+    assetMap,
+    middleware,
+  };
 }
 
 export async function serve(opts: ServeOpts): Promise<void> {
@@ -125,7 +155,15 @@ export async function serve(opts: ServeOpts): Promise<void> {
           status: 500,
         });
       }
-      const { config, srcPath, contents, resources, middleware } = site;
+      const {
+        config,
+        srcPath,
+        contents,
+        resources,
+        renderer,
+        assetMap,
+        middleware,
+      } = site;
 
       const middlewareChain = new MiddlewareChain(...middleware);
       const res = await middlewareChain.run(
@@ -135,6 +173,8 @@ export async function serve(opts: ServeOpts): Promise<void> {
           config,
           contents,
           resources,
+          renderer,
+          assetMap,
           remoteAddr: info.remoteAddr,
         },
       );

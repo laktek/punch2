@@ -5,6 +5,8 @@ import { Config, getConfig } from "../config/config.ts";
 import { Middleware, MiddlewareChain } from "../lib/middleware.ts";
 import { Contents } from "../lib/contents.ts";
 import { Resources } from "../lib/resources.ts";
+import { AssetMap } from "../lib/asset_map.ts";
+import { Renderer } from "../lib/render.ts";
 
 import {
   addMetaHeaders,
@@ -59,6 +61,24 @@ export async function dev(opts: DevOpts): Promise<void> {
   await contents.prepare(contentsPath);
 
   const resources = new Resources(db);
+
+  // setup renderer
+  const renderCtx = {
+    srcPath,
+    config,
+    contents,
+  };
+  let renderer: Renderer;
+  if (config.modifiers?.renderer) {
+    const { renderer: customRenderer } = await import(
+      join(srcPath, config.modifiers?.renderer)
+    );
+    renderer = await customRenderer.init(renderCtx);
+  } else {
+    renderer = await Renderer.init(renderCtx);
+  }
+
+  const assetMap = new AssetMap(config, renderer);
 
   const watcher = new Worker(import.meta.resolve("../lib/dev_watcher.ts"), {
     type: "module",
@@ -119,6 +139,8 @@ export async function dev(opts: DevOpts): Promise<void> {
           config,
           contents,
           resources,
+          renderer,
+          assetMap,
           remoteAddr: info.remoteAddr,
           devMode: true,
         },

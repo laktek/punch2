@@ -14,29 +14,31 @@ export default async function (ctx: Context, next: NextFn) {
     return next()(ctx, next);
   }
 
-  const { srcPath, config, contents, resources, request, devMode } = ctx;
-
-  // setup renderer
-  const renderCtx = {
+  const {
     srcPath,
     config,
     contents,
-  };
-  let renderer: Renderer;
-  if (config.modifiers?.renderer) {
-    const { renderer: customRenderer } = await import(
-      join(srcPath, config.modifiers?.renderer)
-    );
-    renderer = await customRenderer.init(renderCtx);
-  } else {
-    renderer = await Renderer.init(renderCtx);
-  }
+    resources,
+    request,
+    devMode,
+    renderer,
+    assetMap,
+  } = ctx;
 
   const newCtx = { ...ctx };
 
   // render route
   const { pathname } = new URL(request.url);
-  const output = await renderer.render(pathname);
+
+  // in dev mode, we send the `used_by` option for assets
+  const renderOpts = {};
+  if (devMode) {
+    const asset = assetMap.assets.get(pathname);
+    if (asset) {
+      renderOpts.usedBy = asset.usedBy;
+    }
+  }
+  const output = await renderer.render(pathname, renderOpts);
 
   if (output.errorStatus) {
     console.error(
@@ -46,20 +48,19 @@ export default async function (ctx: Context, next: NextFn) {
     // TODO: write rendered output to a file in a worker
 
     // TODO: refactor use of AssetMap
-    const assetMap = new AssetMap(config, renderer);
     if (output.content instanceof RenderableDocument) {
       assetMap.track(output.content as RenderableDocument);
-    }
 
-    if (resources) {
-      assetMap.assets.forEach((asset, route) => {
-        const resource: Resource | undefined = resources.get(
-          route,
-        );
-        const assetPath = routeWithContentHash(route, resource?.hash || "");
-        const doc = output.content as RenderableDocument;
-        doc.updateAssetPaths(asset.assetType, route, assetPath);
-      });
+      if (!devMode && resources) {
+        assetMap.assets.forEach((asset, route) => {
+          const resource: Resource | undefined = resources.get(
+            route,
+          );
+          const assetPath = routeWithContentHash(route, resource?.hash || "");
+          const doc = output.content as RenderableDocument;
+          doc.updateAssetPaths(asset.assetType, route, assetPath);
+        });
+      }
     }
 
     let encoded: Uint8Array;

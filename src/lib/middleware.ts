@@ -1,6 +1,8 @@
 import { Config } from "../config/config.ts";
 import { Contents } from "./contents.ts";
 import { Resources } from "./resources.ts";
+import { AssetMap } from "../lib/asset_map.ts";
+import { Renderer } from "../lib/render.ts";
 
 export interface Context {
   request: Request;
@@ -8,6 +10,8 @@ export interface Context {
   config: Config;
   contents: Contents;
   resources: Resources;
+  renderer: Renderer;
+  assetMap: AssetMap;
   remoteAddr?: Deno.NetAddr;
   devMode?: boolean;
 
