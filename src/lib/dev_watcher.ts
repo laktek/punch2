@@ -1,11 +1,15 @@
 import { debounce } from "std/async/mod.ts";
 
-onmessage = async (e) => {
+interface Options {
+  srcPath: string;
+}
+
+(globalThis as any).onmessage = async (e: { data: Options }) => {
   const { srcPath } = e.data;
   let watcher = Deno.watchFs(srcPath || "./");
 
   const notify = debounce((paths: string[]) => {
-    postMessage({ paths });
+    (globalThis as any).postMessage({ paths });
   }, 200);
 
   for await (const event of watcher) {
