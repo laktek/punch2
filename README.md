@@ -38,9 +38,8 @@ Future releases:
 ### TODO
 
 * on-demand rendering [~]
+  - write rendered resources to disk
 * store generated resources in DB [~]
-* punch dev [~]
-  * support rendering CSS (tailwind classses)
 * Opengraph images with Resvg
 * Sitemaps
 * Content API
@@ -50,7 +49,7 @@ Future releases:
 * Sourcemaps
 * handlebars helpers
   - current date (in multiple formats)
-* Publish to npm / deno (so it can be imported for customization)
+* Publish to JSR (so it can be imported for customization)
 * punch upgrade command
 
 ### What you can build with Punch?

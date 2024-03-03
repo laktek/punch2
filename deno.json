@@ -16,7 +16,7 @@
     "test": "deno test -A --unstable-ffi ./src",
     "testdata": "deno run -A scripts/testdata.ts",
     "install": "rm -rf ./bin && deno run -A -c deno.json ./scripts/writeTemplate.ts && deno install -A -c deno.json --root . --name punch ./src/index.ts",
-    "compile": "rm -rf ./bin && deno run -A -c deno.json ./scripts/writeTemplate.ts && deno compile -A -c deno.json --output bin/punch --reload ./src/index.ts"
+    "compile": "rm -rf ./bin && deno run -A -c deno.json ./scripts/writeTemplate.ts && deno compile -A -c deno.json --output bin/punch --reload --include ./src/lib/renderer_worker.ts --include ./src/lib/dev_watcher.ts ./src/index.ts"
   },
   "unstable": ["ffi"]
 }

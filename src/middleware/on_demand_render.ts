@@ -2,7 +2,7 @@ import { extname, join, resolve } from "std/path/mod.ts";
 import { contentType } from "std/media_types/mod.ts";
 
 import { Context, NextFn } from "../lib/middleware.ts";
-import { Output, Renderer } from "../lib/render.ts";
+import { Output, Renderer, RenderOptions } from "../lib/render.ts";
 import { AssetMap } from "../lib/asset_map.ts";
 import { RenderableDocument } from "../utils/dom.ts";
 import { routeWithContentHash } from "../utils/content_hash.ts";
@@ -31,7 +31,7 @@ export default async function (ctx: Context, next: NextFn) {
   const { pathname } = new URL(request.url);
 
   // in dev mode, we send the `used_by` option for assets
-  const renderOpts = {};
+  const renderOpts: RenderOptions = {};
   if (devMode) {
     const asset = assetMap.assets.get(pathname);
     if (asset) {
