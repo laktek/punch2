@@ -2,6 +2,7 @@ import { extname } from "std/path/mod.ts";
 import { parse as yamlParse } from "std/yaml/mod.ts";
 import { parse as tomlParse } from "std/toml/mod.ts";
 import { deepMerge } from "std/collections/deep_merge.ts";
+import { Config as TailwindConfig } from "tailwindcss";
 
 interface RedirectValue {
   destination: string;
@@ -43,6 +44,7 @@ export interface Config {
     logging?: ServeLoggingOpts;
     timestamp?: "utc" | "local";
   };
+  tailwind?: string | TailwindConfig;
 }
 
 async function parseConfig(configPath: string): Promise<unknown> {

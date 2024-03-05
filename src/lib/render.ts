@@ -5,7 +5,7 @@ import { Contents } from "./contents.ts";
 import { Config } from "../config/config.ts";
 import { findResource, getRouteParams, ResourceType } from "../utils/routes.ts";
 import { renderHTML } from "../utils/renderers/html.ts";
-import { renderCSS } from "../utils/renderers/css.ts";
+import { getTailwindConfig, renderCSS } from "../utils/renderers/css.ts";
 import { renderJS } from "../utils/renderers/js.ts";
 import { renderImage } from "../utils/renderers/image.ts";
 import { renderMedia } from "../utils/renderers/media.ts";
@@ -152,7 +152,11 @@ export class Renderer {
         resourceType,
       };
     } else if (resourceType === ResourceType.CSS) {
-      const content = await renderCSS(path, opts?.usedBy);
+      const tailwindConfig = await getTailwindConfig(
+        config,
+        srcPath,
+      );
+      const content = await renderCSS(path, opts?.usedBy, tailwindConfig);
       return {
         route,
         content: encoder.encode(content),

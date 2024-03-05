@@ -43,10 +43,9 @@ Future releases:
 * Content API
 * Setup GitHub actions for release
 * Install script
-
-* tsconfig
-* tailwind config
+* build logs
 * Sourcemaps
+* tsconfig
 * handlebars helpers
   - current date (in multiple formats)
 * Publish to JSR (so it can be imported for customization)
