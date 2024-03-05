@@ -18,14 +18,15 @@
 * SQLite DB of contents available for direct access during build and runtime
 * Static and dynamic routing
 * Compliant with Web Vitals recommendations https://web.dev/articles/vitals
-* Automatic OG image generation
 * Automatic sitemap generation
+* Automatic OG image generation
 * Deploy to Vercel, Netlify, GitHub Pages or self-host
 * Single command publish to punch.site
 
 Future releases:
 * Image optimizations
 * Font optimizations
+* Opengraph images with Resvg
 * Speculative Loading API (via headers)
 * Full-text search
 * Migrate Jekyll, 11ty, Astro, and Hugo sites
@@ -40,7 +41,6 @@ Future releases:
 * on-demand rendering [~]
   - write rendered resources to disk
 * store generated resources in DB [~]
-* Opengraph images with Resvg
 * Sitemaps
 * Content API
 

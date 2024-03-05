@@ -3,6 +3,7 @@ import { join } from "std/path/mod.ts";
 import { Config } from "../config/config.ts";
 import { Renderer } from "./render.ts";
 import { RenderableDocument } from "../utils/dom.ts";
+import { ResourceType } from "../utils/routes.ts";
 import { Asset } from "../utils/asset.ts";
 import { writeFile } from "../utils/fs.ts";
 import { hashContent, routeWithContentHash } from "../utils/content_hash.ts";
@@ -23,52 +24,52 @@ export class AssetMap {
       return;
     }
 
-    content.assets.js.forEach((v) => {
+    content.assets[ResourceType.JS].forEach((v) => {
       if (!v.startsWith(`/${this.#config.dirs!.js!}/`)) {
         return;
       }
       const asset: Asset = this.assets.get(v) ??
-        new Asset({ assetType: "js", usedBy: [] });
+        new Asset({ resourceType: ResourceType.JS, usedBy: [] });
       asset.usedBy.push(content);
       this.assets.set(v, asset);
     });
 
-    content.assets.css.forEach((v) => {
+    content.assets[ResourceType.CSS].forEach((v) => {
       if (!v.startsWith(`/${this.#config.dirs!.css!}/`)) {
         return;
       }
       const asset: Asset = this.assets.get(v) ??
-        new Asset({ assetType: "css", usedBy: [] });
+        new Asset({ resourceType: ResourceType.CSS, usedBy: [] });
       asset.usedBy.push(content);
       this.assets.set(v, asset);
     });
 
-    content.assets.image.forEach((v) => {
+    content.assets[ResourceType.IMAGE].forEach((v) => {
       if (!v.startsWith(`/${this.#config.dirs!.images!}/`)) {
         return;
       }
       const asset: Asset = this.assets.get(v) ??
-        new Asset({ assetType: "image", usedBy: [] });
+        new Asset({ resourceType: ResourceType.IMAGE, usedBy: [] });
       asset.usedBy.push(content);
       this.assets.set(v, asset);
     });
 
-    content.assets.audio.forEach((v) => {
-      if (!v.startsWith(`/${this.#config.dirs!.media!}/`)) {
+    content.assets[ResourceType.AUDIO].forEach((v) => {
+      if (!v.startsWith(`/${this.#config.dirs!.audio!}/`)) {
         return;
       }
       const asset: Asset = this.assets.get(v) ??
-        new Asset({ assetType: "audio", usedBy: [] });
+        new Asset({ resourceType: ResourceType.AUDIO, usedBy: [] });
       asset.usedBy.push(content);
       this.assets.set(v, asset);
     });
 
-    content.assets.video.forEach((v) => {
-      if (!v.startsWith(`/${this.#config.dirs!.media!}/`)) {
+    content.assets[ResourceType.VIDEO].forEach((v) => {
+      if (!v.startsWith(`/${this.#config.dirs!.video!}/`)) {
         return;
       }
       const asset: Asset = this.assets.get(v) ??
-        new Asset({ assetType: "video", usedBy: [] });
+        new Asset({ resourceType: ResourceType.VIDEO, usedBy: [] });
       asset.usedBy.push(content);
       this.assets.set(v, asset);
     });
@@ -96,7 +97,7 @@ export class AssetMap {
 
         // update all used by files with new ref
         asset.usedBy.forEach((doc) =>
-          doc.updateAssetPaths(asset.assetType, route, assetPath)
+          doc.updateAssetPaths(asset.resourceType, route, assetPath)
         );
 
         if (write) {

@@ -20,6 +20,7 @@ export interface Context {
 
 export interface Output {
   route: string;
+  resourceType?: ResourceType;
   content?: RenderableDocument | Uint8Array;
   hash?: string;
   errorStatus?: number;
@@ -129,6 +130,7 @@ export class Renderer {
       return {
         route: outputRoute,
         content: doc,
+        resourceType,
       };
     } else if (resourceType === ResourceType.XML) {
       const content = await renderHTML(
@@ -147,30 +149,37 @@ export class Renderer {
       return {
         route: outputRoute,
         content: encoder.encode(content),
+        resourceType,
       };
     } else if (resourceType === ResourceType.CSS) {
       const content = await renderCSS(path, opts?.usedBy);
       return {
         route,
         content: encoder.encode(content),
+        resourceType,
       };
     } else if (resourceType === ResourceType.JS) {
       const result = await renderJS(path, join(srcPath, config.dirs!.js!));
       return {
         route,
         content: encoder.encode(result.outputFiles[0].text),
+        resourceType,
       };
     } else if (resourceType === ResourceType.IMAGE) {
       const { content } = await renderImage(path);
       return {
         route,
         content,
+        resourceType,
       };
-    } else if (resourceType === ResourceType.MEDIA) {
+    } else if (
+      resourceType === ResourceType.AUDIO || resourceType === ResourceType.VIDEO
+    ) {
       const { content } = await renderMedia(path);
       return {
         route,
         content,
+        resourceType,
       };
     } else {
       return {

@@ -1,19 +1,18 @@
-import { RenderableDocument } from "../utils/dom.ts";
-
-export type AssetType = "js" | "css" | "image" | "audio" | "video";
+import { RenderableDocument } from "./dom.ts";
+import { ResourceType } from "./routes.ts";
 
 export class Asset {
-  assetType: AssetType;
+  resourceType: ResourceType;
   usedBy: RenderableDocument[];
   hash?: string;
 
   constructor(
     opts: {
-      assetType: AssetType;
+      resourceType: ResourceType;
       usedBy: RenderableDocument[];
     },
   ) {
-    this.assetType = opts.assetType;
+    this.resourceType = opts.resourceType;
     this.usedBy = opts.usedBy;
   }
 }

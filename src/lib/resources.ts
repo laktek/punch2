@@ -1,9 +1,12 @@
 import { Database, Statement } from "sqlite";
 
+import { ResourceType } from "../utils/routes.ts";
+
 export type Resource = {
   route: string;
+  type: ResourceType;
   hash: string;
-  build: string;
+  lastmod: string;
 };
 
 export class Resources {
@@ -17,12 +20,12 @@ export class Resources {
 
     // create the contents table
     this.#db.exec(
-      `create table if not exists 'resources' (route, hash, build)`,
+      `create table if not exists 'resources' (route, type, hash, lastmod)`,
     );
 
     // prepare insert statement
     this.#insertStmt = this.#db.prepare(
-      `insert into "resources" (route, hash, build) values(:route, :hash, :build)`,
+      `insert into "resources" (route, type, hash, lastmod) values(:route, :type, :hash, :lastmod)`,
     );
 
     this.insertAll = this.#db.transaction(

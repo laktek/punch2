@@ -67,6 +67,7 @@ async function batchedRender(
 async function batchedWrite(
   config: Config,
   destPath: string,
+  resources: Resources,
   pages: Output[],
 ): Promise<void> {
   const { batchSize } = config.build!;
@@ -92,6 +93,19 @@ async function batchedWrite(
     const batch = pages.slice(i, i + batchSize);
     await Promise.all(batch.map(writePage));
   }
+
+  // write resources to DB
+  const lastmod = new Date().toJSON();
+  const resourcesArr: Resource[] = [];
+  pages.forEach((page) =>
+    resourcesArr.push({
+      route: page.route,
+      type: page.resourceType!,
+      hash: "",
+      lastmod,
+    })
+  );
+  resources.insertAll(resourcesArr);
 
   performance.mark("write-finished");
   const writeDuration = performance.measure(
@@ -150,6 +164,18 @@ export async function build(opts: BuildOpts): Promise<boolean> {
 
   performance.mark("assets-started");
   await assetMap.render(destPath);
+  const resourcesArr: Resource[] = [];
+  // write resources to DB
+  const lastmod = new Date().toJSON();
+  assetMap.assets.forEach((asset, route) =>
+    resourcesArr.push({
+      route,
+      type: asset.resourceType,
+      hash: asset.hash || "",
+      lastmod,
+    })
+  );
+  resources.insertAll(resourcesArr);
   performance.mark("assets-finished");
   const assetsDuration = performance.measure(
     "assets-duration",
@@ -158,18 +184,9 @@ export async function build(opts: BuildOpts): Promise<boolean> {
   );
   console.log("assets duration", assetsDuration.duration);
 
-  await batchedWrite(config, destPath, pages);
+  await batchedWrite(config, destPath, resources, pages);
 
-  const resourcesArr: Resource[] = [];
-  // write resources to DB
-  assetMap.assets.forEach((asset, route) =>
-    resourcesArr.push({
-      route,
-      hash: asset.hash || "",
-      build: "",
-    })
-  );
-  resources.insertAll(resourcesArr);
+  // add sitemap
 
   db.close();
 

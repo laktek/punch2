@@ -10,6 +10,7 @@ import { Renderer } from "./render.ts";
 import { Contents } from "./contents.ts";
 import { Resources } from "./resources.ts";
 import { RenderableDocument } from "../utils/dom.ts";
+import { ResourceType } from "../utils/routes.ts";
 
 Deno.test("AssetMap.track", async (t) => {
   const config = await getConfig();
@@ -50,8 +51,14 @@ Deno.test("AssetMap.track", async (t) => {
     assetMap.track(content);
 
     assertEquals([...assetMap.assets.keys()], ["/js/main.ts", "/css/main.css"]);
-    assertEquals(assetMap.assets.get("/css/main.css")!.assetType, "css");
-    assertEquals(assetMap.assets.get("/js/main.ts")!.assetType, "js");
+    assertEquals(
+      assetMap.assets.get("/css/main.css")!.resourceType,
+      ResourceType.CSS,
+    );
+    assertEquals(
+      assetMap.assets.get("/js/main.ts")!.resourceType,
+      ResourceType.JS,
+    );
 
     // TODO: Add tests for image, audio, video
   });
@@ -60,12 +67,12 @@ Deno.test("AssetMap.track", async (t) => {
     const assetMap = new AssetMap(config, renderer);
 
     assetMap.assets.set("/js/main.ts", {
-      assetType: "js",
+      resourceType: ResourceType.JS,
       usedBy: [new RenderableDocument("")],
     });
 
     assetMap.assets.set("/css/main.css", {
-      assetType: "css",
+      resourceType: ResourceType.CSS,
       usedBy: [new RenderableDocument("")],
     });
 

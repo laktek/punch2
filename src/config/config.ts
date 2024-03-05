@@ -27,7 +27,8 @@ export interface Config {
     js?: string;
     images?: string;
     feeds?: string;
-    media?: string;
+    audio?: string;
+    video?: string;
   };
   modifiers?: {
     renderer?: string;
@@ -74,7 +75,8 @@ export async function getConfig(
       images: "images",
       feeds: "feeds",
       fonts: "fonts",
-      media: "media", // audio, video, 3d files
+      audio: "audio",
+      video: "video",
     },
     routes: [],
     redirects: {},

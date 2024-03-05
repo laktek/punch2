@@ -1,6 +1,6 @@
 import { DOMParser, Element, HTMLDocument } from "deno_dom";
 
-import { AssetType } from "./asset.ts";
+import { ResourceType } from "./routes.ts";
 
 interface SrcsetItem {
   url: string;
@@ -40,13 +40,19 @@ export class RenderableDocument {
   }
 
   // TODO: Support images, picture, and assets loaded via link preload (audio, video, fonts)
-  get assets(): Record<AssetType, string[]> {
-    const assets: Record<AssetType, string[]> = {
-      js: [],
-      css: [],
-      image: [],
-      audio: [],
-      video: [],
+  get assets(): Record<
+    Exclude<ResourceType, ResourceType.HTML | ResourceType.XML>,
+    string[]
+  > {
+    const assets: Record<
+      Exclude<ResourceType, ResourceType.HTML | ResourceType.XML>,
+      string[]
+    > = {
+      [ResourceType.JS]: [],
+      [ResourceType.CSS]: [],
+      [ResourceType.IMAGE]: [],
+      [ResourceType.AUDIO]: [],
+      [ResourceType.VIDEO]: [],
     };
 
     if (!this.document) {
@@ -58,7 +64,7 @@ export class RenderableDocument {
       const src = s.getAttribute("src");
 
       if (src) {
-        assets.js.push(src);
+        assets[ResourceType.JS].push(src);
       }
     });
 
@@ -68,7 +74,7 @@ export class RenderableDocument {
     stylesheets.forEach((s) => {
       const href = (s as Element).getAttribute("href");
       if (href) {
-        assets.css.push(href);
+        assets[ResourceType.CSS].push(href);
       }
     });
 
@@ -80,13 +86,13 @@ export class RenderableDocument {
     images.forEach((i) => {
       const src = (i as Element).getAttribute("src");
       if (src) {
-        assets.image.push(src);
+        assets[ResourceType.IMAGE].push(src);
       }
       const srcset = (i as Element).getAttribute("srcset");
       if (srcset) {
         parseSrcset(srcset).forEach(
           ({ url }: { url: string; size: string }) => {
-            assets.image.push(url);
+            assets[ResourceType.IMAGE].push(url);
           },
         );
       }
@@ -98,13 +104,13 @@ export class RenderableDocument {
     audios.forEach((i) => {
       const src = (i as Element).getAttribute("src");
       if (src) {
-        assets.audio.push(src);
+        assets[ResourceType.AUDIO].push(src);
       }
       const srcElements = (i as Element).querySelectorAll("source");
       srcElements.forEach((se) => {
         const src = (se as Element).getAttribute("src");
         if (src) {
-          assets.audio.push(src);
+          assets[ResourceType.AUDIO].push(src);
         }
       });
     });
@@ -115,13 +121,13 @@ export class RenderableDocument {
     videos.forEach((i) => {
       const src = (i as Element).getAttribute("src");
       if (src) {
-        assets.video.push(src);
+        assets[ResourceType.VIDEO].push(src);
       }
       const srcElements = (i as Element).querySelectorAll("source");
       srcElements.forEach((se) => {
         const src = (se as Element).getAttribute("src");
         if (src) {
-          assets.video.push(src);
+          assets[ResourceType.VIDEO].push(src);
         }
       });
     });
@@ -229,16 +235,20 @@ export class RenderableDocument {
     });
   }
 
-  updateAssetPaths(assetType: AssetType, oldPath: string, newPath: string) {
-    if (assetType === "js") {
+  updateAssetPaths(
+    resourceType: ResourceType,
+    oldPath: string,
+    newPath: string,
+  ) {
+    if (resourceType === ResourceType.JS) {
       this.#updateScriptPaths(oldPath, newPath);
-    } else if (assetType === "css") {
+    } else if (resourceType === ResourceType.CSS) {
       this.#updateStylesheetPaths(oldPath, newPath);
-    } else if (assetType === "image") {
+    } else if (resourceType === ResourceType.IMAGE) {
       this.#updateImagePaths(oldPath, newPath);
-    } else if (assetType === "audio") {
+    } else if (resourceType === ResourceType.AUDIO) {
       this.#updateAudioPaths(oldPath, newPath);
-    } else if (assetType === "video") {
+    } else if (resourceType === ResourceType.VIDEO) {
       this.#updateVideoPaths(oldPath, newPath);
     }
   }

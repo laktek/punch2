@@ -58,7 +58,7 @@ export default async function (ctx: Context, next: NextFn) {
           );
           const assetPath = routeWithContentHash(route, resource?.hash || "");
           const doc = output.content as RenderableDocument;
-          doc.updateAssetPaths(asset.assetType, route, assetPath);
+          doc.updateAssetPaths(asset.resourceType, route, assetPath);
         });
       }
     }

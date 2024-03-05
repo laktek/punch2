@@ -1,6 +1,7 @@
 import { assert, assertEquals } from "std/testing/asserts.ts";
 
 import { RenderableDocument } from "./dom.ts";
+import { ResourceType } from "./routes.ts";
 
 Deno.test("new RenderableDocument()", async (t) => {
   await t.step(
@@ -54,11 +55,11 @@ Deno.test("getAssets", async (t) => {
       const doc = new RenderableDocument("");
 
       assertEquals(doc.assets, {
-        js: [],
-        css: [],
-        image: [],
-        audio: [],
-        video: [],
+        [ResourceType.JS]: [],
+        [ResourceType.CSS]: [],
+        [ResourceType.IMAGE]: [],
+        [ResourceType.AUDIO]: [],
+        [ResourceType.VIDEO]: [],
       }, "expected an ampty assets object");
     },
   );
@@ -71,11 +72,11 @@ Deno.test("getAssets", async (t) => {
       );
 
       assertEquals(doc.assets, {
-        js: [],
-        css: [],
-        image: [],
-        audio: [],
-        video: [],
+        [ResourceType.JS]: [],
+        [ResourceType.CSS]: [],
+        [ResourceType.IMAGE]: [],
+        [ResourceType.AUDIO]: [],
+        [ResourceType.VIDEO]: [],
       }, "expected inline script to be skipped");
     },
   );
@@ -88,14 +89,14 @@ Deno.test("getAssets", async (t) => {
       );
 
       assertEquals(doc.assets, {
-        js: [
+        [ResourceType.JS]: [
           "/js/main.js",
           "https://cdn.com/util.js",
         ],
-        css: [],
-        image: [],
-        audio: [],
-        video: [],
+        [ResourceType.CSS]: [],
+        [ResourceType.IMAGE]: [],
+        [ResourceType.AUDIO]: [],
+        [ResourceType.VIDEO]: [],
       }, "expected to return external scripts");
     },
   );
@@ -108,14 +109,14 @@ Deno.test("getAssets", async (t) => {
       );
 
       assertEquals(doc.assets, {
-        js: [],
-        css: [
+        [ResourceType.JS]: [],
+        [ResourceType.CSS]: [
           "/css/main.css",
           "https://cdn.com/util.css",
         ],
-        image: [],
-        audio: [],
-        video: [],
+        [ResourceType.IMAGE]: [],
+        [ResourceType.AUDIO]: [],
+        [ResourceType.VIDEO]: [],
       }, "expected to return external css");
     },
   );
@@ -128,16 +129,16 @@ Deno.test("getAssets", async (t) => {
       );
 
       assertEquals(doc.assets, {
-        js: [],
-        css: [],
-        image: [
+        [ResourceType.JS]: [],
+        [ResourceType.CSS]: [],
+        [ResourceType.IMAGE]: [
           "image.png",
           "default.png",
           "small.png",
           "large.png",
         ],
-        audio: [],
-        video: [],
+        [ResourceType.AUDIO]: [],
+        [ResourceType.VIDEO]: [],
       }, "expected to return img sources");
     },
   );
@@ -150,15 +151,15 @@ Deno.test("getAssets", async (t) => {
       );
 
       assertEquals(doc.assets, {
-        js: [],
-        css: [],
-        image: [],
-        audio: [
+        [ResourceType.JS]: [],
+        [ResourceType.CSS]: [],
+        [ResourceType.IMAGE]: [],
+        [ResourceType.AUDIO]: [
           "/media/song.wav",
           "/media/song.mp3",
           "/media/song.ogg",
         ],
-        video: [],
+        [ResourceType.VIDEO]: [],
       }, "expected to return audio sources");
     },
   );
@@ -171,11 +172,11 @@ Deno.test("getAssets", async (t) => {
       );
 
       assertEquals(doc.assets, {
-        js: [],
-        css: [],
-        image: [],
-        audio: [],
-        video: [
+        [ResourceType.JS]: [],
+        [ResourceType.CSS]: [],
+        [ResourceType.IMAGE]: [],
+        [ResourceType.AUDIO]: [],
+        [ResourceType.VIDEO]: [
           "/media/flower.mp4",
           "/media/flower.webm",
           "/media/flower.avi",
@@ -193,7 +194,11 @@ Deno.test("updateAssetPaths", async (t) => {
         '<html><head><link rel="stylesheet" href="/css/main.css" /><link rel="stylesheet" href="https://cdn.com/util.css" /><link rel="icon" href="favicon.ico" /></head></html>',
       );
 
-      doc.updateAssetPaths("css", "/css/main.css", "/css/main.123.css");
+      doc.updateAssetPaths(
+        ResourceType.CSS,
+        "/css/main.css",
+        "/css/main.123.css",
+      );
       assert(
         doc.document!.querySelectorAll(
           'link[rel="stylesheet"][href="/css/main.123.css"]',
@@ -221,7 +226,7 @@ Deno.test("updateAssetPaths", async (t) => {
         "<html><body><script>alert('foo')</script><script src='/js/main.js'></script><script src='https://cdn.com/util.js'></script></body></html>",
       );
 
-      doc.updateAssetPaths("js", "/js/main.js", "/js/main.123.js");
+      doc.updateAssetPaths(ResourceType.JS, "/js/main.js", "/js/main.123.js");
       assert(
         doc.document!.querySelectorAll(
           'script[src="/js/main.123.js"]',
@@ -250,7 +255,7 @@ Deno.test("updateAssetPaths", async (t) => {
       );
 
       doc.updateAssetPaths(
-        "image",
+        ResourceType.IMAGE,
         "/images/default.png",
         "/images/default.123.png",
       );
@@ -283,7 +288,7 @@ Deno.test("updateAssetPaths", async (t) => {
       );
 
       doc.updateAssetPaths(
-        "audio",
+        ResourceType.AUDIO,
         "/media/song.mp3",
         "/media/song.123.mp3",
       );
@@ -315,7 +320,7 @@ Deno.test("updateAssetPaths", async (t) => {
       );
 
       doc.updateAssetPaths(
-        "video",
+        ResourceType.VIDEO,
         "/media/flower.mp4",
         "/media/flower.123.mp4",
       );

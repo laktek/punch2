@@ -49,7 +49,8 @@ export enum ResourceType {
   IMAGE,
   HTML,
   XML,
-  MEDIA, // audio & video
+  AUDIO,
+  VIDEO,
 }
 
 interface Resource {
@@ -79,9 +80,12 @@ export async function findResource(
   } else if (route.startsWith("/images")) {
     resourceDir = config.dirs!.images!;
     resourceType = ResourceType.IMAGE;
-  } else if (route.startsWith("/media")) {
-    resourceDir = config.dirs!.media!;
-    resourceType = ResourceType.MEDIA;
+  } else if (route.startsWith("/audio")) {
+    resourceDir = config.dirs!.audio!;
+    resourceType = ResourceType.AUDIO;
+  } else if (route.startsWith("/video")) {
+    resourceDir = config.dirs!.video!;
+    resourceType = ResourceType.AUDIO;
   } else if (route.startsWith("/feeds") && ext === ".xml") {
     resourceDir = config.dirs!.feeds!;
     resourceType = ResourceType.XML;
