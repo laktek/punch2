@@ -12,6 +12,7 @@ import { copyPublicFiles } from "../utils/public.ts";
 import { writeFile } from "../utils/fs.ts";
 import { RenderableDocument } from "../utils/dom.ts";
 import { hashContent } from "../utils/content_hash.ts";
+import { generateSitemap } from "../lib/sitemap.ts";
 
 interface BuildOpts {
   srcPath: string;
@@ -31,7 +32,7 @@ async function batchedRender(
 ): Promise<BatchedRenderResult> {
   const pages: Output[] = [];
   const assetMap = new AssetMap(config, renderer);
-  const { batchSize } = config.build!;
+  const batchSize = config.build?.batchSize || 100;
 
   const renderRoute = async (route: string) => {
     const output = await renderer.render(route);
@@ -70,7 +71,7 @@ async function batchedWrite(
   resources: Resources,
   pages: Output[],
 ): Promise<void> {
-  const { batchSize } = config.build!;
+  const batchSize = config.build?.batchSize || 100;
   performance.mark("write-started");
   const textEncoder = new TextEncoder();
 
@@ -84,8 +85,6 @@ async function batchedWrite(
       const contentStr = page.content!.toString();
       encoded = textEncoder.encode(contentStr);
     }
-    // const hash = await hashContent(encoded);
-    //resourcesArr.push({ route: page.route, hash, build: "" });
     await writeFile(path, encoded);
   };
 
@@ -136,6 +135,8 @@ export async function build(opts: BuildOpts): Promise<boolean> {
   await contents.prepare(contentsPath);
 
   const resources = new Resources(db);
+  // clear resources from previous build
+  await resources.clear();
 
   const context = {
     srcPath,
@@ -187,6 +188,9 @@ export async function build(opts: BuildOpts): Promise<boolean> {
   await batchedWrite(config, destPath, resources, pages);
 
   // add sitemap
+  if (config.build?.sitemap) {
+    await generateSitemap(config, destPath, resources);
+  }
 
   db.close();
 

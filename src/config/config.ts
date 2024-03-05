@@ -16,6 +16,7 @@ interface ServeLoggingOpts {
 export interface Config {
   output?: string;
   db?: string;
+  baseURL?: string;
   routes?: string[];
   redirects?: Record<string, RedirectValue>;
   dirs?: {
@@ -35,7 +36,8 @@ export interface Config {
     middleware?: string;
   };
   build?: {
-    batchSize: number;
+    batchSize?: number;
+    sitemap?: boolean;
   };
   serve?: {
     logging?: ServeLoggingOpts;
@@ -82,6 +84,7 @@ export async function getConfig(
     redirects: {},
     build: {
       batchSize: 100,
+      sitemap: true,
     },
   };
 

@@ -43,4 +43,17 @@ export class Resources {
     );
     return stmt.get<Resource>(route);
   }
+
+  all(type: ResourceType): Resource[] {
+    const stmt = this.#db.prepare(
+      `select * from resources where type = ?`,
+    );
+    return stmt.all<Resource>(type);
+  }
+
+  clear() {
+    this.#db.exec(
+      `delete from 'resources'`,
+    );
+  }
 }
