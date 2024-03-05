@@ -18,6 +18,7 @@ interface BuildOpts {
   srcPath: string;
   output?: string;
   config?: string;
+  baseUrl?: string;
 }
 
 interface BatchedRenderResult {
@@ -189,10 +190,11 @@ export async function build(opts: BuildOpts): Promise<boolean> {
 
   // add sitemap
   if (config.build?.sitemap) {
-    await generateSitemap(config, destPath, resources);
+    await generateSitemap(config, destPath, resources, opts.baseUrl);
   }
 
   db.close();
 
+  console.log(`Built site in ${destPath}`);
   return true;
 }

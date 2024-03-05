@@ -120,6 +120,7 @@ async function createDefaultSite(path: string, force: boolean) {
   try {
     createDirs(path);
     await copyTemplates(path, force);
+    console.log(`Created a new site ${join(Deno.cwd(), path)}`);
   } catch (e) {
     console.error(e);
   }
@@ -129,5 +130,11 @@ export async function newSite(
   path: string,
   opts: NewSiteOpts,
 ): Promise<void> {
+  if (!path) {
+    console.error(
+      `Need a name for the site directory (use '.' to create the site in current directory)`,
+    );
+    return;
+  }
   await createDefaultSite(path, opts.force);
 }

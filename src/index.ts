@@ -34,6 +34,10 @@ program.command("build")
   .argument("[SOURCE]", "path of the site to build")
   .option("-o, --output <DIR>", "output directory for the built site")
   .option("-c, --config <PATH>", "path for the config file")
+  .option(
+    "--base-url <URL>",
+    "Base URL of the site (eg: https://example.com)",
+  )
   .action((path = "", options: any) => {
     build({ srcPath: path, ...options });
   });
@@ -63,7 +67,7 @@ program.command("serve")
 
 program.command("publish")
   .description(
-    "publish the site to punch.site",
+    "publish the site to punch.host",
   )
   .action(() => {
     console.log("This feature is not implemented yet.");

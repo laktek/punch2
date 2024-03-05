@@ -1,5 +1,6 @@
 {
 	"output": "dist",
+  "baseURL": "http://localhost:8080",
 	"routes": [
 		"/blog/hello-world",
 		"/blog/another-post",

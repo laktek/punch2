@@ -27,7 +27,6 @@ Future releases:
 * Image optimizations
 * Font optimizations
 * Opengraph images with Resvg
-* Content API
 * Speculative Loading API (via headers)
 * Full-text search
 * Migrate Jekyll, 11ty, Astro, and Hugo sites
@@ -41,7 +40,9 @@ Future releases:
 
 * on-demand rendering [~]
   - write rendered resources to disk
-* Sitemaps
+* Content API
+* Setup GitHub actions for release
+* Install script
 
 * tsconfig
 * tailwind config

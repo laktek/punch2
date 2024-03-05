@@ -16,7 +16,7 @@ export async function generateSitemap(
     // TODO: change the default base url
     baseURL = "http://localhost:8080";
     console.warn(
-      `Generate sitemap: baseURL is not provided. Using ${baseURL} as the default.`,
+      `Generate sitemap: base URL is not provided. Using ${baseURL} as the default. (Use --base-url flag to set a base URL)`,
     );
   }
 
