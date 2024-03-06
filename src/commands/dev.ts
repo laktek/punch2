@@ -10,6 +10,7 @@ import { Renderer } from "../lib/render.ts";
 
 import {
   addMetaHeaders,
+  contentAPI,
   devReload,
   logRequest,
   notFound,
@@ -44,6 +45,7 @@ export async function dev(opts: DevOpts): Promise<void> {
   } else {
     middleware = [
       redirect,
+      contentAPI,
       onDemandRender,
       notFound,
       addMetaHeaders,

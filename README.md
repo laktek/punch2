@@ -40,7 +40,7 @@ Future releases:
 
 * on-demand rendering [~]
   - write rendered resources to disk
-* Content API
+* Content API [x]
 * Setup GitHub actions for release
 * Install script
 * build logs

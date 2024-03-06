@@ -1494,6 +1494,7 @@
   },
   "workspace": {
     "dependencies": [
+      "jsr:@db/sqlite@0.11",
       "npm:autoprefixer@10.4.16",
       "npm:commander@11.1.0",
       "npm:gray-matter@4.0.3",

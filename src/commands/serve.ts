@@ -16,6 +16,7 @@ import { Renderer } from "../lib/render.ts";
 import {
   addCacheHeaders,
   addMetaHeaders,
+  contentAPI,
   logRequest,
   notFound,
   onDemandRender,
@@ -90,6 +91,7 @@ async function prepareSite(siteConfig: SiteConfig): Promise<Site> {
   } else {
     middleware = [
       redirect,
+      contentAPI,
       serveFile,
       onDemandRender,
       notFound,

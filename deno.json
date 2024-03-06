@@ -10,7 +10,7 @@
     "autoprefixer": "npm:autoprefixer@10.4.16",
     "tailwindcss": "npm:tailwindcss@3.4.1",
     "esbuild": "https://deno.land/x/esbuild@v0.19.5/mod.js",
-    "sqlite": "https://deno.land/x/sqlite3@0.9.1/mod.ts"
+    "sqlite": "jsr:@db/sqlite@0.11"
   },
   "tasks": {
     "test": "deno test -A --unstable-ffi ./src",
