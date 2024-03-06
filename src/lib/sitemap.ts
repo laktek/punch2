@@ -38,5 +38,7 @@ export async function generateSitemap(
     "sitemap-started",
     "sitemap-finished",
   );
-  console.log("sitemap duration", sitemapDuration.duration);
+  console.info(
+    `- built sitemap (${Math.round(sitemapDuration.duration * 100) / 100}ms)`,
+  );
 }

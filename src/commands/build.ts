@@ -61,7 +61,11 @@ async function batchedRender(
     "render-started",
     "render-finished",
   );
-  console.log("render duration", renderDuration.duration);
+  console.info(
+    `- rendered pages (${pages.length} pages in ${
+      Math.round(renderDuration.duration * 100) / 100
+    }ms)`,
+  );
 
   return { pages, assetMap };
 }
@@ -113,7 +117,11 @@ async function batchedWrite(
     "write-started",
     "write-finished",
   );
-  console.log("write duration", writeDuration.duration);
+  console.info(
+    `- wrote files to disk (${pages.length} pages in ${
+      Math.round(writeDuration.duration * 100) / 100
+    }ms)`,
+  );
 }
 
 export async function build(opts: BuildOpts): Promise<boolean> {
@@ -184,7 +192,11 @@ export async function build(opts: BuildOpts): Promise<boolean> {
     "assets-started",
     "assets-finished",
   );
-  console.log("assets duration", assetsDuration.duration);
+  console.info(
+    `- built assets (${assetMap.assets.size} assets in ${
+      Math.round(assetsDuration.duration / 100) * 100
+    }ms)`,
+  );
 
   await batchedWrite(config, destPath, resources, pages);
 
