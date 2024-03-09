@@ -43,7 +43,6 @@ Future releases:
 * Content API [x]
 * Setup GitHub actions for release
 * Install script
-* build logs
 * Sourcemaps
 * tsconfig
 * handlebars helpers
