@@ -27,23 +27,23 @@ jobs:
         run: ./scripts/ci_relase.sh ${{ matrix.env }}
 
       - name: Create Release for ${{ matrix.env }}
-        id: 'create_release_${{ matrix.env }}'
+        id: create-release-${{ matrix.env }}
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: 'v0.0.1-alpha-${{ matrix.env }}'  # specify the tag name for your release
-          release_name: 'Release v0.0.1-alpha-${{ matrix.env }}'  # specify the release name
+          tag_name: v0.0.1-alpha-${{ matrix.env }}  # specify the tag name for your release
+          release_name: Release v0.0.1-alpha-${{ matrix.env }}  # specify the release name
           draft: false
           prerelease: true
 
       - name: Upload Release Asset for ${{ matrix.env }}
-        id: 'upload_release_asset_${{ matrix.env }}'
+        id: upload-release-asset-${{ matrix.env }}
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: '${{ steps.create_release_${{ matrix.env }}.outputs.upload_url }}'
-          asset_path: './bin/punch-${{ matrix.env }}.zip'
-          asset_name: 'punch-${{ matrix.env }}.zip'
+          upload_url: ${{ steps.create-release-${{ matrix.env }}.outputs.upload_url }}
+          asset_path: ./bin/punch-${{ matrix.env }}.zip
+          asset_name: punch-${{ matrix.env }}.zip
           asset_content_type: application/zip
