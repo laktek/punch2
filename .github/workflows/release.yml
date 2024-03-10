@@ -9,38 +9,41 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
 
-      - name: Set up Deno
+  strategy:
+    matrix:
+      env: [x86_64-unknown-linux-gnu, x86_64-pc-windows-msvc, x86_64-apple-darwin, aarach64-apple-darwin]  # List of targets to build for
+
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Deno
         uses: denoland/setup-deno@v1
         with:
           deno-version: v1.41
 
-      - name: Build binary
-        run: deno task compile
+    - name: Build and zip binary for ${{ matrix.env }}
+      run: ./scripts/ci_relase.sh ${{ matrix.env }}
 
-      - name: Zip binary
-        run: zip punch-test.zip bin/punch
+    - name: Create Release for ${{ matrix.env }}
+      id: create_release_${{ matrix.env }}
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v0.0.1-alpha-${{ matrix.env }}  # specify the tag name for your release
+        release_name: Release v0.0.1-alpha-${{ matrix.env }}  # specify the release name
+        draft: false
+        prerelease: true
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v0.0.1-alpha  # specify the tag name for your release
-          release_name: Release v 0.0.1-alpha # specify the release name
-          draft: false
-          prerelease: true
-
-      - name: Upload Release Asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./punch-test.zip
-          asset_name: punch-test.zip
-          asset_content_type: application/zip
+    - name: Upload Release Asset for ${{ matrix.env }}
+      id: upload_release_asset_${{ matrix.env }}
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release_${{ matrix.env }}.outputs.upload_url }}
+        asset_path: ./bin/punch-${{ matrix.env }}.zip
+        asset_name: punch-${{ matrix.env }}.zip
+        asset_content_type: application/zip
