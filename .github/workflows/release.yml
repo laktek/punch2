@@ -27,7 +27,6 @@ jobs:
         run: ./scripts/ci_relase.sh ${{ matrix.env }}
 
       - name: Create Release for ${{ matrix.env }}
-        id: create_release_${{ matrix.env }}
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -38,7 +37,6 @@ jobs:
           prerelease: true
 
       - name: Upload Release Asset for ${{ matrix.env }}
-        id: upload_release_asset_${{ matrix.env }}
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
