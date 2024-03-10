@@ -24,7 +24,7 @@ jobs:
           deno-version: v1.41
 
       - name: Build and zip binary for ${{ matrix.env }}
-        run: ./scripts/ci_relase.sh ${{ matrix.env }}
+        run: ./scripts/ci_release.sh ${{ matrix.env }}
 
       - name: Create Release Asset for ${{ matrix.env }}
         id: create_release_asset
