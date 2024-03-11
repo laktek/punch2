@@ -2,6 +2,8 @@
 
 set -e
 
+echo "Installing Punch..."
+
 if [ "$OS" = "Windows_NT" ]; then
 	target="x86_64-pc-windows-msvc"
 else
@@ -44,3 +46,4 @@ else
 	echo "Run '$exe --help' to get started"
 fi
 echo
+echo "Need help? visit https://punch.dev/help"

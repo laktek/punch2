@@ -2,6 +2,16 @@
   "version": "3",
   "packages": {
     "specifiers": {
+      "jsr:@db/sqlite@0.11": "jsr:@db/sqlite@0.11.0",
+      "jsr:@denosaurs/plug@1": "jsr:@denosaurs/plug@1.0.5",
+      "jsr:@std/assert@^0.214.0": "jsr:@std/assert@0.214.0",
+      "jsr:@std/assert@^0.217.0": "jsr:@std/assert@0.217.0",
+      "jsr:@std/encoding@0.214": "jsr:@std/encoding@0.214.0",
+      "jsr:@std/fmt@0.214": "jsr:@std/fmt@0.214.0",
+      "jsr:@std/fs@0.214": "jsr:@std/fs@0.214.0",
+      "jsr:@std/path@0.214": "jsr:@std/path@0.214.0",
+      "jsr:@std/path@0.217": "jsr:@std/path@0.217.0",
+      "jsr:@std/path@^0.214.0": "jsr:@std/path@0.214.0",
       "npm:autoprefixer@10.4.16": "npm:autoprefixer@10.4.16_postcss@8.4.31",
       "npm:commander": "npm:commander@11.1.0",
       "npm:esbuild@0.19.5": "npm:esbuild@0.19.5",
@@ -12,6 +22,55 @@
       "npm:marked@9.1.5": "npm:marked@9.1.5",
       "npm:postcss@8.4.31": "npm:postcss@8.4.31",
       "npm:tailwindcss@3.4.1": "npm:tailwindcss@3.4.1_postcss@8.4.31"
+    },
+    "jsr": {
+      "@db/sqlite@0.11.0": {
+        "integrity": "107438d4e1f4028a8ac065e53e1697bd5515d41da565b79c717d4e52faa58f64",
+        "dependencies": [
+          "jsr:@denosaurs/plug@1",
+          "jsr:@std/path@0.217"
+        ]
+      },
+      "@denosaurs/plug@1.0.5": {
+        "integrity": "04cd988da558adc226202d88c3a434d5fcc08146eaf4baf0cea0c2284b16d2bf",
+        "dependencies": [
+          "jsr:@std/encoding@0.214",
+          "jsr:@std/fmt@0.214",
+          "jsr:@std/fs@0.214",
+          "jsr:@std/path@0.214"
+        ]
+      },
+      "@std/assert@0.214.0": {
+        "integrity": "55d398de76a9828fd3b1aa653f4dba3eee4c6985d90c514865d2be9bd082b140"
+      },
+      "@std/assert@0.217.0": {
+        "integrity": "c98e279362ca6982d5285c3b89517b757c1e3477ee9f14eb2fdf80a45aaa9642"
+      },
+      "@std/encoding@0.214.0": {
+        "integrity": "30a8713e1db22986c7e780555ffd2fefd1d4f9374d734bb41f5970f6c3352af5"
+      },
+      "@std/fmt@0.214.0": {
+        "integrity": "40382cff88a0783b347b4d69b94cf931ab8e549a733916718cb866c08efac4d4"
+      },
+      "@std/fs@0.214.0": {
+        "integrity": "bc880fea0be120cb1550b1ed7faf92fe071003d83f2456a1e129b39193d85bea",
+        "dependencies": [
+          "jsr:@std/assert@^0.214.0",
+          "jsr:@std/path@^0.214.0"
+        ]
+      },
+      "@std/path@0.214.0": {
+        "integrity": "d5577c0b8d66f7e8e3586d864ebdf178bb326145a3611da5a51c961740300285",
+        "dependencies": [
+          "jsr:@std/assert@^0.214.0"
+        ]
+      },
+      "@std/path@0.217.0": {
+        "integrity": "1217cc25534bca9a2f672d7fe7c6f356e4027df400c0e85c0ef3e4343bc67d11",
+        "dependencies": [
+          "jsr:@std/assert@^0.217.0"
+        ]
+      }
     },
     "npm": {
       "@alloc/quick-lru@5.2.0": {

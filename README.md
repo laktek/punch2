@@ -12,18 +12,22 @@
 * Static-site generation
 * Single binary CLI to run
 * Zero config (sensible defaults)
-* Extendable using plugins
-* Optional Server-Side Generation (SSG) & HTTP API support (works as a headless CMS for client)
+* Built-in support for Tailwind
+* Built-in support for TypeScript, JS imports
+* Automatic asset minification and fingerprinting
+* Serve multiple websites with different domains (with SSL)
+* On-demand Rendering on server-side
+* Content API (works as a headless CMS for client-side rendering)
 * Website contents can be stored in different formats and sources (JSON, Markdown, CSV, or external sources like Notion)
+* Extendable using plugins
 * SQLite DB of contents available for direct access during build and runtime
 * Static and dynamic routing
 * Compliant with Web Vitals recommendations https://web.dev/articles/vitals
 * Automatic sitemap generation
-* Automatic OG image generation
-* Deploy to Vercel, Netlify, GitHub Pages or self-host
-* Single command publish to punch.site
+* Host it anywhere Vercel, Netlify, GitHub Pages, S3, or VPS
 
 Future releases:
+* Single command publish to punch.host
 * Image optimizations
 * Font optimizations
 * Opengraph images with Resvg
@@ -41,8 +45,10 @@ Future releases:
 * on-demand rendering [~]
   - write rendered resources to disk
 * Content API [x]
-* Setup GitHub actions for release
-* Install script
+* Setup GitHub actions for release [x]
+* Install script [x]
+* Serve logs path should be possible to make it absolute
+* Option Disable on-demand render on serve
 * Sourcemaps
 * tsconfig
 * handlebars helpers
