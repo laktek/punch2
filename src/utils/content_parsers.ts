@@ -69,6 +69,8 @@ export async function parseFile(path: string): Promise<Result | null> {
     records = await parseYAMLFile(path);
   } else if (ext === ".toml") {
     records = await parseTOMLFile(path);
+  } else if (ext === ".csv") {
+    records = await parseCSVFile(path);
   } else if (ext === ".md") {
     records = await parseMarkdownFile(path);
   } else {

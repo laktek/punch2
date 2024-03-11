@@ -4,13 +4,7 @@ import { stringify as yamlStringify } from "std/yaml/mod.ts";
 import { stringify as tomlStringify } from "std/toml/mod.ts";
 import { stringify as csvStringify } from "std/csv/mod.ts";
 
-import {
-  parseCSVFile,
-  parseJSONFile,
-  parseMarkdownFile,
-  parseTOMLFile,
-  parseYAMLFile,
-} from "./content_parsers.ts";
+import { parseFile } from "./content_parsers.ts";
 
 Deno.test("parseJSONFile", async (t) => {
   const contentsDir = await Deno.makeTempDir();
@@ -23,8 +17,8 @@ Deno.test("parseJSONFile", async (t) => {
     const path = join(contentsDir, "array.json");
     await Deno.writeTextFile(path, JSON.stringify(records));
 
-    const results = await parseJSONFile(path);
-    assertEquals(results, records, "expected array of records");
+    const results = await parseFile(path);
+    assertEquals(results?.records, records, "expected array of records");
   });
 
   await t.step("file with single record", async () => {
@@ -32,8 +26,8 @@ Deno.test("parseJSONFile", async (t) => {
     const path = join(contentsDir, "single.json");
     await Deno.writeTextFile(path, JSON.stringify(record));
 
-    const results = await parseJSONFile(path);
-    assertEquals(results, [record], "expected array with the record");
+    const results = await parseFile(path);
+    assertEquals(results?.records, [record], "expected array with the record");
   });
 
   await Deno.remove(contentsDir, { recursive: true });
@@ -47,8 +41,8 @@ Deno.test("parseYAMLFile", async (t) => {
     const path = join(contentsDir, "single.yaml");
     await Deno.writeTextFile(path, yamlStringify(record));
 
-    const results = await parseYAMLFile(path);
-    assertEquals(results, [record], "expected array with the record");
+    const results = await parseFile(path);
+    assertEquals(results?.records, [record], "expected array with the record");
   });
 
   await Deno.remove(contentsDir, { recursive: true });
@@ -59,11 +53,11 @@ Deno.test("parseTOMLFile", async (t) => {
 
   await t.step("file with single record", async () => {
     const record = { "title": "foo", "content": "foo123" };
-    const path = join(contentsDir, "single.yaml");
+    const path = join(contentsDir, "single.toml");
     await Deno.writeTextFile(path, tomlStringify(record));
 
-    const results = await parseTOMLFile(path);
-    assertEquals(results, [record], "expected array with the record");
+    const results = await parseFile(path);
+    assertEquals(results?.records, [record], "expected array with the record");
   });
 
   await Deno.remove(contentsDir, { recursive: true });
@@ -86,8 +80,8 @@ Deno.test("parseCSVFile", async (t) => {
       ]),
     );
 
-    const results = await parseCSVFile(path);
-    assertEquals(results, records, "expected array of records");
+    const results = await parseFile(path);
+    assertEquals(results?.records, records, "expected array of records");
   });
 
   await Deno.remove(contentsDir, { recursive: true });
@@ -97,7 +91,7 @@ Deno.test("parseMarkdownFile", async (t) => {
   const contentsDir = await Deno.makeTempDir();
 
   await t.step("file with front-matter and markdown content", async () => {
-    const path = join(contentsDir, "array.csv");
+    const path = join(contentsDir, "post.md");
     await Deno.writeTextFile(
       path,
       `---\ntitle: Sample Blog\nauthor: John Doe\n---\nThis is a **sample** blog post with a [link](https://www.example.com)`,
@@ -110,9 +104,9 @@ Deno.test("parseMarkdownFile", async (t) => {
         `<p>This is a <strong>sample</strong> blog post with a <a href="https://www.example.com">link</a></p>\n`,
       content_type: "markdown",
     }];
-    const results = await parseMarkdownFile(path);
+    const results = await parseFile(path);
     assertEquals(
-      results,
+      results?.records,
       expected,
       "parsed markdown file didn't match with expected result",
     );
