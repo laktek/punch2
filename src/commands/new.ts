@@ -120,7 +120,7 @@ async function createDefaultSite(path: string, force: boolean) {
   try {
     createDirs(path);
     await copyTemplates(path, force);
-    console.log(`Site created!\nTo start the dev server run:\ncd ${join(Deno.cwd(), path)}; punch dev`);
+    console.log(`Site created!\nTo start the dev server run:\npunch dev ${path}`);
   } catch (e) {
     console.error(e);
   }
