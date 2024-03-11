@@ -133,6 +133,9 @@ export async function dev(opts: DevOpts): Promise<void> {
         });
       }
 
+      // reload contents
+      await contents.prepare(contentsPath);
+
       const middlewareChain = new MiddlewareChain(...middleware);
       const res = await middlewareChain.run(
         {

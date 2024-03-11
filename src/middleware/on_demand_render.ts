@@ -30,9 +30,9 @@ export default async function (ctx: Context, next: NextFn) {
   // render route
   const { pathname } = new URL(request.url);
 
-  // in dev mode, we send the `used_by` option for assets
   const renderOpts: RenderOptions = {};
   if (devMode) {
+    // in dev mode, we send the `used_by` option for assets
     const asset = assetMap.assets.get(pathname);
     if (asset) {
       renderOpts.usedBy = asset.usedBy;
