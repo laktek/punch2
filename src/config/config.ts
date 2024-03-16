@@ -14,6 +14,10 @@ interface ServeLoggingOpts {
   path: string;
 }
 
+interface OndemandRenderOpts {
+  disabled: boolean;
+}
+
 export interface Config {
   output?: string;
   db?: string;
@@ -43,7 +47,7 @@ export interface Config {
   serve?: {
     logging?: ServeLoggingOpts;
     timestamp?: "utc" | "local";
-    disableOndemandRender?: boolean;
+    ondemandRender?: OndemandRenderOpts;
   };
   tailwind?: string | TailwindConfig;
 }

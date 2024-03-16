@@ -93,7 +93,7 @@ async function prepareSite(siteConfig: SiteConfig): Promise<Site> {
       redirect,
       contentAPI,
       serveFile,
-      config.serve?.disableOndemandRender ? null : onDemandRender,
+      config.serve?.ondemandRender?.disabled ? null : onDemandRender,
       notFound,
       addCacheHeaders,
       addMetaHeaders,
