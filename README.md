@@ -44,8 +44,6 @@ Future releases:
 
 * on-demand rendering [~]
   - write rendered resources to disk
-  - Option Disable on-demand render on serve [x]
-* Serve logs path should be possible to make it absolute
 * TS files as entrypoints
 * Sourcemaps
 * tsconfig
