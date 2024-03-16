@@ -43,6 +43,7 @@ export interface Config {
   serve?: {
     logging?: ServeLoggingOpts;
     timestamp?: "utc" | "local";
+    disableOndemandRender?: boolean;
   };
   tailwind?: string | TailwindConfig;
 }

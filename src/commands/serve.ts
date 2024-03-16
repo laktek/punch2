@@ -93,12 +93,12 @@ async function prepareSite(siteConfig: SiteConfig): Promise<Site> {
       redirect,
       contentAPI,
       serveFile,
-      onDemandRender,
+      config.serve?.disableOndemandRender ? null : onDemandRender,
       notFound,
       addCacheHeaders,
       addMetaHeaders,
       logRequest,
-    ];
+    ].filter(m => m);
   }
 
   return {
