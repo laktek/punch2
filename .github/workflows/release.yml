@@ -7,8 +7,33 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  version:
     runs-on: ubuntu-latest
+  outputs:
+      version: ${{ steps.semantic.outputs.version }}
+      published: ${{ steps.semantic.outputs.is_tagged }}
+
+  steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Tag version
+        id: semantic
+        uses: paulhatch/semantic-version@v5.3.0
+        with:
+          change_path: "src/ templates/"
+          enable_prerelease_mode: true
+
+
+  build:
+    needs:
+      - version
+    if: needs.version.outputs.published == 'true'
+    runs-on: ubuntu-latest
+    env:
+      PUNCH_VERSION: ${{ needs.version.outputs.version }}
 
     strategy:
       matrix:
