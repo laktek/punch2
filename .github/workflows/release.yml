@@ -9,22 +9,22 @@ on:
 jobs:
   version:
     runs-on: ubuntu-latest
-  outputs:
-      version: ${{ steps.semantic.outputs.version }}
-      published: ${{ steps.semantic.outputs.is_tagged }}
+    outputs:
+        version: ${{ steps.semantic.outputs.version }}
+        published: ${{ steps.semantic.outputs.is_tagged }}
 
-  steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+    steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 0
 
-      - name: Tag version
-        id: semantic
-        uses: paulhatch/semantic-version@v5.3.0
-        with:
-          change_path: "src/ templates/"
-          enable_prerelease_mode: true
+        - name: Tag version
+          id: semantic
+          uses: paulhatch/semantic-version@v5.3.0
+          with:
+            change_path: "src/ templates/"
+            enable_prerelease_mode: true
 
 
   build:
@@ -57,6 +57,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: 0.0.1-alpha
+          tag_name: ${{ needs.version.outputs.version }}
           files: |
             ./bin/*
