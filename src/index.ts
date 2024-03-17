@@ -9,7 +9,7 @@ const program = new Command();
 
 program
   .name("punch")
-  .description("A fast and simple static site builder")
+  .description("A tool to build, publish, and serve web sites")
   .version(Deno.env.get("PUNCH_VERSION") || "0.0.1");
 
 program.command("new")
