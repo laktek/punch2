@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
         version: ${{ steps.semantic.outputs.version }}
-        published: ${{ steps.semantic.outputs.is_tagged }}
+        increment: ${{ steps.semantic.outputs.increment }}
 
     steps:
         - name: Checkout repository
@@ -31,7 +31,7 @@ jobs:
   build:
     needs:
       - version
-    if: needs.version.outputs.published == 'true'
+    if: needs.version.outputs.increment > 0
     runs-on: ubuntu-latest
     env:
       PUNCH_VERSION: ${{ needs.version.outputs.version }}
