@@ -4,13 +4,14 @@ import { build } from "./commands/build.ts";
 import { serve } from "./commands/serve.ts";
 import { newSite } from "./commands/new.ts";
 import { dev } from "./commands/dev.ts";
+import { version } from "./version.ts";
 
 const program = new Command();
 
 program
   .name("punch")
   .description("A tool to build, publish, and serve web sites")
-  .version(Deno.env.get("PUNCH_VERSION") || "0.0.0");
+  .version(version || "0.0.0");
 
 program.command("new")
   .description("create a new site")
