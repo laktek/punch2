@@ -54,10 +54,10 @@ jobs:
 
       - name: Create Release Asset for ${{ matrix.env }}
         id: create_release_asset
-        uses: softprops/action-gh-release@v2
+        uses: ncipollo/release-action@v1.14.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ needs.version.outputs.version }}
-          files: |
-            ./bin/*
+          allowUpdates: true
+          tag: ${{ needs.version.outputs.version }}
+          artifacts: "./bin/*"
