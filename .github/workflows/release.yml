@@ -31,7 +31,6 @@ jobs:
   build:
     needs:
       - version
-    if: needs.version.outputs.increment > 0
     runs-on: ubuntu-latest
     env:
       PUNCH_VERSION: ${{ needs.version.outputs.version }}

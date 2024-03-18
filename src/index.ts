@@ -7,8 +7,6 @@ import { dev } from "./commands/dev.ts";
 
 const program = new Command();
 
-// trigger release
-
 program
   .name("punch")
   .description("A tool to build, publish, and serve web sites")
