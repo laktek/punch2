@@ -112,5 +112,27 @@ Deno.test("parseMarkdownFile", async (t) => {
     );
   });
 
+  await t.step(".markdown content file", async () => {
+    const path = join(contentsDir, "post.markdown");
+    await Deno.writeTextFile(
+      path,
+      `---\ntitle: Sample Blog\nauthor: John Doe\n---\nThis is a **sample** blog post with a [link](https://www.example.com)`,
+    );
+
+    const expected = [{
+      title: "Sample Blog",
+      author: "John Doe",
+      content:
+        `<p>This is a <strong>sample</strong> blog post with a <a href="https://www.example.com">link</a></p>\n`,
+      content_type: "markdown",
+    }];
+    const results = await parseFile(path);
+    assertEquals(
+      results?.records,
+      expected,
+      "parsed markdown file didn't match with expected result",
+    );
+  });
+
   await Deno.remove(contentsDir, { recursive: true });
 });

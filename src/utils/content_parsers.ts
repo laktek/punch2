@@ -71,7 +71,7 @@ export async function parseFile(path: string): Promise<Result | null> {
     records = await parseTOMLFile(path);
   } else if (ext === ".csv") {
     records = await parseCSVFile(path);
-  } else if (ext === ".md") {
+  } else if ([".md", ".markdown"].includes(ext)) {
     records = await parseMarkdownFile(path);
   } else {
     console.error(`unsupported content file: ${path}`);
