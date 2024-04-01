@@ -1,4 +1,4 @@
-import { assertEquals } from "std/testing/asserts.ts";
+import { assertEquals, assertRejects } from "std/testing/asserts.ts";
 import { join } from "std/path/mod.ts";
 import { stringify as yamlStringify } from "std/yaml/mod.ts";
 import { stringify as tomlStringify } from "std/toml/mod.ts";
@@ -132,6 +132,20 @@ Deno.test("parseMarkdownFile", async (t) => {
       expected,
       "parsed markdown file didn't match with expected result",
     );
+  });
+
+  await Deno.remove(contentsDir, { recursive: true });
+});
+
+Deno.test("parseFile", async (t) => {
+  const contentsDir = await Deno.makeTempDir();
+
+  await t.step("handle exceptions when parsing files", async () => {
+    const path = join(contentsDir, "array.csv");
+
+    assertRejects(async () => {
+      await parseFile(path);
+    }, Error, "failed to parse file");
   });
 
   await Deno.remove(contentsDir, { recursive: true });

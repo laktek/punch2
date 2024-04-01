@@ -60,28 +60,32 @@ export function getKey(basename: string): string {
 }
 
 export async function parseFile(path: string): Promise<Result | null> {
-  const ext = extname(path);
-  const key = getKey(basename(path, ext));
-  let records = null;
-  if (ext === ".json") {
-    records = await parseJSONFile(path);
-  } else if (ext === ".yaml") {
-    records = await parseYAMLFile(path);
-  } else if (ext === ".toml") {
-    records = await parseTOMLFile(path);
-  } else if (ext === ".csv") {
-    records = await parseCSVFile(path);
-  } else if ([".md", ".markdown"].includes(ext)) {
-    records = await parseMarkdownFile(path);
-  } else {
-    console.error(`unsupported content file: ${path}`);
-  }
+  try {
+    const ext = extname(path);
+    const key = getKey(basename(path, ext));
+    let records = null;
+    if (ext === ".json") {
+      records = await parseJSONFile(path);
+    } else if (ext === ".yaml") {
+      records = await parseYAMLFile(path);
+    } else if (ext === ".toml") {
+      records = await parseTOMLFile(path);
+    } else if (ext === ".csv") {
+      records = await parseCSVFile(path);
+    } else if ([".md", ".markdown"].includes(ext)) {
+      records = await parseMarkdownFile(path);
+    } else {
+      console.error(`unsupported content file: ${path}`);
+    }
 
-  if (records === null) {
-    return null;
-  }
+    if (records === null) {
+      return null;
+    }
 
-  return { key, records };
+    return { key, records };
+  } catch (e) {
+    throw new Error(`failed to parse file ${path}`, { cause: e })
+  }
 }
 
 export async function parseDir(path: string): Promise<Result | null> {
