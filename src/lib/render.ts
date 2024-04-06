@@ -58,6 +58,10 @@ export class Renderer {
     return renderer;
   }
 
+  async refresh() {
+    await this.setupHandlebars();
+  }
+
   async setupHandlebars() {
     const { srcPath, config, contents } = this.context;
 

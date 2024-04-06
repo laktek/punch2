@@ -94,6 +94,7 @@ export async function dev(opts: DevOpts): Promise<void> {
     if (contentsChanged) {
       await contents.prepare(contentsPath);
     }
+    await renderer.refresh();
     dispatchEvent(new CustomEvent("file_changed", { detail: { paths } }));
   };
 
