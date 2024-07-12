@@ -1,14 +1,13 @@
 <!doctype html>
-<html lang={{ site.language }}>
-  {{#with (get_one "blog" slug=route.slug)}}
-    {{> head site=../site title=title}}
-
+<html lang=${ site.language }>
+  ${Punch.one({ from: "blog", slug: Punch.route.slug }, ({ title, authors, content }) => `
+    ${Punch.partial("head", { site, title })}
     <body>
-      <h2 class="text-3xl">{{ title }}</h2>
-      <div class="text-lg"><a class="underline" href="{{authors.[0].url}}">{{ authors.[0].name}}</a></div>
+      <h2 class="text-3xl">${ title }</h2>
+      <div class="text-lg"><a class="underline" href="${authors[0].url}">${authors[0].name}</a></div>
       <div>
-        {{ content }}
+        ${ content }
       </div>
     </body>
-  {{/with}}
+  `)}
 </html>
