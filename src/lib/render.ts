@@ -10,7 +10,6 @@ import { renderJS } from "../utils/renderers/js.ts";
 import { renderImage } from "../utils/renderers/image.ts";
 import { renderMedia } from "../utils/renderers/media.ts";
 import { RenderableDocument } from "../utils/dom.ts";
-import { getElements } from "../utils/elements.ts";
 
 export interface Context {
   srcPath: string;
