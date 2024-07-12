@@ -10,25 +10,29 @@ src += `export const gitignore = \`${gitignore}\`;\n`;
 const mainCSS = await Deno.readTextFile("template/css/main.css");
 src += `export const mainCSS = \`${mainCSS}\`;\n`;
 
-// element - head
-const headElement = await Deno.readTextFile("template/elements/head.html");
-src += `export const headElement = \`${headElement}\`;\n`;
+// partial - head
+const headPartial = await Deno.readTextFile("template/partials/head.html");
+src += `export const headPartial = \`${
+  headPartial.replace(/[`$]/g, "\\$&")
+}\`;\n`;
 
 // index
 const indexPage = await Deno.readTextFile("template/pages/index.html");
-src += `export const indexPage = \`${indexPage}\`;\n`;
+src += `export const indexPage = \`${indexPage.replace(/[`$]/g, "\\$&")}\`;\n`;
 
 // blog page template
 const blogPage = await Deno.readTextFile("template/pages/blog/_slug_.html");
-src += `export const blogPage = \`${blogPage}\`;\n`;
+src += `export const blogPage = \`${blogPage.replace(/[`$]/g, "\\$&")}\`;\n`;
 
 // not found page template
 const notFoundPage = await Deno.readTextFile("template/pages/404.html");
-src += `export const notFoundPage = \`${notFoundPage}\`;\n`;
+src += `export const notFoundPage = \`${
+  notFoundPage.replace(/[`$]/g, "\\$&")
+}\`;\n`;
 
 // rss feed
 const feed = await Deno.readTextFile("template/feeds/rss.xml");
-src += `export const feed = \`${feed}\`;\n`;
+src += `export const feed = \`${feed.replace(/[`$]/g, "\\$&")}\`;\n`;
 
 // site contents
 const siteContents = await Deno.readTextFile("template/contents/site.json");

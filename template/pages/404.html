@@ -1,6 +1,6 @@
 <!doctype html>
-<html lang={{ site.language }}>
-  {{> head site=site title="Page Not Found"}}
+<html lang=${ site.language }>
+  ${ Punch.partial("head", { site, title: "Page Not Found" }) }
 
   <body>
     <div>

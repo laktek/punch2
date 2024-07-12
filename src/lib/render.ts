@@ -1,5 +1,5 @@
 import { extname, join, relative } from "std/path/mod.ts";
-import Handlebars from "handlebars";
+import { createContext } from "node:vm";
 
 import { Contents } from "./contents.ts";
 import { Config } from "../config/config.ts";
@@ -10,7 +10,6 @@ import { renderJS } from "../utils/renderers/js.ts";
 import { renderImage } from "../utils/renderers/image.ts";
 import { renderMedia } from "../utils/renderers/media.ts";
 import { RenderableDocument } from "../utils/dom.ts";
-import { getElements } from "../utils/elements.ts";
 
 export interface Context {
   srcPath: string;
@@ -31,9 +30,9 @@ export interface RenderOptions {
   usedBy?: RenderableDocument[];
 }
 
-function queryContents(contents: Contents, key: string, options: any) {
-  const { offset, order_by, limit, ...where } = options;
-  return contents.query(key, {
+function queryContents(contents: Contents, params: any) {
+  const { from, offset, order_by, limit, ...where } = params;
+  return contents.query(from, {
     limit: limit,
     where: Object.entries(where).map(([k, v]) => [k, v]),
     offset: offset,
@@ -44,51 +43,16 @@ function queryContents(contents: Contents, key: string, options: any) {
 export class Renderer {
   context: Context;
 
-  #handlebarsEnv: any;
-
   constructor(context: Context) {
     this.context = context;
-
-    this.setupHandlebars();
   }
 
   static async init(context: Context) {
-    const renderer = new Renderer(context);
-    await renderer.setupHandlebars();
-    return renderer;
+    return new Renderer(context);
   }
 
   async refresh() {
-    await this.setupHandlebars();
-  }
-
-  async setupHandlebars() {
-    const { srcPath, config, contents } = this.context;
-
-    this.#handlebarsEnv = Handlebars.create();
-
-    // register elements as partials
-    const elementsPath = join(
-      srcPath,
-      config.dirs!.elements!,
-    );
-    const partials = await getElements(elementsPath, this.#handlebarsEnv);
-    this.#handlebarsEnv.registerPartial(partials);
-
-    // register helpers
-    const helpers = {
-      get_one: (key: string, options: { hash: any }) => {
-        const results = queryContents(contents, key, {
-          ...options.hash,
-          limit: 1,
-        });
-        return results[0];
-      },
-      get_all: (key: string, options: { hash: any }) => {
-        return queryContents(contents, key, options.hash);
-      },
-    };
-    this.#handlebarsEnv.registerHelper(helpers);
+    // noop
   }
 
   async render(route: string, opts?: RenderOptions): Promise<Output> {
@@ -110,16 +74,34 @@ export class Renderer {
         route,
         relative(join(srcPath, config.dirs!.pages!), path),
       ),
+      one: (params: any, callback: (i: unknown) => string) => {
+        const results = queryContents(contents, {
+          ...params,
+          limit: 1,
+        });
+        return callback(results[0]);
+      },
+      all: (params: any, callback: (i: unknown) => string) => {
+        return queryContents(contents, params).map((result) => callback(result))
+          .join("");
+      },
+      partial: (name: string, params?: any) => {
+        // TODO: make a helper method - make extension optional
+        const path = join(srcPath, config.dirs!.partials!, name + ".html");
+        const context = createContext({ ...params, Punch: builtins });
+        return renderHTML(path, context);
+      },
     };
 
     const encoder = new TextEncoder();
+    const renderHTMLContext = createContext(
+      contents.proxy({ Punch: builtins }),
+    );
 
     if (resourceType === ResourceType.HTML) {
-      const content = await renderHTML(
-        this.#handlebarsEnv,
+      const content = renderHTML(
         path,
-        contents,
-        builtins,
+        renderHTMLContext,
       );
 
       // parse rendered HTML
@@ -137,11 +119,9 @@ export class Renderer {
         resourceType,
       };
     } else if (resourceType === ResourceType.XML) {
-      const content = await renderHTML(
-        this.#handlebarsEnv,
+      const content = renderHTML(
         path,
-        contents,
-        builtins,
+        renderHTMLContext,
       );
 
       let outputRoute = route;

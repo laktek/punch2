@@ -12,12 +12,12 @@
       "jsr:@std/path@0.214": "jsr:@std/path@0.214.0",
       "jsr:@std/path@0.217": "jsr:@std/path@0.217.0",
       "jsr:@std/path@^0.214.0": "jsr:@std/path@0.214.0",
+      "npm:@types/node": "npm:@types/node@18.16.19",
       "npm:autoprefixer@10.4.16": "npm:autoprefixer@10.4.16_postcss@8.4.31",
       "npm:commander": "npm:commander@11.1.0",
       "npm:esbuild@0.19.5": "npm:esbuild@0.19.5",
       "npm:gray-matter": "npm:gray-matter@4.0.3",
       "npm:gray-matter@4.0.3": "npm:gray-matter@4.0.3",
-      "npm:handlebars@4.7.8": "npm:handlebars@4.7.8",
       "npm:marked": "npm:marked@9.1.4",
       "npm:marked@9.1.5": "npm:marked@9.1.5",
       "npm:postcss@8.4.31": "npm:postcss@8.4.31",
@@ -223,6 +223,10 @@
       },
       "@pkgjs/parseargs@0.11.0": {
         "integrity": "sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==",
+        "dependencies": {}
+      },
+      "@types/node@18.16.19": {
+        "integrity": "sha512-IXl7o+R9iti9eBW4Wg2hx1xQDig183jj7YLn8F7udNceyfkbn1ZxmzZXuak20gR40D7pIkIY1kYGx5VIGbaHKA==",
         "dependencies": {}
       },
       "ansi-regex@5.0.1": {
@@ -493,16 +497,6 @@
           "strip-bom-string": "strip-bom-string@1.0.0"
         }
       },
-      "handlebars@4.7.8": {
-        "integrity": "sha512-vafaFqs8MZkRrSX7sFVUdo3ap/eNiLnb4IakshzvP56X5Nr1iGKAIqdX6tMlm6HcNRIkr6AxO5jFEoJzzpT8aQ==",
-        "dependencies": {
-          "minimist": "minimist@1.2.8",
-          "neo-async": "neo-async@2.6.2",
-          "source-map": "source-map@0.6.1",
-          "uglify-js": "uglify-js@3.17.4",
-          "wordwrap": "wordwrap@1.0.0"
-        }
-      },
       "hasown@2.0.0": {
         "integrity": "sha512-vUptKVTpIJhcczKBbgnS+RtcuYMB8+oNzPK2/Hp3hanz8JmpATdmmgLgSaadVREkDm+e2giHwY3ZRkyjSIDDFA==",
         "dependencies": {
@@ -610,10 +604,6 @@
           "brace-expansion": "brace-expansion@2.0.1"
         }
       },
-      "minimist@1.2.8": {
-        "integrity": "sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==",
-        "dependencies": {}
-      },
       "minipass@7.0.4": {
         "integrity": "sha512-jYofLM5Dam9279rdkWzqHozUo4ybjdZmCsDHePy5V/PbBcVMiSZR97gmAy45aqi8CK1lG2ECd356FU86avfwUQ==",
         "dependencies": {}
@@ -628,10 +618,6 @@
       },
       "nanoid@3.3.7": {
         "integrity": "sha512-eSRppjcPIatRIMC1U6UngP8XFcz8MQWGQdt1MTBQ7NaAmvXDfvNxbvWV3x2y6CdEUciCSsDHDQZbhYaB8QEo2g==",
-        "dependencies": {}
-      },
-      "neo-async@2.6.2": {
-        "integrity": "sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==",
         "dependencies": {}
       },
       "node-releases@2.0.13": {
@@ -794,10 +780,6 @@
         "integrity": "sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==",
         "dependencies": {}
       },
-      "source-map@0.6.1": {
-        "integrity": "sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==",
-        "dependencies": {}
-      },
       "sprintf-js@1.0.3": {
         "integrity": "sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==",
         "dependencies": {}
@@ -899,10 +881,6 @@
         "integrity": "sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==",
         "dependencies": {}
       },
-      "uglify-js@3.17.4": {
-        "integrity": "sha512-T9q82TJI9e/C1TAxYvfb16xO120tMVFZrGA3f9/P4424DNu6ypK103y0GPFVa17yotwSyZW5iYXgjYHkGrJW/g==",
-        "dependencies": {}
-      },
       "update-browserslist-db@1.0.13_browserslist@4.22.1": {
         "integrity": "sha512-xebP81SNcPuNpPP3uzeW1NYXxI3rxyJzF3pD6sH4jE7o/IX+WtSpwnVU+qIsDPyk0d3hmFQ7mjqc6AtV604hbg==",
         "dependencies": {
@@ -920,10 +898,6 @@
         "dependencies": {
           "isexe": "isexe@2.0.0"
         }
-      },
-      "wordwrap@1.0.0": {
-        "integrity": "sha512-gvVzJFlPycKc5dZN4yPkP8w7Dc37BtP1yczEneOb4uq34pXZcvrtRTmWV8W+Ume+XCxKgbjM+nevkyFPMybd4Q==",
-        "dependencies": {}
       },
       "wrap-ansi@7.0.0": {
         "integrity": "sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==",
@@ -1557,7 +1531,6 @@
       "npm:autoprefixer@10.4.16",
       "npm:commander@11.1.0",
       "npm:gray-matter@4.0.3",
-      "npm:handlebars@4.7.8",
       "npm:marked@9.1.5",
       "npm:postcss@8.4.31",
       "npm:tailwindcss@3.4.1"

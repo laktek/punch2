@@ -1,17 +1,15 @@
 import { Contents } from "../../lib/contents.ts";
+import { type Context, runInContext } from "node:vm";
 
-export async function renderHTML(
-  handlebarsEnv: any,
+export function renderHTML(
   path: string,
-  contents: Contents,
-  builtins: { [key: string]: unknown },
-): Promise<string> {
+  context: Context,
+): string {
   try {
-    const raw = await Deno.readTextFile(path);
-    // contents are not escaped - developers are expected to saitize the content.
-    const template = handlebarsEnv.compile(raw, { noEscape: true });
-
-    return template(contents.proxy(builtins));
+    // TODO: cache file reads
+    const tmpl = Deno.readTextFileSync(path);
+    const script = "`" + tmpl + "`";
+    return runInContext(script, context);
   } catch (e) {
     throw new Error(`failed to render HTML template - ${path}`, { cause: e });
   }

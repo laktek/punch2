@@ -1,24 +1,24 @@
 <rss version="2.0">
   <channel>
-    <title>{{ site.title }}</title>
-    <link>{{ site.url }}</link>
-    <description>{{ site.description }}</description>
-    <pubDate>{{ blog.[1].publishDate }}</pubDate>
+    <title>${ site.title }</title>
+    <link>${ site.url }</link>
+    <description>${ site.description }</description>
+    <pubDate>${ blog.at(-1).publishDate }</pubDate>
     <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
     <generator>https://github.com/laktek/punch</generator>
-    <language>{{ site.language }}</language>
+    <language>${ site.language }</language>
 
-    {{#each (get_all "blog" order_by="created_at desc")}}
+    ${Punch.all({ from: "blog", order_by: "created_at desc" }, ({ title, slug, publishDate, content }) => `
       <item>
         <title>
-          <![CDATA[ {{ title }} ]]>
+          <![CDATA[ ${ title } ]]>
         </title>
-        <link>{{../site.url}}/{{ slug }}</link>
-        <pubDate>{{ publishDate }}</pubDate>
+        <link>${site.url}/${ slug }</link>
+        <pubDate>${ publishDate }</pubDate>
         <description>
-          <![CDATA[ {{ content }} ]]>
+          <![CDATA[ ${ content } ]]>
         </description>
       </item>
-    {{/each}}
+    `)}
   </channel>
 </rss>
