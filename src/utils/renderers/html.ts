@@ -4,7 +4,7 @@ import { type Context, runInContext } from "node:vm";
 export function renderHTML(
   path: string,
   context: Context,
-): Promise<string> {
+): string {
   try {
     // TODO: cache file reads
     const tmpl = Deno.readTextFileSync(path);

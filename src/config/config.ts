@@ -28,7 +28,7 @@ export interface Config {
     public?: string;
     pages?: string;
     contents?: string;
-    elements?: string;
+    partials?: string;
     css?: string;
     js?: string;
     images?: string;
@@ -78,7 +78,7 @@ export async function getConfig(
       public: "public",
       pages: "pages",
       contents: "contents",
-      elements: "elements",
+      partials: "partials",
       css: "css",
       js: "js",
       images: "images",

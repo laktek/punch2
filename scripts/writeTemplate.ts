@@ -10,9 +10,9 @@ src += `export const gitignore = \`${gitignore}\`;\n`;
 const mainCSS = await Deno.readTextFile("template/css/main.css");
 src += `export const mainCSS = \`${mainCSS}\`;\n`;
 
-// element - head
-const headElement = await Deno.readTextFile("template/elements/head.html");
-src += `export const headElement = \`${headElement}\`;\n`;
+// partial - head
+const headPartial = await Deno.readTextFile("template/partials/head.html");
+src += `export const headPartial = \`${headPartial}\`;\n`;
 
 // index
 const indexPage = await Deno.readTextFile("template/pages/index.html");

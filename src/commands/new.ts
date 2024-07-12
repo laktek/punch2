@@ -7,7 +7,7 @@ import {
   favicon,
   feed,
   gitignore,
-  headElement,
+  headPartial,
   helloWorldPost,
   indexPage,
   logo,
@@ -26,7 +26,7 @@ function createDirs(path: string) {
   Deno.mkdirSync(join(path, "pages", "blog"), { recursive: true });
   Deno.mkdirSync(join(path, "public"), { recursive: true });
   Deno.mkdirSync(join(path, "contents", "blog"), { recursive: true });
-  Deno.mkdirSync(join(path, "elements"), { recursive: true });
+  Deno.mkdirSync(join(path, "partials"), { recursive: true });
   Deno.mkdirSync(join(path, "css"), { recursive: true });
   Deno.mkdirSync(join(path, "js"), { recursive: true });
   Deno.mkdirSync(join(path, "images"), { recursive: true });
@@ -82,8 +82,8 @@ function copyTemplates(path: string, force: boolean) {
       feed,
     ),
     writeTextFile(
-      join(path, "elements", "head.html"),
-      headElement,
+      join(path, "partials", "head.html"),
+      headPartial,
     ),
     writeTextFile(
       join(path, "pages", "index.html"),
@@ -120,7 +120,9 @@ async function createDefaultSite(path: string, force: boolean) {
   try {
     createDirs(path);
     await copyTemplates(path, force);
-    console.log(`Site created!\nTo start the dev server run:\npunch dev ${path}`);
+    console.log(
+      `Site created!\nTo start the dev server run:\npunch dev ${path}`,
+    );
   } catch (e) {
     console.error(e);
   }

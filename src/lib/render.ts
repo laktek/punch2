@@ -87,7 +87,7 @@ export class Renderer {
       },
       partial: (name: string, params?: any) => {
         // TODO: make a helper method - make extension optional
-        const path = join(srcPath, config.dirs!.elements, name + ".html");
+        const path = join(srcPath, config.dirs!.partials!, name + ".html");
         const context = createContext({ ...params, Punch: builtins });
         return renderHTML(path, context);
       },
