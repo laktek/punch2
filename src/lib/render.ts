@@ -70,32 +70,37 @@ export class Renderer {
     const { path, resourceType } = resource;
 
     const builtins = {
-      route: getRouteParams(
-        route,
-        relative(join(srcPath, config.dirs!.pages!), path),
-      ),
-      one: (params: any, callback: (i: unknown) => string) => {
-        const results = queryContents(contents, {
-          ...params,
-          limit: 1,
-        });
-        return callback(results[0]);
-      },
-      all: (params: any, callback: (i: unknown) => string) => {
-        return queryContents(contents, params).map((result) => callback(result))
-          .join("");
-      },
-      partial: (name: string, params?: any) => {
-        // TODO: make a helper method - make extension optional
-        const path = join(srcPath, config.dirs!.partials!, name + ".html");
-        const context = createContext({ ...params, Punch: builtins });
-        return renderHTML(path, context);
+      console,
+      Punch: {
+        route: getRouteParams(
+          route,
+          relative(join(srcPath, config.dirs!.pages!), path),
+        ),
+        one: (params: any, callback: (i: unknown) => string) => {
+          const results = queryContents(contents, {
+            ...params,
+            limit: 1,
+          });
+          return callback(results[0]);
+        },
+        all: (params: any, callback: (i: unknown) => string) => {
+          return queryContents(contents, params).map((result) =>
+            callback(result)
+          )
+            .join("");
+        },
+        partial: (name: string, params?: any) => {
+          // TODO: make a helper method - make extension optional
+          const path = join(srcPath, config.dirs!.partials!, name + ".html");
+          const context = createContext({ ...params, ...builtins });
+          return renderHTML(path, context);
+        },
       },
     };
 
     const encoder = new TextEncoder();
     const renderHTMLContext = createContext(
-      contents.proxy({ Punch: builtins }),
+      contents.proxy({ ...builtins }),
     );
 
     if (resourceType === ResourceType.HTML) {
