@@ -76,7 +76,7 @@ program.command("publish")
 
 program.command("import")
   .description(
-    "import any existing website and converts it to a Punch compatible site",
+    "import any existing website and convert it to a Punch compatible site",
   )
   .action(() => {
     console.log("This feature is not implemented yet.");

@@ -47,8 +47,6 @@ Future releases:
 * TS files as entrypoints
 * Sourcemaps
 * tsconfig
-* handlebars helpers
-  - current date (in multiple formats)
 * Publish to JSR (so it can be imported for customization)
 * punch upgrade command
 
