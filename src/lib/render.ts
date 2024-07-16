@@ -73,10 +73,13 @@ export class Renderer {
       console,
       Date,
       Intl,
-      Temporal,
-      URL,
       atob,
       btoa,
+      TextEncoder,
+      TextDecoder,
+      URL,
+      URLPattern,
+      URLSearchParams,
       Punch: {
         route: getRouteParams(
           route,
