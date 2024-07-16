@@ -71,6 +71,12 @@ export class Renderer {
 
     const builtins = {
       console,
+      Date,
+      Intl,
+      Temporal,
+      URL,
+      atob,
+      btoa,
       Punch: {
         route: getRouteParams(
           route,
