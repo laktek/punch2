@@ -90,7 +90,7 @@ export async function findResource(
     resourceDir = config.dirs!.feeds!;
     resourceType = ResourceType.XML;
   } else if (ext === ".html") {
-    // match HTML resource (routes without an extensions are treated as HTML)
+    // match HTML resource
     resourceDir = config.dirs!.pages!;
     resourceType = ResourceType.HTML;
   } else if (ext === "") {
@@ -116,8 +116,17 @@ export async function findResource(
     return { path: fullPath, resourceType };
   }
 
-  // check for directory index matches
   if (ext === "") {
+    // check if there's a matching file name without the extension
+    const matches = await Array.fromAsync(
+      expandGlob(`${fullPath.replace(/\/+$/, "")}.*`, { includeDirs: false }),
+    );
+    // if there are multiple matches, only the first one is used
+    if (matches.length) {
+      return { path: matches[0].path, resourceType };
+    }
+
+    // check for directory index matches
     const dirIndex = join(resourceDirPath, route, "index.html");
     if (await exists(dirIndex, { isFile: true, isReadable: true })) {
       return { path: dirIndex, resourceType };

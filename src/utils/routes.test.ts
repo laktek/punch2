@@ -270,7 +270,7 @@ Deno.test("findResource", async (t) => {
     );
   });
 
-  await t.step("find direct page templates", async () => {
+  await t.step("find page templates with extension", async () => {
     const pagesPath = join(srcPath, "pages");
     await Deno.mkdir(pagesPath);
     await Deno.writeTextFile(
@@ -296,13 +296,14 @@ Deno.test("findResource", async (t) => {
     await Deno.remove(pagesPath, { recursive: true });
   });
 
-  await t.step("match directory routes to index pages", async () => {
+  await t.step("match extension less routes to page templates", async () => {
     const pagesPath = join(srcPath, "pages");
-    await Deno.mkdir(join(pagesPath, "sample-dir"), { recursive: true });
+    await Deno.mkdir(pagesPath);
     await Deno.writeTextFile(
-      join(join(pagesPath, "sample-dir"), "index.html"),
+      join(pagesPath, "sample.html"),
       "<html></html>",
     );
+    await Deno.mkdir(join(pagesPath, "sample-dir"), { recursive: true });
 
     const config = {
       dirs: {
@@ -311,17 +312,50 @@ Deno.test("findResource", async (t) => {
     };
 
     assertEquals(
-      await findResource(srcPath, config, "/sample-dir"),
-      {
-        resourceType: ResourceType.HTML,
-        path: join(pagesPath, "sample-dir", "index.html"),
-      },
+      await findResource(srcPath, config, "/sample"),
+      { resourceType: ResourceType.HTML, path: join(pagesPath, "sample.html") },
+    );
+    assertEquals(
+      await findResource(srcPath, config, "/sample/"),
+      { resourceType: ResourceType.HTML, path: join(pagesPath, "sample.html") },
     );
     assertEquals(
       await findResource(srcPath, config, "/not-exist"),
       null,
     );
+
+    await Deno.remove(pagesPath, { recursive: true });
   });
+
+  await t.step(
+    "match extension less routes to directory index pages",
+    async () => {
+      const pagesPath = join(srcPath, "pages");
+      await Deno.mkdir(join(pagesPath, "sample-dir"), { recursive: true });
+      await Deno.writeTextFile(
+        join(join(pagesPath, "sample-dir"), "index.html"),
+        "<html></html>",
+      );
+
+      const config = {
+        dirs: {
+          pages: "pages",
+        },
+      };
+
+      assertEquals(
+        await findResource(srcPath, config, "/sample-dir"),
+        {
+          resourceType: ResourceType.HTML,
+          path: join(pagesPath, "sample-dir", "index.html"),
+        },
+      );
+      assertEquals(
+        await findResource(srcPath, config, "/not-exist"),
+        null,
+      );
+    },
+  );
 
   await t.step("match routes to dynamic pages", async () => {
     const pagesPath = join(srcPath, "pages");

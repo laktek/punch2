@@ -30,6 +30,7 @@ Future releases:
 * Single command publish to punch.host
 * Image optimizations
 * Font optimizations
+* Support for diagrams in markdown content (mermaid)
 * Opengraph images with Resvg
 * Speculative Loading API
 * Full-text search
