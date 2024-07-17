@@ -1,5 +1,5 @@
-import { assert, assertEquals } from "std/testing/asserts.ts";
-import { join } from "std/path/mod.ts";
+import { assert, assertEquals } from "@std/assert";
+import { join } from "@std/path";
 import { Database } from "sqlite";
 
 import { Contents } from "./contents.ts";

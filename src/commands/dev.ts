@@ -1,4 +1,4 @@
-import { join, resolve } from "std/path/mod.ts";
+import { join, resolve } from "@std/path";
 import { Database } from "sqlite";
 
 import { Config, getConfig } from "../config/config.ts";

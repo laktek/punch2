@@ -1,5 +1,5 @@
-import { join, relative, resolve } from "std/path/mod.ts";
-import { walk } from "std/fs/mod.ts";
+import { join, relative, resolve } from "@std/path";
+import { walk } from "@std/fs";
 
 import { commonSkipPaths } from "./paths.ts";
 

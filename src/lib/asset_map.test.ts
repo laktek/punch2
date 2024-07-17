@@ -1,8 +1,4 @@
-import {
-  assert,
-  assertArrayIncludes,
-  assertEquals,
-} from "std/testing/asserts.ts";
+import { assert, assertArrayIncludes, assertEquals } from "@std/assert";
 
 import { AssetMap } from "./asset_map.ts";
 import { getConfig } from "../config/config.ts";

@@ -1,7 +1,7 @@
-import { extname } from "std/path/mod.ts";
-import { parse as yamlParse } from "std/yaml/mod.ts";
-import { parse as tomlParse } from "std/toml/mod.ts";
-import { deepMerge } from "std/collections/deep_merge.ts";
+import { extname } from "@std/path";
+import { parse as yamlParse } from "@std/yaml";
+import { parse as tomlParse } from "@std/toml";
+import { deepMerge } from "@std/collections";
 import { Config as TailwindConfig } from "tailwindcss";
 
 interface RedirectValue {

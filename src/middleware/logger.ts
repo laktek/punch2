@@ -1,4 +1,4 @@
-import { join, isAbsolute } from "std/path/mod.ts";
+import { isAbsolute, join } from "@std/path";
 
 import { Context, NextFn } from "../lib/middleware.ts";
 
@@ -24,7 +24,9 @@ export default async function (ctx: Context, next: NextFn) {
 
   const loggerPath = config.serve?.logging?.path;
   if (loggerPath) {
-    const fullLoggerPath = isAbsolute(loggerPath) ? loggerPath : join(srcPath, loggerPath);
+    const fullLoggerPath = isAbsolute(loggerPath)
+      ? loggerPath
+      : join(srcPath, loggerPath);
     await Deno.writeTextFile(fullLoggerPath, `${event},\n`, {
       append: true,
     });

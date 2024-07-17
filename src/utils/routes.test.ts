@@ -1,5 +1,5 @@
-import { assertEquals } from "std/testing/asserts.ts";
-import { join } from "std/path/mod.ts";
+import { assertEquals } from "@std/assert";
+import { join } from "@std/path";
 
 import {
   findResource,

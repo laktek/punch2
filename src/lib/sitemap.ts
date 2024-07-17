@@ -1,4 +1,4 @@
-import { join } from "std/path/mod.ts";
+import { join } from "@std/path";
 
 import { Resources } from "./resources.ts";
 import { Config } from "../config/config.ts";

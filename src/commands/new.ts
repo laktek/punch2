@@ -1,5 +1,5 @@
-import { join } from "std/path/mod.ts";
-import { decodeBase64 } from "std/encoding/base64.ts";
+import { join } from "@std/path";
+import { decodeBase64 } from "@std/encoding";
 
 import {
   anotherPost,

@@ -1,6 +1,6 @@
-import { exists, walk } from "std/fs/mod.ts";
+import { exists, walk } from "@std/fs";
 import { Database } from "sqlite";
-import { resolve } from "std/path/mod.ts";
+import { resolve } from "@std/path";
 
 import { commonSkipPaths } from "../utils/paths.ts";
 import { parseDir, parseFile } from "../utils/content_parsers.ts";

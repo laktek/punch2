@@ -1,4 +1,4 @@
-import { extname, join, relative } from "std/path/mod.ts";
+import { extname, join, relative } from "@std/path";
 import { createContext } from "node:vm";
 
 import { Contents } from "./contents.ts";

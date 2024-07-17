@@ -1,4 +1,4 @@
-import { assert, assertEquals } from "std/testing/asserts.ts";
+import { assert, assertEquals } from "@std/assert";
 
 import { RenderableDocument } from "./dom.ts";
 import { ResourceType } from "./routes.ts";

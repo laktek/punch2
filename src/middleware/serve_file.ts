@@ -1,5 +1,5 @@
-import { extname, join, resolve } from "std/path/mod.ts";
-import { contentType } from "std/media_types/mod.ts";
+import { extname, join, resolve } from "@std/path";
+import { contentType } from "@std/media-types";
 
 import { Context, NextFn } from "../lib/middleware.ts";
 

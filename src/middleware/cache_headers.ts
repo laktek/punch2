@@ -1,4 +1,4 @@
-import { calculate as calculateEtag } from "std/http/mod.ts";
+import { calculate as calculateEtag } from "@std/http";
 
 import { Context, NextFn } from "../lib/middleware.ts";
 

@@ -1,4 +1,4 @@
-import { assert } from "std/testing/asserts.ts";
+import { assert } from "@std/assert";
 
 import { getConfig } from "../config/config.ts";
 import { Context, MiddlewareChain, NextFn } from "./middleware.ts";

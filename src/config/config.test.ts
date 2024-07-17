@@ -1,8 +1,8 @@
-import { assert, assertRejects } from "std/testing/asserts.ts";
-import { join } from "std/path/mod.ts";
+import { assert, assertRejects } from "@std/assert";
+import { join } from "@std/path";
 
-import { stringify as yamlStringify } from "std/yaml/mod.ts";
-import { stringify as tomlStringify } from "std/toml/mod.ts";
+import { stringify as yamlStringify } from "@std/yaml";
+import { stringify as tomlStringify } from "@std/toml";
 
 import { getConfig } from "./config.ts";
 

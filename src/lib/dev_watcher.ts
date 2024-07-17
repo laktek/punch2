@@ -1,4 +1,4 @@
-import { debounce } from "std/async/mod.ts";
+import { debounce } from "@std/async";
 
 interface Options {
   srcPath: string;

@@ -1,4 +1,4 @@
-import { assertEquals } from "std/testing/asserts.ts";
+import { assertEquals } from "@std/assert";
 import { hashContent, routeWithContentHash } from "./content_hash.ts";
 
 Deno.test("hashContent", async (t) => {

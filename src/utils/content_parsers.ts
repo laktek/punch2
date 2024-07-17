@@ -1,11 +1,11 @@
-import { basename, extname } from "std/path/mod.ts";
-import { parse as yamlParse } from "std/yaml/mod.ts";
-import { parse as tomlParse } from "std/toml/mod.ts";
-import { parse as csvParse } from "std/csv/mod.ts";
+import { basename, extname } from "@std/path";
+import { parse as yamlParse } from "@std/yaml";
+import { parse as tomlParse } from "@std/toml";
+import { parse as csvParse } from "@std/csv";
+import { walk } from "@std/fs";
+import { resolve } from "@std/path";
 import matter from "gray-matter";
 import { marked } from "marked";
-import { walk } from "std/fs/mod.ts";
-import { resolve } from "std/path/mod.ts";
 
 import { commonSkipPaths } from "./paths.ts";
 
@@ -84,7 +84,7 @@ export async function parseFile(path: string): Promise<Result | null> {
 
     return { key, records };
   } catch (e) {
-    throw new Error(`failed to parse file ${path}`, { cause: e })
+    throw new Error(`failed to parse file ${path}`, { cause: e });
   }
 }
 

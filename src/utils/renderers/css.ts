@@ -1,6 +1,6 @@
 import postcss from "postcss";
 import autoprefixer from "autoprefixer";
-import { join } from "std/path/mod.ts";
+import { join } from "@std/path";
 import { Config as TailwindConfig, default as tailwindcss } from "tailwindcss";
 
 import { Config } from "../../config/config.ts";

@@ -1,6 +1,6 @@
-import { crypto } from "std/crypto/mod.ts";
-import { encodeHex } from "std/encoding/hex.ts";
-import { extname } from "std/path/mod.ts";
+import { crypto } from "@std/crypto";
+import { encodeHex } from "@std/encoding";
+import { extname } from "@std/path";
 
 export async function hashContent(content: Uint8Array): Promise<string> {
   const hash = await crypto.subtle.digest(

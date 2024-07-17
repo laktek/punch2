@@ -1,5 +1,5 @@
 import * as esbuild from "esbuild";
-import { extname } from "std/path/mod.ts";
+import { extname } from "@std/path";
 
 const loaders = {
   ".js": "js",

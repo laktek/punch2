@@ -1,6 +1,6 @@
-import { join } from "std/path/mod.ts";
-import { assert } from "std/testing/asserts.ts";
-import { exists } from "std/fs/mod.ts";
+import { join } from "@std/path";
+import { assert } from "@std/assert";
+import { exists } from "@std/fs";
 
 import { copyPublicFiles } from "./public.ts";
 

@@ -5,8 +5,8 @@ import {
   join,
   relative,
   SEPARATOR,
-} from "std/path/mod.ts";
-import { exists, expandGlob, walk } from "std/fs/mod.ts";
+} from "@std/path";
+import { exists, expandGlob, walk } from "@std/fs";
 
 import { Config } from "../config/config.ts";
 
