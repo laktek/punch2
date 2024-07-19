@@ -13,6 +13,7 @@
     "@std/media-types": "jsr:@std/media-types@^1.0.1",
     "@std/async": "jsr:@std/async@^0.224.2",
     "@std/http": "jsr:@std/http@^0.224.5",
+    "@std/html": "jsr:@std/html@^1.0.0",
     "commander": "npm:commander@11.1.0",
     "gray-matter": "npm:gray-matter@4.0.3",
     "marked": "npm:marked@9.1.5",

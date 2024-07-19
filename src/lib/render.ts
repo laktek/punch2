@@ -1,4 +1,5 @@
 import { extname, join, relative } from "@std/path";
+import { escape, unescape } from "@std/html";
 import { createContext } from "node:vm";
 
 import { Contents } from "./contents.ts";
@@ -105,6 +106,8 @@ export class Renderer {
           const context = createContext({ ...params, ...builtins });
           return renderHTML(path, context);
         },
+        escape,
+        unescape,
       },
     };
 
