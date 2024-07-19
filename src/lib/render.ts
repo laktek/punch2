@@ -73,6 +73,7 @@ export class Renderer {
       console,
       Date,
       Intl,
+      JSON,
       atob,
       btoa,
       TextEncoder,

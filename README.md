@@ -45,6 +45,8 @@ Future releases:
 
 * on-demand rendering [~]
   - write rendered resources to disk
+* Expose Punch.query API (support joins, count)
+* escape/unescape in HTML templates
 * TS files as entrypoints
 * Sourcemaps
 * tsconfig
