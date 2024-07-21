@@ -32,12 +32,13 @@ export interface RenderOptions {
 }
 
 function queryContents(contents: Contents, params: any) {
-  const { from, offset, order_by, limit, ...where } = params;
+  const { from, offset, order_by, limit, count, ...where } = params;
   return contents.query(from, {
-    limit: limit,
+    limit,
     where: Object.entries(where).map(([k, v]) => [k, v]),
-    offset: offset,
-    order_by: order_by,
+    offset,
+    order_by,
+    count,
   });
 }
 
@@ -99,6 +100,9 @@ export class Renderer {
             callback(result)
           )
             .join("");
+        },
+        count: (params: any) => {
+          return queryContents(contents, { ...params, limit: 1, count: true });
         },
         partial: (name: string, params?: any) => {
           // TODO: make a helper method - make extension optional
