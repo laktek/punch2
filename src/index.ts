@@ -68,7 +68,7 @@ program.command("serve")
 
 program.command("publish")
   .description(
-    "publish the site to punch.host",
+    "publish the site to a host",
   )
   .action(() => {
     console.log("This feature is not implemented yet.");
