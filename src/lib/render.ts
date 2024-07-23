@@ -110,7 +110,7 @@ export class Renderer {
           const context = createContext({
             ...params,
             ...builtins,
-            _params: params,
+            _params: { ...params },
           });
           return renderHTML(path, context);
         },
