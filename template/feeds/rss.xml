@@ -5,10 +5,10 @@
     <description>${ site.description }</description>
     <pubDate>${ blog.at(-1).publishDate }</pubDate>
     <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
-    <generator>https://github.com/laktek/punch</generator>
+    <generator>https://punch.dev</generator>
     <language>${ site.language }</language>
 
-    ${Punch.all({ from: "blog", order_by: "created_at desc" }, ({ title, slug, publishDate, content }) => `
+    ${Punch.all({ from: "blog", order_by: "publishDate desc" }, ({ title, slug, publishDate, content }) => `
       <item>
         <title>
           <![CDATA[ ${ title } ]]>

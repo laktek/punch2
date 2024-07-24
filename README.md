@@ -27,7 +27,8 @@
 * Host it anywhere Vercel, Netlify, GitHub Pages, S3, or VPS
 
 Future releases:
-* Single command publish to punch.host
+* Support for joins in query API
+* Single command publish (to punch.host)
 * Image optimizations
 * Font optimizations
 * Support for diagrams in markdown content (mermaid)
@@ -45,7 +46,6 @@ Future releases:
 
 * on-demand rendering [~]
   - write rendered resources to disk
-* Expose Punch.query API (support joins, count)
 * TS files as entrypoints
 * Sourcemaps
 * tsconfig

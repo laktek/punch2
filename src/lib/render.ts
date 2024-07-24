@@ -5,7 +5,7 @@ import { createContext } from "node:vm";
 import { Contents } from "./contents.ts";
 import { Config } from "../config/config.ts";
 import { findResource, getRouteParams, ResourceType } from "../utils/routes.ts";
-import { renderHTML } from "../utils/renderers/html.ts";
+import { NotFoundError, renderHTML } from "../utils/renderers/html.ts";
 import { getTailwindConfig, renderCSS } from "../utils/renderers/css.ts";
 import { renderJS } from "../utils/renderers/js.ts";
 import { renderImage } from "../utils/renderers/image.ts";
@@ -114,6 +114,9 @@ export class Renderer {
           });
           return renderHTML(path, context);
         },
+        notFound: () => {
+          throw new NotFoundError();
+        },
         escape,
         unescape,
       },
@@ -129,6 +132,14 @@ export class Renderer {
         path,
         renderHTMLContext,
       );
+
+      if (!content) {
+        return {
+          route: route,
+          errorStatus: 404,
+          errorMessage: "not found",
+        };
+      }
 
       // parse rendered HTML
       const doc = new RenderableDocument(content);
@@ -149,6 +160,14 @@ export class Renderer {
         path,
         renderHTMLContext,
       );
+
+      if (!content) {
+        return {
+          route: route,
+          errorStatus: 404,
+          errorMessage: "not found",
+        };
+      }
 
       let outputRoute = route;
       const ext = extname(route);

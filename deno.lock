@@ -18,6 +18,7 @@
       "jsr:@std/fs@0.214": "jsr:@std/fs@0.214.0",
       "jsr:@std/fs@0.229.3": "jsr:@std/fs@0.229.3",
       "jsr:@std/fs@^0.229.3": "jsr:@std/fs@0.229.3",
+      "jsr:@std/html@^1.0.0": "jsr:@std/html@1.0.0",
       "jsr:@std/internal@^1.0.1": "jsr:@std/internal@1.0.1",
       "jsr:@std/path@0.214": "jsr:@std/path@0.214.0",
       "jsr:@std/path@0.217": "jsr:@std/path@0.217.0",
@@ -103,6 +104,9 @@
         "dependencies": [
           "jsr:@std/path@1.0.0-rc.1"
         ]
+      },
+      "@std/html@1.0.0": {
+        "integrity": "389f2b8b0021ee75966003b307b849813a300d1c554cef8d69aec2d5d3922ff9"
       },
       "@std/internal@1.0.1": {
         "integrity": "6f8c7544d06a11dd256c8d6ba54b11ed870aac6c5aeafff499892662c57673e6"
