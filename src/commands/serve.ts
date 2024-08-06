@@ -42,6 +42,8 @@ interface Site {
   middleware: Middleware[];
 }
 
+// TODO: rename srcPath to sitePath
+// TODO: auto-redirect www to host
 async function prepareSite(siteConfig: SiteConfig): Promise<Site> {
   const srcPath = resolve(Deno.cwd(), siteConfig.srcPath ?? "");
 

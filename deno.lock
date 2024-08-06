@@ -1622,6 +1622,7 @@
       "jsr:@std/yaml@^0.224.3",
       "npm:autoprefixer@10.4.19",
       "npm:commander@11.1.0",
+      "npm:cssnano@7.0.4",
       "npm:gray-matter@4.0.3",
       "npm:marked@9.1.5",
       "npm:postcss@8.4.39",

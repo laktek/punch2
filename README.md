@@ -44,6 +44,7 @@ Future releases:
 
 ### TODO
 
+* auto-redirect www to host
 * on-demand rendering [~]
   - write rendered resources to disk
 * TS files as entrypoints
