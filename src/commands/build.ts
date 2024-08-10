@@ -6,7 +6,7 @@ import { Contents } from "../lib/contents.ts";
 import { Resource, Resources } from "../lib/resources.ts";
 import { Output, Renderer } from "../lib/render.ts";
 import { AssetMap } from "../lib/asset_map.ts";
-import { normalizeRoutes, routesFromPages } from "../utils/routes.ts";
+import { prepareExplicitRoutes, routesFromPages } from "../utils/routes.ts";
 import { copyPublicFiles } from "../utils/public.ts";
 import { writeFile } from "../utils/fs.ts";
 import { RenderableDocument } from "../utils/dom.ts";
@@ -166,7 +166,7 @@ export async function build(opts: BuildOpts): Promise<boolean> {
   // generate pages
   const pagesPath = join(srcPath, config.dirs!.pages!);
   const pageRoutes = await routesFromPages(pagesPath, [".html"]);
-  const explicitRoutes = await normalizeRoutes(config.routes!);
+  const explicitRoutes = await prepareExplicitRoutes(config.routes!, contents);
   const routes = [...pageRoutes, ...explicitRoutes];
 
   const { pages, assetMap } = await batchedRender(config, renderer, routes);

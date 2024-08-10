@@ -9,7 +9,7 @@ import {
 import { exists, expandGlob, walk } from "@std/fs";
 
 import { Config } from "../config/config.ts";
-
+import { Contents } from "../lib/contents.ts";
 import { commonSkipPaths } from "./paths.ts";
 
 const dynamicPageTmplExp = /\/_.+_\.html$/;
@@ -202,6 +202,38 @@ export function getRouteParams(
   return { path: route, segments, ...tmplVar };
 }
 
-export function normalizeRoutes(routes: string[]): string[] {
-  return routes.map((r) => withoutTrailingSlash(withLeadingSlash(r)));
+function getNestedKeys(obj: any, keys: string[]): undefined | any {
+  let result = obj;
+  for (const key of keys) {
+    result = result?.[key];
+  }
+  return result;
+}
+
+export function prepareExplicitRoutes(
+  routes: string[],
+  contents: Contents,
+): string[] {
+  const contentsProxy: any = contents.proxy();
+
+  return routes.map((r) => {
+    // expand any content routes
+    // TODO: Add more tests & refactor
+    const contentQuery = r.match(/^\[(.*)\]$/);
+    if (contentQuery && contentQuery.length && contentQuery[1]) {
+      const nestedKeys = contentQuery[1].split(".");
+      let collection: any[] = contentsProxy[nestedKeys.shift() as string];
+      if (!Array.isArray(collection)) {
+        collection = [collection];
+      }
+
+      return collection.map((entry: any) => {
+        return withoutTrailingSlash(
+          withLeadingSlash(getNestedKeys(entry, nestedKeys)),
+        );
+      });
+    } else {
+      return withoutTrailingSlash(withLeadingSlash(r));
+    }
+  }).flat();
 }

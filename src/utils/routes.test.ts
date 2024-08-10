@@ -1,13 +1,15 @@
 import { assertEquals } from "@std/assert";
 import { join } from "@std/path";
+import { Database } from "sqlite";
 
 import {
   findResource,
   getRouteParams,
-  normalizeRoutes,
+  prepareExplicitRoutes,
   ResourceType,
   routesFromPages,
 } from "./routes.ts";
+import { Contents } from "../lib/contents.ts";
 
 Deno.test("routesFromPages", async (t) => {
   const pagesDir = await Deno.makeTempDir();
@@ -459,15 +461,35 @@ Deno.test("getRouteParams", async (t) => {
   );
 });
 
-Deno.test("normalizeRoutes", async (t) => {
+Deno.test("prepareExplicitRoutes", async (t) => {
+  const db = new Database(":memory:");
+  const contents = new Contents(db);
+  contents.insert("posts", [{ "slug": "/hello" }, { "slug": "/world" }]);
+
+  await t.step(
+    "expands content routes",
+    () => {
+      assertEquals(
+        prepareExplicitRoutes(["[posts.slug]"], contents),
+        ["/hello", "/world"],
+        "should expand content routes",
+      );
+    },
+  );
+
   await t.step(
     "removes trailing slash and adds a leading slash",
     () => {
       assertEquals(
-        normalizeRoutes(["/path/to/foo", "path/to/foo", "path/to/foo/"]),
+        prepareExplicitRoutes(
+          ["/path/to/foo", "path/to/foo", "path/to/foo/"],
+          contents,
+        ),
         ["/path/to/foo", "/path/to/foo", "/path/to/foo"],
         "should remove the trailing slash and add a leading slash",
       );
     },
   );
+
+  db.close();
 });
