@@ -217,23 +217,43 @@ export function prepareExplicitRoutes(
   const contentsProxy: any = contents.proxy();
 
   return routes.map((r) => {
-    // expand any content routes
+    // expand any content tokens
     // TODO: Add more tests & refactor
-    const contentQuery = r.match(/^\[(.*)\]$/);
-    if (contentQuery && contentQuery.length && contentQuery[1]) {
-      const nestedKeys = contentQuery[1].split(".");
+    let expandedRoutes: string[] = [];
+    let isContentToken = false;
+
+    const contentTokenRegex = /\[([^\]]*)\]/g;
+    let tokenMatch;
+    while ((tokenMatch = contentTokenRegex.exec(r)) !== null) {
+      isContentToken = true;
+      const tokenStr = tokenMatch[0];
+      const token = tokenMatch[1];
+
+      const nestedKeys = token.split(".");
       let collection: any[] = contentsProxy[nestedKeys.shift() as string];
       if (!Array.isArray(collection)) {
         collection = [collection];
       }
+      const entries = collection.map((entry: any) =>
+        getNestedKeys(entry, nestedKeys)
+      ).filter((entry: any) => entry);
 
-      return collection.map((entry: any) => {
-        return withoutTrailingSlash(
-          withLeadingSlash(getNestedKeys(entry, nestedKeys)),
+      if (expandedRoutes.length) {
+        expandedRoutes = expandedRoutes.map((er, i) =>
+          er.replace(tokenStr, entries[i])
         );
-      });
-    } else {
-      return withoutTrailingSlash(withLeadingSlash(r));
+      } else {
+        expandedRoutes.push(
+          ...entries.map((entry: any) => r.replace(tokenStr, entry)),
+        );
+      }
     }
-  }).flat();
+
+    if (isContentToken) {
+      return expandedRoutes;
+    } else {
+      // non-content token route
+      return r;
+    }
+  }).flat().map((r) => withoutTrailingSlash(withLeadingSlash(r)));
 }

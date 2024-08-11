@@ -464,15 +464,55 @@ Deno.test("getRouteParams", async (t) => {
 Deno.test("prepareExplicitRoutes", async (t) => {
   const db = new Database(":memory:");
   const contents = new Contents(db);
-  contents.insert("posts", [{ "slug": "/hello" }, { "slug": "/world" }]);
+  contents.insert("posts", [{ "year": 2023, "slug": "/hello" }, {
+    "year": 2024,
+    "slug": "/world",
+    "id": "1234",
+  }]);
 
   await t.step(
-    "expands content routes",
+    "expands content tokens",
     () => {
       assertEquals(
         prepareExplicitRoutes(["[posts.slug]"], contents),
         ["/hello", "/world"],
-        "should expand content routes",
+        "should expand content token",
+      );
+
+      assertEquals(
+        prepareExplicitRoutes(["/posts/[posts.slug]"], contents),
+        ["/posts/hello", "/posts/world"],
+        "should expand content tokens with prefix",
+      );
+
+      assertEquals(
+        prepareExplicitRoutes(["/[posts.slug]/post"], contents),
+        ["/hello/post", "/world/post"],
+        "should expand content tokens with suffix",
+      );
+
+      assertEquals(
+        prepareExplicitRoutes(["/year/[posts.year]/posts"], contents),
+        ["/year/2023/posts", "/year/2024/posts"],
+        "should expand content tokens with prefix and suffix",
+      );
+
+      assertEquals(
+        prepareExplicitRoutes(["/posts/[posts.year]/[posts.slug]"], contents),
+        ["/posts/2023/hello", "/posts/2024/world"],
+        "should expand all content tokens",
+      );
+
+      assertEquals(
+        prepareExplicitRoutes(["/posts/[posts.path]"], contents),
+        [],
+        "should return empty if content token does not exist",
+      );
+
+      assertEquals(
+        prepareExplicitRoutes(["/posts/[posts.id]"], contents),
+        ["/posts/1234"],
+        "should not return null or undefined tokens",
       );
     },
   );
