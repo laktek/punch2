@@ -236,7 +236,7 @@ export function prepareExplicitRoutes(
       }
       const entries = collection.map((entry: any) =>
         getNestedKeys(entry, nestedKeys)
-      ).filter((entry: any) => entry);
+      ).filter((entry: any) => entry).flat();
 
       if (expandedRoutes.length) {
         expandedRoutes = expandedRoutes.map((er, i) =>
@@ -250,7 +250,7 @@ export function prepareExplicitRoutes(
     }
 
     if (isContentToken) {
-      return expandedRoutes;
+      return [...new Set(expandedRoutes)];
     } else {
       // non-content token route
       return r;

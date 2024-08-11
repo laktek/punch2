@@ -464,10 +464,17 @@ Deno.test("getRouteParams", async (t) => {
 Deno.test("prepareExplicitRoutes", async (t) => {
   const db = new Database(":memory:");
   const contents = new Contents(db);
-  contents.insert("posts", [{ "year": 2023, "slug": "/hello" }, {
+  contents.insert("posts", [{
+    "year": 2023,
+    "slug": "/hello",
+    "category": "blog",
+    "tags": ["programming", "howto"],
+  }, {
     "year": 2024,
     "slug": "/world",
     "id": "1234",
+    "category": "blog",
+    "tags": ["muse"],
   }]);
 
   await t.step(
@@ -513,6 +520,18 @@ Deno.test("prepareExplicitRoutes", async (t) => {
         prepareExplicitRoutes(["/posts/[posts.id]"], contents),
         ["/posts/1234"],
         "should not return null or undefined tokens",
+      );
+
+      assertEquals(
+        prepareExplicitRoutes(["/[posts.category]"], contents),
+        ["/blog"],
+        "should not return duplicate entries",
+      );
+
+      assertEquals(
+        prepareExplicitRoutes(["/tags/[posts.tags]"], contents),
+        ["/tags/programming", "/tags/howto", "/tags/muse"],
+        "should flatten array entries",
       );
     },
   );
