@@ -1,5 +1,6 @@
 # default output directory
 dist/
+.DS_Store
 
 # npm dependencies
 node_modules/
