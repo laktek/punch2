@@ -8,7 +8,6 @@
 
 * Blazing fast to build
   - compare with benchmark https://github.com/zachleat/bench-framework-markdown
-* Optimized, low bandwith sites
 * Static-site generation
 * Single binary CLI to run
 * Zero config (sensible defaults)
@@ -47,7 +46,6 @@ Future releases:
 * auto-redirect www to host
 * on-demand rendering [~]
   - write rendered resources to disk
-* TS files as entrypoints
 * Sourcemaps
 * tsconfig
 * Publish to JSR (so it can be imported for customization)

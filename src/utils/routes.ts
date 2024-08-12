@@ -218,7 +218,6 @@ export function prepareExplicitRoutes(
 
   return routes.map((r) => {
     // expand any content tokens
-    // TODO: Add more tests & refactor
     let expandedRoutes: string[] = [];
     let isContentToken = false;
 
