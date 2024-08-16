@@ -1,6 +1,7 @@
 import { extname } from "@std/path";
 import { parse as yamlParse } from "@std/yaml";
 import { parse as tomlParse } from "@std/toml";
+import { parse as jsonParse } from "@std/jsonc";
 import { deepMerge } from "@std/collections";
 import { Config as TailwindConfig } from "tailwindcss";
 
@@ -57,7 +58,7 @@ async function parseConfig(configPath: string): Promise<unknown> {
   const data = await Deno.readTextFile(configPath);
 
   if (ext === ".json") {
-    return JSON.parse(data);
+    return jsonParse(data);
   } else if (ext === ".yaml" || ext === ".yml") {
     return yamlParse(data);
   } else if (ext === ".toml") {

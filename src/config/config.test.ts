@@ -23,7 +23,7 @@ Deno.test("getConfig", async (t) => {
     const configFile = join(configDir, "config.json");
     await Deno.writeTextFile(
       configFile,
-      JSON.stringify({ dirs: { public: "custom-public" } }),
+      '{ "dirs": { "public": "custom-public", } }',
     );
 
     const config = await getConfig(configFile);

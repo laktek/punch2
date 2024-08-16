@@ -33,7 +33,7 @@ Future releases:
 * Support for diagrams in markdown content (mermaid)
 * Opengraph images with Resvg
 * Speculative Loading API
-* Full-text search
+* Full-text / Semantic search
 * Migrate Jekyll, 11ty, Astro, and Hugo sites
 * Easy A/B testing
 * Support for i18n (multi-language sites)
