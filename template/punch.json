@@ -1,9 +1,20 @@
 {
+  // Set the directory where generated files will be written
 	"output": "dist",
+
+   // baseURL is used for generating URLs for sitemap.xml
   "baseURL": "http://localhost:8080",
+
+  // Define any additional routes to generate here.
+  // Paths under `pages/` will be auto added.
+  // You can use content tokens in routes, which will be expanded into full routes.
 	"routes": [
     "/blog/[blog.slug]",
 		"/feeds/rss.xml"
 	],
-	"redirects": {}
+
+  // Add any routes you want to redirect here
+	"redirects": {
+    // "/old-page": { "destination": "/new-page", "permanent": true }
+  }
 }
