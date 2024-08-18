@@ -73,7 +73,8 @@ export async function findResource(
     resourceDir = config.dirs!.css!;
     resourceType = ResourceType.CSS;
   } else if (
-    route.startsWith("/js") || [".js", ".jsx", ".ts", ".tsx"].includes(ext)
+    route.startsWith("/js") ||
+    [".js", ".mjs", ".jsx", ".ts", ".tsx"].includes(ext)
   ) {
     resourceDir = config.dirs!.js!;
     resourceType = ResourceType.JS;
