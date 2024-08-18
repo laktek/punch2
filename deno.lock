@@ -2,6 +2,7 @@
   "version": "3",
   "packages": {
     "specifiers": {
+      "jsr:@b-fuze/deno-dom@^0.1.47": "jsr:@b-fuze/deno-dom@0.1.47",
       "jsr:@db/sqlite@0.11": "jsr:@db/sqlite@0.11.0",
       "jsr:@denosaurs/plug@1": "jsr:@denosaurs/plug@1.0.5",
       "jsr:@std/assert@^0.214.0": "jsr:@std/assert@0.214.0",
@@ -43,6 +44,9 @@
       "npm:tailwindcss@3.4.6": "npm:tailwindcss@3.4.6_postcss@8.4.39"
     },
     "jsr": {
+      "@b-fuze/deno-dom@0.1.47": {
+        "integrity": "270a888de91329f8ce3849211ece0ad97ce1e8b9a8a774f2bed2f43c8b0ffe8e"
+      },
       "@db/sqlite@0.11.0": {
         "integrity": "107438d4e1f4028a8ac065e53e1697bd5515d41da565b79c717d4e52faa58f64",
         "dependencies": [
@@ -2007,6 +2011,7 @@
   },
   "workspace": {
     "dependencies": [
+      "jsr:@b-fuze/deno-dom@^0.1.47",
       "jsr:@db/sqlite@0.11",
       "jsr:@std/assert@^1.0.0",
       "jsr:@std/async@^0.224.2",

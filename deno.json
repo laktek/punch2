@@ -18,7 +18,7 @@
     "commander": "npm:commander@11.1.0",
     "gray-matter": "npm:gray-matter@4.0.3",
     "marked": "npm:marked@9.1.5",
-    "deno_dom": "https://deno.land/x/deno_dom@v0.1.43/deno-dom-wasm.ts"
+    "deno_dom": "jsr:@b-fuze/deno-dom@^0.1.47",
     "postcss": "npm:postcss@8.4.39",
     "autoprefixer": "npm:autoprefixer@10.4.19",
     "tailwindcss": "npm:tailwindcss@3.4.6",
