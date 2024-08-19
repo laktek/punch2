@@ -39,6 +39,7 @@
       "npm:gray-matter": "npm:gray-matter@4.0.3",
       "npm:gray-matter@4.0.3": "npm:gray-matter@4.0.3",
       "npm:marked": "npm:marked@9.1.4",
+      "npm:marked@14.0.0": "npm:marked@14.0.0",
       "npm:postcss@8.4.39": "npm:postcss@8.4.39",
       "npm:tailwindcss@3.4.6": "npm:tailwindcss@3.4.6_postcss@8.4.39"
     },
@@ -819,6 +820,10 @@
       },
       "lru-cache@10.4.3": {
         "integrity": "sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ==",
+        "dependencies": {}
+      },
+      "marked@14.0.0": {
+        "integrity": "sha512-uIj4+faQ+MgHgwUW1l2PsPglZLOLOT1uErt06dAPtx2kjteLAkbsd/0FiYg/MGS+i7ZKLb7w2WClxHkzOOuryQ==",
         "dependencies": {}
       },
       "marked@9.1.4": {
