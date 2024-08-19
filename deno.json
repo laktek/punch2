@@ -17,7 +17,7 @@
     "@std/jsonc": "jsr:@std/jsonc@^1.0.0",
     "commander": "npm:commander@11.1.0",
     "gray-matter": "npm:gray-matter@4.0.3",
-    "marked": "npm:marked@9.1.5",
+    "marked": "npm:marked@14.0.0",
     "deno_dom": "jsr:@b-fuze/deno-dom@^0.1.47",
     "postcss": "npm:postcss@8.4.39",
     "autoprefixer": "npm:autoprefixer@10.4.19",

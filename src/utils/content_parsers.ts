@@ -8,6 +8,9 @@ import matter from "gray-matter";
 import { marked } from "marked";
 
 import { commonSkipPaths } from "./paths.ts";
+import markedExtensions from "./markdown.ts";
+
+marked.use(markedExtensions);
 
 interface Result {
   key: string;

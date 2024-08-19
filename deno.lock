@@ -39,7 +39,6 @@
       "npm:gray-matter": "npm:gray-matter@4.0.3",
       "npm:gray-matter@4.0.3": "npm:gray-matter@4.0.3",
       "npm:marked": "npm:marked@9.1.4",
-      "npm:marked@9.1.5": "npm:marked@9.1.5",
       "npm:postcss@8.4.39": "npm:postcss@8.4.39",
       "npm:tailwindcss@3.4.6": "npm:tailwindcss@3.4.6_postcss@8.4.39"
     },
@@ -824,10 +823,6 @@
       },
       "marked@9.1.4": {
         "integrity": "sha512-Mq83CCaClhXqhf8sLQ57c1unNelHEuFadK36ga+GeXR4FeT/5ssaC5PaCRVqMA74VYorzYRqdAaxxteIanh3Kw==",
-        "dependencies": {}
-      },
-      "marked@9.1.5": {
-        "integrity": "sha512-14QG3shv8Kg/xc0Yh6TNkMj90wXH9mmldi5941I2OevfJ/FQAFLEwtwU2/FfgSAOMlWHrEukWSGQf8MiVYNG2A==",
         "dependencies": {}
       },
       "mdn-data@2.0.28": {
@@ -2032,7 +2027,7 @@
       "npm:commander@11.1.0",
       "npm:cssnano@7.0.4",
       "npm:gray-matter@4.0.3",
-      "npm:marked@9.1.5",
+      "npm:marked@14.0.0",
       "npm:postcss@8.4.39",
       "npm:tailwindcss@3.4.6"
     ]
