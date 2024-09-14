@@ -1,17 +1,22 @@
-import { type Renderer, type Tokens } from "marked";
+import { MarkedOptions, Renderer, type Tokens } from "marked";
 
-const extensions = {
-  renderer: {
-    heading({ tokens, depth }: Tokens.Heading): string {
-      const text: string = this.parser.parseInline(tokens);
-      const escapedText = text.toLowerCase().replace(/[^\w]+/g, "-");
+export default class CustomRenderer extends Renderer {
+  #headings: { depth: number; text: string; slug: string }[];
 
-      return `
-            <h${depth} id="${escapedText}">
-              ${text}
-            </h${depth}>`;
-    },
-  } as Renderer,
-};
+  constructor(opts?: MarkedOptions | undefined) {
+    super(opts);
+    this.#headings = [];
+  }
 
-export default extensions;
+  getHeadings() {
+    return this.#headings;
+  }
+
+  heading({ tokens, depth }: Tokens.Heading): string {
+    const text: string = this.parser.parseInline(tokens);
+    const slug = text.toLowerCase().replace(/[^\w]+/g, "-");
+    this.#headings.push({ depth, text, slug });
+
+    return `<h${depth} id="${slug}">${text}</h${depth}>\n`;
+  }
+}

@@ -94,15 +94,29 @@ Deno.test("parseMarkdownFile", async (t) => {
     const path = join(contentsDir, "post.md");
     await Deno.writeTextFile(
       path,
-      `---\ntitle: Sample Blog\nauthor: John Doe\n---\nThis is a **sample** blog post with a [link](https://www.example.com)`,
+      `---\ntitle: Sample Blog\nauthor: John Doe\n---\n# Title\n## Sub Title 1\nThis is a **sample** blog post with a [link](https://www.example.com)`,
     );
 
     const expected = [{
       title: "Sample Blog",
       author: "John Doe",
       content:
-        `<p>This is a <strong>sample</strong> blog post with a <a href="https://www.example.com">link</a></p>\n`,
+        `<h1 id="title">Title</h1>\n<h2 id="sub-title-1">Sub Title 1</h2>\n<p>This is a <strong>sample</strong> blog post with a <a href="https://www.example.com">link</a></p>\n`,
+      raw_content:
+        `# Title\n## Sub Title 1\nThis is a **sample** blog post with a [link](https://www.example.com)`,
       content_type: "markdown",
+      headings: [
+        {
+          depth: 1,
+          slug: "title",
+          text: "Title",
+        },
+        {
+          depth: 2,
+          slug: "sub-title-1",
+          text: "Sub Title 1",
+        },
+      ],
     }];
     const results = await parseFile(path);
     assertEquals(
@@ -124,7 +138,10 @@ Deno.test("parseMarkdownFile", async (t) => {
       author: "John Doe",
       content:
         `<p>This is a <strong>sample</strong> blog post with a <a href="https://www.example.com">link</a></p>\n`,
+      raw_content:
+        `This is a **sample** blog post with a [link](https://www.example.com)`,
       content_type: "markdown",
+      headings: [],
     }];
     const results = await parseFile(path);
     assertEquals(

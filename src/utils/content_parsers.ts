@@ -8,9 +8,7 @@ import matter from "gray-matter";
 import { marked } from "marked";
 
 import { commonSkipPaths } from "./paths.ts";
-import markedExtensions from "./markdown.ts";
-
-marked.use(markedExtensions);
+import CustomRenderer from "./markdown.ts";
 
 interface Result {
   key: string;
@@ -49,12 +47,19 @@ export async function parseCSVFile(
 
 export async function parseMarkdownFile(path: string): Promise<unknown[]> {
   const { data, content } = matter(await Deno.readTextFile(path));
+  const renderer = new CustomRenderer();
   const htmlContent = await marked.parse(
     content.replace(/^[\u200B\u200C\u200D\u200E\u200F\uFEFF]/, ""),
-    { async: true, gfm: true },
+    { async: true, gfm: true, renderer },
   );
   return [
-    { ...data, content: htmlContent, content_type: "markdown" },
+    {
+      ...data,
+      content: htmlContent,
+      raw_content: content,
+      content_type: "markdown",
+      headings: renderer.getHeadings(),
+    },
   ];
 }
 

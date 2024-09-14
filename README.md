@@ -46,6 +46,7 @@ Future releases:
 * auto-redirect www to host
 * on-demand rendering [~]
   - write rendered resources to disk
+* ability to import .ts files directly in script tags
 * Sourcemaps
 * tsconfig
 * Publish to JSR (so it can be imported for customization)
