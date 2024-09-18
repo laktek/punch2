@@ -24,7 +24,7 @@ export default async function (ctx: Context, next: NextFn) {
       }
     </script>`;
     const updatedBody = decoded.replace(
-      /<\/body><\/html>$/,
+      /<\/body>(?:[\n]*)<\/html>$/,
       `${script}</body></html>`,
     );
 

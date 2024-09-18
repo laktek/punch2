@@ -27,55 +27,90 @@ export default async function (ctx: Context, next: NextFn) {
 
   const newCtx = { ...ctx };
 
-  // render route
-  const { pathname } = new URL(request.url);
+  try {
+    const { pathname } = new URL(request.url);
 
-  const renderOpts: RenderOptions = {};
-  if (devMode) {
-    // in dev mode, we send the `used_by` option for assets
-    const asset = assetMap.assets.get(pathname);
-    if (asset) {
-      renderOpts.usedBy = asset.usedBy;
-    }
-  }
-  const output = await renderer.render(pathname, renderOpts);
-
-  if (output.errorStatus) {
-    console.error(
-      `${pathname} - ${output.errorMessage} (${output.errorStatus})`,
-    );
-  } else {
-    // TODO: write rendered output to a file in a worker
-
-    // TODO: refactor use of AssetMap
-    if (output.content instanceof RenderableDocument) {
-      assetMap.track(output.content as RenderableDocument);
-
-      if (!devMode && resources) {
-        assetMap.assets.forEach((asset, route) => {
-          const resource: Resource | undefined = resources.get(
-            route,
-          );
-          const assetPath = routeWithContentHash(route, resource?.hash || "");
-          const doc = output.content as RenderableDocument;
-          doc.updateAssetPaths(asset.resourceType, route, assetPath);
-        });
+    const renderOpts: RenderOptions = {};
+    if (devMode) {
+      // in dev mode, we send the `used_by` option for assets
+      const asset = assetMap.assets.get(pathname);
+      if (asset) {
+        renderOpts.usedBy = asset.usedBy;
       }
-    }
 
-    let encoded: Uint8Array;
-    if (output.content instanceof Uint8Array) {
-      encoded = output.content;
+      // prepare contents
+      const contentsPath = join(srcPath, config.dirs!.contents!);
+      await contents.prepare(contentsPath);
+    }
+    const output = await renderer.render(pathname, renderOpts);
+
+    if (output.errorStatus) {
+      console.error(
+        `${pathname} - ${output.errorMessage} (${output.errorStatus})`,
+      );
     } else {
-      const contentStr = output.content!.toString();
-      encoded = (new TextEncoder()).encode(contentStr);
-    }
+      // TODO: write rendered output to a file in a worker
 
-    const ext = extname(pathname);
-    newCtx.response = new Response(encoded, {
-      status: 200,
+      // TODO: refactor use of AssetMap
+      if (output.content instanceof RenderableDocument) {
+        assetMap.track(output.content as RenderableDocument);
+
+        if (!devMode && resources) {
+          assetMap.assets.forEach((asset, route) => {
+            const resource: Resource | undefined = resources.get(
+              route,
+            );
+            const assetPath = routeWithContentHash(route, resource?.hash || "");
+            const doc = output.content as RenderableDocument;
+            doc.updateAssetPaths(asset.resourceType, route, assetPath);
+          });
+        }
+      }
+
+      let encoded: Uint8Array;
+      if (output.content instanceof Uint8Array) {
+        encoded = output.content;
+      } else {
+        const contentStr = output.content!.toString();
+        encoded = (new TextEncoder()).encode(contentStr);
+      }
+
+      const ext = extname(pathname);
+      newCtx.response = new Response(encoded, {
+        status: 200,
+        headers: {
+          "content-type": contentType(ext) || "text/html; charset=UTF-8",
+        },
+      });
+    }
+  } catch (e) {
+    console.error(e);
+
+    const errMsg = devMode
+      ? `<html>\n
+    <head>\n
+      <title>Error Rendering Page</title>\n
+    </head>\n
+    <body>\n
+      <h1>Error Rendering Page</h1>\n
+      <pre><code>${e.stack || e.message}</code></pre>\n
+      ${e.cause ? `<pre><code>Caused by ${e.cause.stack}</code></pre>\n` : ""}
+    </body>\n
+</html>`
+      : `<html>\n
+    <head>\n
+      <title>Error Rendering Page</title>\n
+    </head>\n
+    <body>\n
+      <h1>Error Rendering Page</h1>\n
+      <p>Please check the server logs for details</p>\n
+    </body>\n
+</html>`;
+
+    newCtx.response = new Response(errMsg, {
+      status: 500,
       headers: {
-        "content-type": contentType(ext) || "text/html; charset=UTF-8",
+        "content-type": "text/html; charset=UTF-8",
       },
     });
   }
