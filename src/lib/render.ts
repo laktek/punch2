@@ -45,7 +45,7 @@ function queryContents(contents: Contents, params: any) {
 }
 
 export class Renderer {
-  #htmlTemplateCache: Map<string, string>;
+  #htmlTemplateCache: Map<string, Promis<string>>;
   #partialsCache: Map<string, string>;
   context: Context;
 
@@ -88,12 +88,12 @@ export class Renderer {
     }
   }
 
-  #getHTMLTemplate(path: string): string {
+  #getHTMLTemplate(path: string): Promise<string> {
     const cached = this.#htmlTemplateCache.get(path);
     if (cached) {
       return cached;
     }
-    const tmpl = Deno.readTextFileSync(path);
+    const tmpl = Deno.readTextFile(path);
     this.#htmlTemplateCache.set(path, tmpl);
     return tmpl;
   }
@@ -173,7 +173,7 @@ export class Renderer {
     );
 
     if (resourceType === ResourceType.HTML) {
-      const tmpl = this.#getHTMLTemplate(path);
+      const tmpl = await this.#getHTMLTemplate(path);
       const content = renderHTML(
         tmpl,
         renderHTMLContext,
@@ -202,7 +202,7 @@ export class Renderer {
         resourceType,
       };
     } else if (resourceType === ResourceType.XML) {
-      const tmpl = this.#getHTMLTemplate(path);
+      const tmpl = await this.#getHTMLTemplate(path);
       const content = renderHTML(
         tmpl,
         renderHTMLContext,
