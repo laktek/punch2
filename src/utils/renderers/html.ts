@@ -1,4 +1,3 @@
-import { Contents } from "../../lib/contents.ts";
 import { type Context, runInContext } from "node:vm";
 
 export class NotFoundError extends Error {

@@ -53,10 +53,6 @@ export class Renderer {
     return new Renderer(context);
   }
 
-  async refresh() {
-    // noop
-  }
-
   async render(route: string, opts?: RenderOptions): Promise<Output> {
     const { srcPath, config, contents } = this.context;
 
