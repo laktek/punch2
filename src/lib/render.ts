@@ -45,7 +45,7 @@ function queryContents(contents: Contents, params: any) {
 }
 
 export class Renderer {
-  #htmlTemplateCache: Map<string, Promis<string>>;
+  #htmlTemplateCache: Map<string, Promise<string>>;
   #partialsCache: Map<string, string>;
   context: Context;
 
