@@ -1,4 +1,5 @@
-import { extname, join, relative } from "@std/path";
+import { basename, extname, join, relative } from "@std/path";
+import { exists, walk } from "@std/fs";
 import { escape, unescape } from "@std/html";
 import { createContext } from "node:vm";
 
@@ -11,6 +12,7 @@ import { renderJS } from "../utils/renderers/js.ts";
 import { renderImage } from "../utils/renderers/image.ts";
 import { renderMedia } from "../utils/renderers/media.ts";
 import { RenderableDocument } from "../utils/dom.ts";
+import { commonSkipPaths } from "../utils/paths.ts";
 
 export interface Context {
   srcPath: string;
@@ -43,14 +45,57 @@ function queryContents(contents: Contents, params: any) {
 }
 
 export class Renderer {
+  #htmlTemplateCache: Map<string, string>;
+  #partialsCache: Map<string, string>;
   context: Context;
 
   constructor(context: Context) {
     this.context = context;
+    this.#htmlTemplateCache = new Map();
+    this.#partialsCache = new Map();
+
+    this.#cachePartials();
   }
 
   static async init(context: Context) {
     return new Renderer(context);
+  }
+
+  async refresh() {
+    this.#htmlTemplateCache = new Map();
+    await this.#cachePartials();
+  }
+
+  async #cachePartials() {
+    const { srcPath, config } = this.context;
+
+    const partialsPath = join(srcPath, config.dirs!.partials!);
+    if (!(await exists(partialsPath))) {
+      return;
+    }
+
+    // walk partials directory
+    // TODO: add support for symlinks in partials directory
+    for await (
+      const entry of walk(partialsPath, { maxDepth: 1, skip: commonSkipPaths })
+    ) {
+      if (entry.isFile) {
+        const tmpl = await Deno.readTextFile(entry.path);
+        const ext = extname(entry.name);
+        const name = basename(entry.name, ext);
+        this.#partialsCache.set(name, tmpl);
+      }
+    }
+  }
+
+  #getHTMLTemplate(path: string): string {
+    const cached = this.#htmlTemplateCache.get(path);
+    if (cached) {
+      return cached;
+    }
+    const tmpl = Deno.readTextFileSync(path);
+    this.#htmlTemplateCache.set(path, tmpl);
+    return tmpl;
   }
 
   async render(route: string, opts?: RenderOptions): Promise<Output> {
@@ -66,6 +111,8 @@ export class Renderer {
     }
 
     const { path, resourceType } = resource;
+
+    const partialsCache = this.#partialsCache;
 
     const builtins = {
       console,
@@ -101,14 +148,16 @@ export class Renderer {
           return queryContents(contents, { ...params, limit: 1, count: true });
         },
         partial: (name: string, params?: any) => {
-          // TODO: make a helper method - make extension optional
-          const path = join(srcPath, config.dirs!.partials!, name + ".html");
+          const tmpl = partialsCache.get(name);
+          if (!tmpl) {
+            throw new Error(`partial not found. name: ${name}`);
+          }
           const context = createContext({
             ...params,
             ...builtins,
             _params: { ...params },
           });
-          return renderHTML(path, context);
+          return renderHTML(tmpl, context);
         },
         notFound: () => {
           throw new NotFoundError();
@@ -124,8 +173,9 @@ export class Renderer {
     );
 
     if (resourceType === ResourceType.HTML) {
+      const tmpl = this.#getHTMLTemplate(path);
       const content = renderHTML(
-        path,
+        tmpl,
         renderHTMLContext,
       );
 
@@ -152,8 +202,9 @@ export class Renderer {
         resourceType,
       };
     } else if (resourceType === ResourceType.XML) {
+      const tmpl = this.#getHTMLTemplate(path);
       const content = renderHTML(
-        path,
+        tmpl,
         renderHTMLContext,
       );
 

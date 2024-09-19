@@ -8,18 +8,16 @@ export class NotFoundError extends Error {
 }
 
 export function renderHTML(
-  path: string,
+  tmpl: string,
   context: Context,
 ): string | null {
   try {
-    // TODO: cache file reads
-    const tmpl = Deno.readTextFileSync(path);
     const script = "`" + tmpl + "`";
     return runInContext(script, context);
   } catch (e) {
     if (e instanceof NotFoundError) {
       return null;
     }
-    throw new Error(`failed to render HTML template - ${path}`, { cause: e });
+    throw new Error(`failed to render HTML template`, { cause: e });
   }
 }
