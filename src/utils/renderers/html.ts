@@ -1,4 +1,4 @@
-import { type Context, runInContext } from "node:vm";
+import { type Context, Script } from "node:vm";
 
 export class NotFoundError extends Error {
   constructor() {
@@ -8,12 +8,11 @@ export class NotFoundError extends Error {
 }
 
 export function renderHTML(
-  tmpl: string,
+  tmpl: Script,
   context: Context,
 ): string | null {
   try {
-    const script = "`" + tmpl + "`";
-    return runInContext(script, context);
+    return tmpl.runInContext(context);
   } catch (e) {
     if (e instanceof NotFoundError) {
       return null;

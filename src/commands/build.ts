@@ -124,6 +124,7 @@ async function batchedWrite(
 }
 
 export async function build(opts: BuildOpts): Promise<boolean> {
+  console.info("Build started...");
   const srcPath = resolve(Deno.cwd(), opts.srcPath ?? "");
   const configPath = resolve(srcPath, opts.config ?? "punch.json");
 
@@ -140,7 +141,19 @@ export async function build(opts: BuildOpts): Promise<boolean> {
   const db = new Database(resolve(srcPath, config.db ?? "punch.db"));
 
   const contents = new Contents(db);
+  performance.mark("content-prep-started");
   await contents.prepare(contentsPath);
+  performance.mark("content-prep-finished");
+  const contentPrepDuration = performance.measure(
+    "content-prep-duration",
+    "content-prep-started",
+    "content-prep-finished",
+  );
+  console.info(
+    `- indexed content (${
+      Math.round(contentPrepDuration.duration * 100) / 100
+    }ms)`,
+  );
 
   const resources = new Resources(db);
   // clear resources from previous build

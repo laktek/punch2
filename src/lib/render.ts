@@ -1,7 +1,7 @@
 import { basename, extname, join, relative } from "@std/path";
 import { exists, walk } from "@std/fs";
 import { escape, unescape } from "@std/html";
-import { createContext } from "node:vm";
+import { createContext, Script } from "node:vm";
 
 import { Contents } from "./contents.ts";
 import { Config } from "../config/config.ts";
@@ -45,8 +45,8 @@ function queryContents(contents: Contents, params: any) {
 }
 
 export class Renderer {
-  #htmlTemplateCache: Map<string, Promise<string>>;
-  #partialsCache: Map<string, string>;
+  #htmlTemplateCache: Map<string, Promise<Script>>;
+  #partialsCache: Map<string, Script>;
   context: Context;
 
   constructor(context: Context) {
@@ -81,21 +81,25 @@ export class Renderer {
     ) {
       if (entry.isFile) {
         const tmpl = await Deno.readTextFile(entry.path);
+        const script = new Script("`" + tmpl + "`");
         const ext = extname(entry.name);
         const name = basename(entry.name, ext);
-        this.#partialsCache.set(name, tmpl);
+        this.#partialsCache.set(name, script);
       }
     }
   }
 
-  #getHTMLTemplate(path: string): Promise<string> {
+  #getHTMLTemplate(path: string): Promise<Script> {
     const cached = this.#htmlTemplateCache.get(path);
     if (cached) {
       return cached;
     }
-    const tmpl = Deno.readTextFile(path);
-    this.#htmlTemplateCache.set(path, tmpl);
-    return tmpl;
+    const promise = (async () => {
+      const tmpl = await Deno.readTextFile(path);
+      return new Script("`" + tmpl + "`");
+    })();
+    this.#htmlTemplateCache.set(path, promise);
+    return promise;
   }
 
   async render(route: string, opts?: RenderOptions): Promise<Output> {
