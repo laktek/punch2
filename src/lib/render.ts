@@ -54,12 +54,12 @@ export class Renderer {
     this.context = context;
     this.#htmlTemplateCache = new Map();
     this.#partialsCache = new Map();
-
-    this.#cachePartials();
   }
 
   static async init(context: Context) {
-    return new Renderer(context);
+    const renderer = new Renderer(context);
+    await renderer.#cachePartials();
+    return renderer;
   }
 
   async refresh() {
