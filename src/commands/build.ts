@@ -48,10 +48,23 @@ async function batchedRender(
     }
   };
 
+  console.info("- rendering pages...");
   performance.mark("render-started");
   for (let i = 0; i < routes.length; i += batchSize) {
+    performance.mark(`render-started-${i}`);
     const batch = routes.slice(i, i + batchSize);
     await Promise.all(batch.map(renderRoute));
+    performance.mark(`render-finished-${i}`);
+    const batchRenderDuration = performance.measure(
+      `render-duration-${i}`,
+      `render-started-${i}`,
+      `render-finished-${i}`,
+    );
+    console.info(
+      `-- rendered ${i + batchSize} pages (in ${
+        Math.round(batchRenderDuration.duration * 100) / 100
+      }ms)`,
+    );
   }
   performance.mark("render-finished");
 

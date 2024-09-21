@@ -1,4 +1,4 @@
-import { assert, assertEquals } from "@std/assert";
+import { assert, assertEquals, assertThrows } from "@std/assert";
 import { join } from "@std/path";
 import { Database } from "sqlite";
 
@@ -131,11 +131,11 @@ Deno.test("Contents.prepare", async (t) => {
   });
 });
 
-Deno.test("Contents.insert", async (t) => {
+Deno.test("Contents.insertAll", async (t) => {
   await t.step("valid json records", () => {
     const db = new Database(":memory:");
     const contents = new Contents(db);
-    contents.insert("foo", [{ "hello": "world" }, { "hello1": "world1" }]);
+    contents.insertAll("foo", [{ "hello": "world" }, { "hello1": "world1" }]);
     assertEquals(
       contents.query("foo", { count: true })[0],
       2,
@@ -147,12 +147,33 @@ Deno.test("Contents.insert", async (t) => {
   await t.step("empty records", () => {
     const db = new Database(":memory:");
     const contents = new Contents(db);
-    contents.insert("foo", []),
-      assertEquals(
-        contents.query("foo", { count: true })[0],
-        0,
-        "expected 0 records to be inserted",
-      );
+    assertThrows(
+      () => {
+        contents.insertAll("foo", []);
+      },
+      Error,
+      "failed to insert content",
+    );
+    db.close();
+  });
+
+  await t.step("invalid records", () => {
+    const db = new Database(":memory:");
+    const contents = new Contents(db);
+    assertThrows(
+      () => {
+        contents.insertAll("foo", ["a", "b", "c"]);
+      },
+      Error,
+      "failed to insert content",
+    );
+    assertThrows(
+      () => {
+        contents.insertAll("foo", [["a"], ["b"], ["c"]]);
+      },
+      Error,
+      "failed to insert content",
+    );
     db.close();
   });
 });
@@ -161,7 +182,7 @@ Deno.test("Contents.query", async (t) => {
   await t.step("count records", () => {
     const db = new Database(":memory:");
     const contents = new Contents(db);
-    contents.insert("foo", [{ "hello": "world" }, { "hello1": "world1" }]);
+    contents.insertAll("foo", [{ "hello": "world" }, { "hello1": "world1" }]);
     assertEquals(
       contents.query("foo", { count: true })[0],
       2,
@@ -173,12 +194,12 @@ Deno.test("Contents.query", async (t) => {
   await t.step("limit records", () => {
     const db = new Database(":memory:");
     const contents = new Contents(db);
-    contents.insert("foo", [{ "hello": "world" }, { "hello1": "world1" }, {
-      "hello2": "world2",
+    contents.insertAll("foo", [{ "hello": "world" }, { "hello": "world1" }, {
+      "hello": "world2",
     }]);
     assertEquals(
       contents.query("foo", { limit: 2 }),
-      [{ "hello": "world" }, { "hello1": "world1" }],
+      [{ "hello": "world" }, { "hello": "world1" }],
       "expected to limit to 2 records",
     );
     db.close();
@@ -187,13 +208,13 @@ Deno.test("Contents.query", async (t) => {
   await t.step("offset records", () => {
     const db = new Database(":memory:");
     const contents = new Contents(db);
-    contents.insert("foo", [{ "hello": "world" }, { "hello1": "world1" }, {
-      "hello2": "world2",
+    contents.insertAll("foo", [{ "hello": "world" }, { "hello": "world1" }, {
+      "hello": "world2",
     }]);
     assertEquals(
       contents.query("foo", { limit: 2, offset: 1 }),
-      [{ "hello1": "world1" }, {
-        "hello2": "world2",
+      [{ "hello": "world1" }, {
+        "hello": "world2",
       }],
       "expected to limit to 2 records",
     );
@@ -203,10 +224,10 @@ Deno.test("Contents.query", async (t) => {
   await t.step("sort records", () => {
     const db = new Database(":memory:");
     const contents = new Contents(db);
-    contents.insert("animals", [
+    contents.insertAll("animals", [
       { "name": "Dog", "legs": 4 },
       { "name": "Cat", "legs": 4 },
-      { "name": "Bird", "legs": 2, beak: true },
+      { "name": "Bird", "legs": 2, beak: 1 },
       { "name": "Snake", "legs": 0 },
       { "name": "Spider", "legs": 8 },
       { "name": "Kangaroo", "legs": 2 },
@@ -215,12 +236,12 @@ Deno.test("Contents.query", async (t) => {
     assertEquals(
       contents.query("animals", { order_by: "legs desc" }),
       [
-        { "name": "Spider", "legs": 8 },
-        { "name": "Dog", "legs": 4 },
-        { "name": "Cat", "legs": 4 },
-        { "name": "Bird", "legs": 2, beak: true },
-        { "name": "Kangaroo", "legs": 2 },
-        { "name": "Snake", "legs": 0 },
+        { "name": "Spider", "legs": 8, beak: null },
+        { "name": "Dog", "legs": 4, beak: null },
+        { "name": "Cat", "legs": 4, beak: null },
+        { "name": "Bird", "legs": 2, beak: 1 },
+        { "name": "Kangaroo", "legs": 2, beak: null },
+        { "name": "Snake", "legs": 0, beak: null },
       ],
       "should sort by legs descending",
     );
@@ -228,12 +249,12 @@ Deno.test("Contents.query", async (t) => {
     assertEquals(
       contents.query("animals", { order_by: "legs" }),
       [
-        { "name": "Snake", "legs": 0 },
-        { "name": "Bird", "legs": 2, beak: true },
-        { "name": "Kangaroo", "legs": 2 },
-        { "name": "Dog", "legs": 4 },
-        { "name": "Cat", "legs": 4 },
-        { "name": "Spider", "legs": 8 },
+        { "name": "Snake", "legs": 0, beak: null },
+        { "name": "Bird", "legs": 2, beak: 1 },
+        { "name": "Kangaroo", "legs": 2, beak: null },
+        { "name": "Dog", "legs": 4, beak: null },
+        { "name": "Cat", "legs": 4, beak: null },
+        { "name": "Spider", "legs": 8, beak: null },
       ],
       "should sort by legs ascending by default",
     );
@@ -241,12 +262,12 @@ Deno.test("Contents.query", async (t) => {
     assertEquals(
       contents.query("animals", { order_by: "beak nulls last" }),
       [
-        { "name": "Bird", "legs": 2, beak: true },
-        { "name": "Dog", "legs": 4 },
-        { "name": "Cat", "legs": 4 },
-        { "name": "Snake", "legs": 0 },
-        { "name": "Spider", "legs": 8 },
-        { "name": "Kangaroo", "legs": 2 },
+        { "name": "Bird", "legs": 2, beak: 1 },
+        { "name": "Dog", "legs": 4, beak: null },
+        { "name": "Cat", "legs": 4, beak: null },
+        { "name": "Snake", "legs": 0, beak: null },
+        { "name": "Spider", "legs": 8, beak: null },
+        { "name": "Kangaroo", "legs": 2, beak: null },
       ],
       "support nulls sorting",
     );
@@ -254,12 +275,12 @@ Deno.test("Contents.query", async (t) => {
     assertEquals(
       contents.query("animals", { order_by: "beak nulls first, legs desc" }),
       [
-        { "name": "Spider", "legs": 8 },
-        { "name": "Dog", "legs": 4 },
-        { "name": "Cat", "legs": 4 },
-        { "name": "Kangaroo", "legs": 2 },
-        { "name": "Snake", "legs": 0 },
-        { "name": "Bird", "legs": 2, beak: true },
+        { "name": "Spider", "legs": 8, beak: null },
+        { "name": "Dog", "legs": 4, beak: null },
+        { "name": "Cat", "legs": 4, beak: null },
+        { "name": "Kangaroo", "legs": 2, beak: null },
+        { "name": "Snake", "legs": 0, beak: null },
+        { "name": "Bird", "legs": 2, beak: 1 },
       ],
       "support multiple ordering terms",
     );
@@ -270,10 +291,10 @@ Deno.test("Contents.query", async (t) => {
     const db = new Database(":memory:");
     const contents = new Contents(db);
 
-    contents.insert("animals", [
+    contents.insertAll("animals", [
       { "name": "Dog", "legs": 4 },
       { "name": "Cat", "legs": 4 },
-      { "name": "Bird", "legs": 2, beak: true },
+      { "name": "Bird", "legs": 2, beak: 1 },
       { "name": "Snake", "legs": 0 },
       { "name": "Spider", "legs": 8 },
       { "name": "Kangaroo", "legs": 2 },
@@ -282,15 +303,7 @@ Deno.test("Contents.query", async (t) => {
     assertEquals(
       contents.query("animals", { where: [["name", "Spider"]] }),
       [
-        { "name": "Spider", "legs": 8 },
-      ],
-      "should filter by single condition",
-    );
-
-    assertEquals(
-      contents.query("animals", { where: [["name", "Spider"]] }),
-      [
-        { "name": "Spider", "legs": 8 },
+        { "name": "Spider", "legs": 8, beak: null },
       ],
       "should filter by single condition",
     );
@@ -298,7 +311,7 @@ Deno.test("Contents.query", async (t) => {
     assertEquals(
       contents.query("animals", { where: [["legs", 2], ["beak", true]] }),
       [
-        { "name": "Bird", "legs": 2, beak: true },
+        { "name": "Bird", "legs": 2, beak: 1 },
       ],
       "should filter by multiple conditions",
     );
@@ -306,7 +319,7 @@ Deno.test("Contents.query", async (t) => {
     assertEquals(
       contents.query("animals", { where: [["legs_gt", 4]] }),
       [
-        { "name": "Spider", "legs": 8 },
+        { "name": "Spider", "legs": 8, beak: null },
       ],
       "should filter by greater than",
     );
@@ -314,9 +327,9 @@ Deno.test("Contents.query", async (t) => {
     assertEquals(
       contents.query("animals", { where: [["legs_gte", 4]] }),
       [
-        { "name": "Dog", "legs": 4 },
-        { "name": "Cat", "legs": 4 },
-        { "name": "Spider", "legs": 8 },
+        { "name": "Dog", "legs": 4, beak: null },
+        { "name": "Cat", "legs": 4, beak: null },
+        { "name": "Spider", "legs": 8, beak: null },
       ],
       "should filter by greater than or equal",
     );
@@ -324,9 +337,9 @@ Deno.test("Contents.query", async (t) => {
     assertEquals(
       contents.query("animals", { where: [["legs_lt", 4]] }),
       [
-        { "name": "Bird", "legs": 2, beak: true },
-        { "name": "Snake", "legs": 0 },
-        { "name": "Kangaroo", "legs": 2 },
+        { "name": "Bird", "legs": 2, beak: 1 },
+        { "name": "Snake", "legs": 0, beak: null },
+        { "name": "Kangaroo", "legs": 2, beak: null },
       ],
       "should filter by less than",
     );
@@ -334,11 +347,11 @@ Deno.test("Contents.query", async (t) => {
     assertEquals(
       contents.query("animals", { where: [["legs_lte", 4]] }),
       [
-        { "name": "Dog", "legs": 4 },
-        { "name": "Cat", "legs": 4 },
-        { "name": "Bird", "legs": 2, beak: true },
-        { "name": "Snake", "legs": 0 },
-        { "name": "Kangaroo", "legs": 2 },
+        { "name": "Dog", "legs": 4, beak: null },
+        { "name": "Cat", "legs": 4, beak: null },
+        { "name": "Bird", "legs": 2, beak: 1 },
+        { "name": "Snake", "legs": 0, beak: null },
+        { "name": "Kangaroo", "legs": 2, beak: null },
       ],
       "should filter by less than or equal",
     );
@@ -346,10 +359,10 @@ Deno.test("Contents.query", async (t) => {
     assertEquals(
       contents.query("animals", { where: [["legs_not", 4]] }),
       [
-        { "name": "Bird", "legs": 2, beak: true },
-        { "name": "Snake", "legs": 0 },
-        { "name": "Spider", "legs": 8 },
-        { "name": "Kangaroo", "legs": 2 },
+        { "name": "Bird", "legs": 2, beak: 1 },
+        { "name": "Snake", "legs": 0, beak: null },
+        { "name": "Spider", "legs": 8, beak: null },
+        { "name": "Kangaroo", "legs": 2, beak: null },
       ],
       "should filter by less than or equal",
     );
@@ -357,8 +370,8 @@ Deno.test("Contents.query", async (t) => {
     assertEquals(
       contents.query("animals", { where: [["name_like", "%S%"]] }),
       [
-        { "name": "Snake", "legs": 0 },
-        { "name": "Spider", "legs": 8 },
+        { "name": "Snake", "legs": 0, beak: null },
+        { "name": "Spider", "legs": 8, beak: null },
       ],
       "should filter by like condition",
     );
@@ -366,8 +379,8 @@ Deno.test("Contents.query", async (t) => {
     assertEquals(
       contents.query("animals", { where: [["name_ilike", "%s%"]] }),
       [
-        { "name": "Snake", "legs": 0 },
-        { "name": "Spider", "legs": 8 },
+        { "name": "Snake", "legs": 0, beak: null },
+        { "name": "Spider", "legs": 8, beak: null },
       ],
       "should filter by ilike condition (case insensitive match)",
     );
@@ -377,15 +390,35 @@ Deno.test("Contents.query", async (t) => {
   await t.step("return all records", () => {
     const db = new Database(":memory:");
     const contents = new Contents(db);
-    contents.insert("foo", [{ "hello": "world" }, { "hello1": "world1" }, {
-      "hello2": "world2",
+    contents.insertAll("foo", [{ "hello": "world" }, { "hello": "world1" }, {
+      "hello": "world2",
     }]);
     assertEquals(
       contents.query("foo"),
-      [{ "hello": "world" }, { "hello1": "world1" }, {
-        "hello2": "world2",
+      [{ "hello": "world" }, { "hello": "world1" }, {
+        "hello": "world2",
       }],
       "expected to return all records",
+    );
+    db.close();
+  });
+
+  await t.step("preserves the data types of fields", () => {
+    const db = new Database(":memory:");
+    const contents = new Contents(db);
+    contents.insertAll("foo", [{
+      "id": 1,
+      "bar": ["hello", "world"],
+      "baz": { "hello": "world" },
+    }]);
+    assertEquals(
+      contents.query("foo"),
+      [{
+        "id": 1,
+        "bar": ["hello", "world"],
+        "baz": { "hello": "world" },
+      }],
+      "expected to preserve data types of fields",
     );
     db.close();
   });
@@ -395,7 +428,7 @@ Deno.test("Contents.proxy", async (t) => {
   await t.step("handles temp properties", () => {
     const db = new Database(":memory:");
     const contents = new Contents(db);
-    contents.insert("foo", [{ "hello": "world" }, { "hello1": "world1" }]);
+    contents.insertAll("foo", [{ "hello": "world" }, { "hello1": "world1" }]);
     const obj: any = contents.proxy({ "bar": "baz" });
 
     assertEquals(
@@ -409,7 +442,7 @@ Deno.test("Contents.proxy", async (t) => {
   await t.step("proxies to query", () => {
     const db = new Database(":memory:");
     const contents = new Contents(db);
-    contents.insert("foo", [{ "hello": "world" }, { "hello1": "world1" }]);
+    contents.insertAll("foo", [{ "hello": "world" }, { "hello1": "world1" }]);
     const obj: any = contents.proxy();
 
     assertEquals(
@@ -424,7 +457,7 @@ Deno.test("Contents.proxy", async (t) => {
       "expected to return all records for the key",
     );
 
-    contents.insert("bar", [{ "title": "baz" }]);
+    contents.insertAll("bar", [{ "title": "baz" }]);
     assertEquals(
       obj.bar.title,
       "baz",

@@ -464,7 +464,7 @@ Deno.test("getRouteParams", async (t) => {
 Deno.test("prepareExplicitRoutes", async (t) => {
   const db = new Database(":memory:");
   const contents = new Contents(db);
-  contents.insert("posts", [{
+  contents.insertAll("posts", [{
     "year": 2023,
     "slug": "/hello",
     "category": "blog",

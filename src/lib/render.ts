@@ -35,13 +35,14 @@ export interface RenderOptions {
 
 function queryContents(contents: Contents, params: any) {
   const { from, offset, order_by, limit, count, ...where } = params;
-  return contents.query(from, {
+  const results = contents.query(from, {
     limit,
     where: Object.entries(where).map(([k, v]) => [k, v]),
     offset,
     order_by,
     count,
   });
+  return results;
 }
 
 export class Renderer {

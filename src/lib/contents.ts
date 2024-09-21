@@ -18,13 +18,6 @@ export class Contents {
 
   constructor(db?: Database) {
     this.#db = db ?? new Database(":memory:");
-
-    // create the contents table
-    this.#db.exec(`create table if not exists 'contents' (key, records)`);
-  }
-
-  clear() {
-    this.#db.exec(`delete from 'contents'`);
   }
 
   async prepare(contentsPath: string): Promise<void> {
@@ -32,22 +25,23 @@ export class Contents {
       return;
     }
 
-    // clear table before adding new entries
-    this.clear();
-
     // walk content directory
     for await (
       const entry of walk(contentsPath, { maxDepth: 1, skip: commonSkipPaths })
     ) {
+      // skip the root entry
+      if (entry.path === contentsPath) {
+        continue;
+      }
       if (entry.isFile) {
         const result = await parseFile(entry.path);
         if (result) {
-          this.insert(result.key, result.records);
+          this.insertAll(result.key, result.records);
         }
       } else if (entry.isDirectory) {
         const result = await parseDir(entry.path);
         if (result) {
-          this.insert(result.key, result.records);
+          this.insertAll(result.key, result.records);
         }
       } else if (entry.isSymlink) {
         const originalPath = resolve(
@@ -58,21 +52,54 @@ export class Contents {
 
         const result = await parseFile(originalPath);
         if (result) {
-          this.insert(result.key, result.records);
+          this.insertAll(result.key, result.records);
         }
       }
     }
   }
 
-  insert(key: string, records: unknown[]): void {
-    this.#db.exec(
-      `insert into "contents" (key, records) VALUES (:key, :records)`,
-      { key, records: JSON.stringify(records) },
+  insertAll(table: string, records: any[]): void {
+    const columns = Array.from(
+      records.reduce((cols: Set<string>, record): Set<string> => {
+        Object.keys(record as Object).map((k) => cols.add(k));
+        return cols;
+      }, new Set()),
     );
+
+    if (!columns.length || (columns.length === 1 && columns[0] === "0")) {
+      throw new Error("failed to insert content - invalid records provided.");
+    }
+
+    this.#db.exec(
+      `create table if not exists '${table}' (${columns.join(",")})`,
+    );
+
+    // clear table before adding new entries
+    // TODO: clearing existing records should be configurable
+    this.#db.exec(`delete from '${table}'`);
+
+    // TODO: support adding indexes
+    // if (table === "blog") {
+    //   this.#db.exec(`create index if not exists slug_index on ${table} (slug)`);
+    // }
+
+    const stmt = this.#db.prepare(
+      `insert into "${table}" (${columns.join(",")}) values(${
+        columns.map((col) => `:${col}`).join(",")
+      })`,
+    );
+
+    const insertRecords = this.#db.transaction((records: any[]) => {
+      for (const record of records) {
+        stmt.run(record);
+      }
+    });
+
+    insertRecords(records);
   }
 
-  query(key: string, opts?: QueryOpts): unknown[] {
-    let select = "records.value";
+  query(table: string, opts?: QueryOpts): unknown[] {
+    let select = "*";
     if (opts?.count) {
       select = "count(*)";
     }
@@ -87,70 +114,60 @@ export class Contents {
       offset = opts!.offset;
     }
 
-    let order_by = "";
-    if (opts?.order_by) {
-      const order_by_parts = opts.order_by.toLowerCase().split(/\s|,/).filter(
-        (p) => p,
-      );
-      order_by_parts.forEach((part) => {
-        if (["asc", "desc", "nulls", "first", "last"].includes(part)) {
-          order_by = `${order_by} ${part}`;
-        } else {
-          if (order_by.length) {
-            order_by = `${order_by},`;
-          }
-          order_by = `${order_by} records.value ->> '${part}'`;
-        }
-      });
-      if (order_by.length) {
-        order_by = `order by${order_by}`;
-      }
-    }
+    let order_by = opts?.order_by ? `order by ${opts.order_by}` : "";
 
-    let where = "";
+    let where_exprs: string[] = [];
     const where_params: any = [];
-    if (opts?.where) {
+    if (opts?.where && opts?.where.length) {
       opts.where.forEach((expr) => {
         if (expr[0].endsWith("_gt")) {
-          where = `${where} and records.value ->> '${
-            expr[0].replace(/\_gt$/, "")
-          }' > ?`;
+          where_exprs.push(`"${expr[0].replace(/\_gt$/, "")}" > ?`);
         } else if (expr[0].endsWith("_gte")) {
-          where = `${where} and records.value ->> '${
-            expr[0].replace(/\_gte$/, "")
-          }' >= ?`;
+          where_exprs.push(`"${expr[0].replace(/\_gte$/, "")}" >= ?`);
         } else if (expr[0].endsWith("_lt")) {
-          where = `${where} and records.value ->> '${
-            expr[0].replace(/\_lt$/, "")
-          }' < ?`;
+          where_exprs.push(`"${expr[0].replace(/\_lt$/, "")}" < ?`);
         } else if (expr[0].endsWith("_lte")) {
-          where = `${where} and records.value ->> '${
-            expr[0].replace(/\_lte$/, "")
-          }' <= ?`;
+          where_exprs.push(`"${expr[0].replace(/\_lte$/, "")}" <= ?`);
         } else if (expr[0].endsWith("_not")) {
-          where = `${where} and records.value ->> '${
-            expr[0].replace(/\_not$/, "")
-          }' != ?`;
+          where_exprs.push(`"${expr[0].replace(/\_not$/, "")}" != ?`);
         } else if (expr[0].endsWith("_like")) {
-          where = `${where} and records.value ->> '${
-            expr[0].replace(/\_like$/, "")
-          }' like ?`;
+          where_exprs.push(`"${expr[0].replace(/\_like$/, "")}" like ?`);
         } else if (expr[0].endsWith("_ilike")) {
-          where = `${where} and records.value ->> '${
-            expr[0].replace(/\_ilike$/, "")
-          }' like ? collate nocase`;
+          where_exprs.push(
+            `"${expr[0].replace(/\_ilike$/, "")}" like ? collate nocase`,
+          );
         } else {
-          where = `${where} and records.value ->> '${expr[0]}' = ?`;
+          where_exprs.push(`"${expr[0]}" = ?`);
         }
         where_params.push(expr[1]);
       });
     }
+    let where = "";
+    if (where_exprs.length) {
+      where = `where ${where_exprs.join(" and ")}`;
+    }
+
     const stmt = this.#db.prepare(
-      `select ${select} from contents, json_each(contents.records) as records where contents.key = ? ${where} ${order_by} limit ? offset ?`,
+      `select ${select} from ${table} ${where} ${order_by} limit ? offset ?`,
     );
-    return stmt.values([key, ...where_params, limit, offset]).map((r) =>
-      JSON.parse(r[0])
-    );
+    if (opts?.count) {
+      return stmt.values([...where_params, limit, offset]).flat();
+    }
+    const records = stmt.all([...where_params, limit, offset]);
+    return records.map((record) => {
+      for (const [key, value] of Object.entries(record)) {
+        if (typeof value === "string") {
+          if (value.match(/^(\[|\{)(.*)(\]|\})$/)) {
+            try {
+              record[key] = JSON.parse(value);
+            } catch (e) {
+              record[key] = value;
+            }
+          }
+        }
+      }
+      return record;
+    });
   }
 
   proxy(temp?: { [key: string]: unknown }) {
