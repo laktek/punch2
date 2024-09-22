@@ -3,30 +3,19 @@
   "packages": {
     "specifiers": {
       "jsr:@b-fuze/deno-dom@^0.1.47": "jsr:@b-fuze/deno-dom@0.1.47",
-      "jsr:@db/sqlite@0.11": "jsr:@db/sqlite@0.11.0",
-      "jsr:@denosaurs/plug@1": "jsr:@denosaurs/plug@1.0.5",
-      "jsr:@std/assert@^0.214.0": "jsr:@std/assert@0.214.0",
-      "jsr:@std/assert@^0.217.0": "jsr:@std/assert@0.217.0",
       "jsr:@std/assert@^1.0.0": "jsr:@std/assert@1.0.0",
       "jsr:@std/bytes@^1.0.0-rc.3": "jsr:@std/bytes@1.0.2",
       "jsr:@std/collections@^1.0.4": "jsr:@std/collections@1.0.4",
       "jsr:@std/crypto@^1.0.1": "jsr:@std/crypto@1.0.1",
       "jsr:@std/csv@^0.224.3": "jsr:@std/csv@0.224.3",
-      "jsr:@std/encoding@0.214": "jsr:@std/encoding@0.214.0",
       "jsr:@std/encoding@^1.0.1": "jsr:@std/encoding@1.0.1",
-      "jsr:@std/fmt@0.214": "jsr:@std/fmt@0.214.0",
-      "jsr:@std/fs": "jsr:@std/fs@0.214.0",
-      "jsr:@std/fs@0.214": "jsr:@std/fs@0.214.0",
       "jsr:@std/fs@0.229.3": "jsr:@std/fs@0.229.3",
       "jsr:@std/fs@^0.229.3": "jsr:@std/fs@0.229.3",
       "jsr:@std/html@^1.0.0": "jsr:@std/html@1.0.0",
       "jsr:@std/internal@^1.0.1": "jsr:@std/internal@1.0.1",
       "jsr:@std/json@^1.0.0": "jsr:@std/json@1.0.0",
       "jsr:@std/jsonc@^1.0.0": "jsr:@std/jsonc@1.0.0",
-      "jsr:@std/path@0.214": "jsr:@std/path@0.214.0",
-      "jsr:@std/path@0.217": "jsr:@std/path@0.217.0",
       "jsr:@std/path@1.0.0-rc.1": "jsr:@std/path@1.0.0-rc.1",
-      "jsr:@std/path@^0.214.0": "jsr:@std/path@0.214.0",
       "jsr:@std/path@^1.0.0": "jsr:@std/path@1.0.0",
       "jsr:@std/streams@^0.224.4": "jsr:@std/streams@0.224.5",
       "jsr:@std/toml@^1.0.0": "jsr:@std/toml@1.0.0",
@@ -46,28 +35,6 @@
     "jsr": {
       "@b-fuze/deno-dom@0.1.47": {
         "integrity": "270a888de91329f8ce3849211ece0ad97ce1e8b9a8a774f2bed2f43c8b0ffe8e"
-      },
-      "@db/sqlite@0.11.0": {
-        "integrity": "107438d4e1f4028a8ac065e53e1697bd5515d41da565b79c717d4e52faa58f64",
-        "dependencies": [
-          "jsr:@denosaurs/plug@1",
-          "jsr:@std/path@0.217"
-        ]
-      },
-      "@denosaurs/plug@1.0.5": {
-        "integrity": "04cd988da558adc226202d88c3a434d5fcc08146eaf4baf0cea0c2284b16d2bf",
-        "dependencies": [
-          "jsr:@std/encoding@0.214",
-          "jsr:@std/fmt@0.214",
-          "jsr:@std/fs@0.214",
-          "jsr:@std/path@0.214"
-        ]
-      },
-      "@std/assert@0.214.0": {
-        "integrity": "55d398de76a9828fd3b1aa653f4dba3eee4c6985d90c514865d2be9bd082b140"
-      },
-      "@std/assert@0.217.0": {
-        "integrity": "c98e279362ca6982d5285c3b89517b757c1e3477ee9f14eb2fdf80a45aaa9642"
       },
       "@std/assert@1.0.0": {
         "integrity": "0e4f6d873f7f35e2a1e6194ceee39686c996b9e5d134948e644d35d4c4df2008",
@@ -90,21 +57,8 @@
           "jsr:@std/streams@^0.224.4"
         ]
       },
-      "@std/encoding@0.214.0": {
-        "integrity": "30a8713e1db22986c7e780555ffd2fefd1d4f9374d734bb41f5970f6c3352af5"
-      },
       "@std/encoding@1.0.1": {
         "integrity": "5955c6c542ebb4ce6587c3b548dc71e07a6c27614f1976d1d3887b1196cf4e65"
-      },
-      "@std/fmt@0.214.0": {
-        "integrity": "40382cff88a0783b347b4d69b94cf931ab8e549a733916718cb866c08efac4d4"
-      },
-      "@std/fs@0.214.0": {
-        "integrity": "bc880fea0be120cb1550b1ed7faf92fe071003d83f2456a1e129b39193d85bea",
-        "dependencies": [
-          "jsr:@std/assert@^0.214.0",
-          "jsr:@std/path@^0.214.0"
-        ]
       },
       "@std/fs@0.229.3": {
         "integrity": "783bca21f24da92e04c3893c9e79653227ab016c48e96b3078377ebd5222e6eb",
@@ -125,18 +79,6 @@
         "integrity": "835da212e586f3ef94ab25e8f0e8a7711a86fddbee95ad40c34d6b3d74da1a1b",
         "dependencies": [
           "jsr:@std/json@^1.0.0"
-        ]
-      },
-      "@std/path@0.214.0": {
-        "integrity": "d5577c0b8d66f7e8e3586d864ebdf178bb326145a3611da5a51c961740300285",
-        "dependencies": [
-          "jsr:@std/assert@^0.214.0"
-        ]
-      },
-      "@std/path@0.217.0": {
-        "integrity": "1217cc25534bca9a2f672d7fe7c6f356e4027df400c0e85c0ef3e4343bc67d11",
-        "dependencies": [
-          "jsr:@std/assert@^0.217.0"
         ]
       },
       "@std/path@1.0.0": {
@@ -2012,7 +1954,7 @@
   "workspace": {
     "dependencies": [
       "jsr:@b-fuze/deno-dom@^0.1.47",
-      "jsr:@db/sqlite@0.11",
+      "jsr:@db/sqlite@0.12",
       "jsr:@std/assert@^1.0.0",
       "jsr:@std/async@^0.224.2",
       "jsr:@std/collections@^1.0.4",

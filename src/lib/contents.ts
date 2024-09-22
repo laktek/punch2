@@ -18,6 +18,7 @@ export class Contents {
 
   constructor(db?: Database) {
     this.#db = db ?? new Database(":memory:");
+    this.#db.int64 = true;
   }
 
   async prepare(contentsPath: string): Promise<void> {
@@ -70,13 +71,13 @@ export class Contents {
       throw new Error("failed to insert content - invalid records provided.");
     }
 
+    // drop existing table before creating a new one
+    // TODO: make dropping table configurable
+    this.#db.exec(`drop table if exists '${table}'`);
+
     this.#db.exec(
       `create table if not exists '${table}' (${columns.join(",")})`,
     );
-
-    // clear table before adding new entries
-    // TODO: clearing existing records should be configurable
-    this.#db.exec(`delete from '${table}'`);
 
     // TODO: support adding indexes
     // if (table === "blog") {
