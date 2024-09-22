@@ -71,6 +71,7 @@ async function prepareSite(siteConfig: SiteConfig): Promise<Site> {
     srcPath,
     config,
     contents,
+    devMode: false,
   };
   let renderer: Renderer;
   if (config.modifiers?.renderer) {

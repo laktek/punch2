@@ -69,6 +69,7 @@ export async function dev(opts: DevOpts): Promise<void> {
     srcPath,
     config,
     contents,
+    devMode: true,
   };
   let renderer: Renderer;
   if (config.modifiers?.renderer) {

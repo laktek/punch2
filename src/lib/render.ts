@@ -18,6 +18,7 @@ export interface Context {
   srcPath: string;
   config: Config;
   contents: Contents;
+  devMode: boolean;
 }
 
 export interface Output {
@@ -104,7 +105,7 @@ export class Renderer {
   }
 
   async render(route: string, opts?: RenderOptions): Promise<Output> {
-    const { srcPath, config, contents } = this.context;
+    const { srcPath, config, contents, devMode } = this.context;
 
     const resource = await findResource(srcPath, config, route);
     if (!resource) {
@@ -169,6 +170,7 @@ export class Renderer {
         },
         escape,
         unescape,
+        devMode,
       },
     };
 

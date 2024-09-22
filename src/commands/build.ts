@@ -176,6 +176,7 @@ export async function build(opts: BuildOpts): Promise<boolean> {
     srcPath,
     config,
     contents,
+    devMode: false,
   };
 
   // setup renderer

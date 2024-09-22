@@ -18,6 +18,7 @@ Deno.test("AssetMap.track", async (t) => {
     config,
     contents,
     resources,
+    devMode: true,
   };
   const renderer = await Renderer.init(context);
 

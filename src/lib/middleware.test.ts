@@ -38,6 +38,7 @@ Deno.test("MiddlewareChain.run", async (t) => {
       srcPath,
       config,
       contents,
+      devMode: true,
     };
     const renderer = await Renderer.init(renderCtx);
     const assetMap = new AssetMap(config, renderer);
