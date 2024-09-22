@@ -121,26 +121,34 @@ export class Contents {
     const where_params: any = [];
     if (opts?.where && opts?.where.length) {
       opts.where.forEach((expr) => {
-        if (expr[0].endsWith("_gt")) {
-          where_exprs.push(`"${expr[0].replace(/\_gt$/, "")}" > ?`);
-        } else if (expr[0].endsWith("_gte")) {
-          where_exprs.push(`"${expr[0].replace(/\_gte$/, "")}" >= ?`);
-        } else if (expr[0].endsWith("_lt")) {
-          where_exprs.push(`"${expr[0].replace(/\_lt$/, "")}" < ?`);
-        } else if (expr[0].endsWith("_lte")) {
-          where_exprs.push(`"${expr[0].replace(/\_lte$/, "")}" <= ?`);
-        } else if (expr[0].endsWith("_not")) {
-          where_exprs.push(`"${expr[0].replace(/\_not$/, "")}" != ?`);
-        } else if (expr[0].endsWith("_like")) {
-          where_exprs.push(`"${expr[0].replace(/\_like$/, "")}" like ?`);
-        } else if (expr[0].endsWith("_ilike")) {
-          where_exprs.push(
-            `"${expr[0].replace(/\_ilike$/, "")}" like ? collate nocase`,
-          );
+        if (expr[1] === null) {
+          if (expr[0].endsWith("_not")) {
+            where_exprs.push(`"${expr[0].replace(/\_not$/, "")}" IS NOT NULL`);
+          } else {
+            where_exprs.push(`"${expr[0]}" IS NULL`);
+          }
         } else {
-          where_exprs.push(`"${expr[0]}" = ?`);
+          if (expr[0].endsWith("_gt")) {
+            where_exprs.push(`"${expr[0].replace(/\_gt$/, "")}" > ?`);
+          } else if (expr[0].endsWith("_gte")) {
+            where_exprs.push(`"${expr[0].replace(/\_gte$/, "")}" >= ?`);
+          } else if (expr[0].endsWith("_lt")) {
+            where_exprs.push(`"${expr[0].replace(/\_lt$/, "")}" < ?`);
+          } else if (expr[0].endsWith("_lte")) {
+            where_exprs.push(`"${expr[0].replace(/\_lte$/, "")}" <= ?`);
+          } else if (expr[0].endsWith("_not")) {
+            where_exprs.push(`"${expr[0].replace(/\_not$/, "")}" != ?`);
+          } else if (expr[0].endsWith("_like")) {
+            where_exprs.push(`"${expr[0].replace(/\_like$/, "")}" like ?`);
+          } else if (expr[0].endsWith("_ilike")) {
+            where_exprs.push(
+              `"${expr[0].replace(/\_ilike$/, "")}" like ? collate nocase`,
+            );
+          } else {
+            where_exprs.push(`"${expr[0]}" = ?`);
+          }
+          where_params.push(expr[1]);
         }
-        where_params.push(expr[1]);
       });
     }
     let where = "";

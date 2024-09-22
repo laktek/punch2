@@ -61,9 +61,9 @@ async function batchedRender(
       `render-finished-${i}`,
     );
     console.info(
-      `-- rendered ${i + batchSize} pages (in ${
-        Math.round(batchRenderDuration.duration * 100) / 100
-      }ms)`,
+      `-- rendered ${
+        routes.length < i + batchSize ? routes.length - i : batchSize
+      } pages (in ${Math.round(batchRenderDuration.duration * 100) / 100}ms)`,
     );
   }
   performance.mark("render-finished");

@@ -384,6 +384,26 @@ Deno.test("Contents.query", async (t) => {
       ],
       "should filter by ilike condition (case insensitive match)",
     );
+
+    assertEquals(
+      contents.query("animals", { where: [["beak", null]] }),
+      [
+        { "name": "Dog", "legs": 4, beak: null },
+        { "name": "Cat", "legs": 4, beak: null },
+        { "name": "Snake", "legs": 0, beak: null },
+        { "name": "Spider", "legs": 8, beak: null },
+        { "name": "Kangaroo", "legs": 2, beak: null },
+      ],
+      "should filter by null value",
+    );
+
+    assertEquals(
+      contents.query("animals", { where: [["beak_not", null]] }),
+      [
+        { "name": "Bird", "legs": 2, beak: 1 },
+      ],
+      "should filter by not null value",
+    );
     db.close();
   });
 
