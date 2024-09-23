@@ -15,6 +15,7 @@ import {
   notFoundPage,
   punchJson,
   siteContents,
+  tailwindCSS,
 } from "../utils/template.ts";
 
 interface NewSiteOpts {
@@ -72,6 +73,10 @@ function copyTemplates(path: string, force: boolean) {
     writeTextFile(
       join(path, "css", "main.css"),
       mainCSS,
+    ),
+    writeTextFile(
+      join(path, "css", "tailwind.css"),
+      tailwindCSS,
     ),
     writeTextFile(
       join(path, "contents", "site.json"),

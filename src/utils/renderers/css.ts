@@ -1,12 +1,14 @@
 import postcss from "postcss";
-import autoprefixer from "autoprefixer";
-import cssnano from "cssnano";
 import { join } from "@std/path";
 import { Config as TailwindConfig, default as tailwindcss } from "tailwindcss";
+import postcssImport from "postcss-import";
+import initLightningWasm, { transform } from "lightningcss-wasm";
 
 import { Config } from "../../config/config.ts";
 
 import { RenderableDocument } from "../dom.ts";
+
+initLightningWasm();
 
 export async function getTailwindConfig(
   config: Config,
@@ -44,20 +46,23 @@ export async function renderCSS(
       raw: doc.toString(),
       extension: "html",
     }));
-    const result = await postcss([
-      autoprefixer,
+    const { css } = await postcss([
+      postcssImport(),
       tailwindcss({
         ...(config ?? {}),
         content,
       }),
-      cssnano({
-        preset: "default",
-      }),
     ]).process(raw, {
       from: path,
-      map: { inline: true },
     });
-    return result.css;
+
+    let { code, map } = transform({
+      filename: path,
+      code: new TextEncoder().encode(css),
+      minify: true,
+    });
+
+    return new TextDecoder().decode(code);
   } catch (e) {
     throw new Error(`failed to render CSS file - ${path}`, { cause: e });
   }

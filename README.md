@@ -42,13 +42,14 @@ Future releases:
 
 ### TODO
 
+* CSS Transpile / Browserlist config
+* Sourcemap for css and JS
 * Support for db indexes
 * Option to provide direct sql query
 * auto-redirect www to host
 * on-demand rendering [~]
   - write rendered resources to disk
 * ability to import .ts files directly in script tags
-* Sourcemaps
 * Publish to JSR (so it can be imported for customization)
 * punch upgrade command
 * Support for joins in query API

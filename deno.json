@@ -20,11 +20,11 @@
     "marked": "npm:marked@14.0.0",
     "deno_dom": "jsr:@b-fuze/deno-dom@^0.1.47",
     "postcss": "npm:postcss@8.4.39",
-    "autoprefixer": "npm:autoprefixer@10.4.19",
+    "postcss-import": "npm:postcss-import@16.1.0",
     "tailwindcss": "npm:tailwindcss@3.4.12",
     "esbuild": "https://deno.land/x/esbuild@v0.24.0/mod.js",
     "sqlite": "jsr:@db/sqlite@0.12",
-    "cssnano": "npm:cssnano@7.0.4"
+    "lightningcss-wasm": "npm:lightningcss-wasm@1.27.0"
   },
   "tasks": {
     "test": "deno test -A --unstable-ffi ./src",
