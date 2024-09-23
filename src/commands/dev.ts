@@ -28,7 +28,7 @@ export async function dev(opts: DevOpts): Promise<void> {
   const srcPath = resolve(Deno.cwd(), opts.srcPath ?? "");
   const { port } = opts;
   // read config file, and get options from it
-  const configPath = resolve(srcPath, opts.config ?? "punch.json");
+  const configPath = resolve(srcPath, opts.config ?? "punch.jsonc");
 
   // read the punch config
   const config = await getConfig(

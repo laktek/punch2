@@ -57,7 +57,7 @@ async function parseConfig(configPath: string): Promise<unknown> {
   const ext = extname(configPath);
   const data = await Deno.readTextFile(configPath);
 
-  if (ext === ".json") {
+  if (ext === ".json" || ext === ".jsonc") {
     return jsonParse(data);
   } else if (ext === ".yaml" || ext === ".yml") {
     return yamlParse(data);

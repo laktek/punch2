@@ -139,7 +139,7 @@ async function batchedWrite(
 export async function build(opts: BuildOpts): Promise<boolean> {
   console.info("Build started...");
   const srcPath = resolve(Deno.cwd(), opts.srcPath ?? "");
-  const configPath = resolve(srcPath, opts.config ?? "punch.json");
+  const configPath = resolve(srcPath, opts.config ?? "punch.jsonc");
 
   // read the punch config
   const config = await getConfig(configPath, opts as any);

@@ -52,7 +52,7 @@ src += `export const anotherPost = \`${anotherPost}\`;\n`;
 
 // punch.json
 const punchJson = await Deno.readTextFile(
-  "template/punch.json",
+  "template/punch.jsonc",
 );
 src += `export const punchJson = \`${punchJson}\`;\n`;
 

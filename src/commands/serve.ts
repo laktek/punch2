@@ -48,7 +48,7 @@ async function prepareSite(siteConfig: SiteConfig): Promise<Site> {
   const srcPath = resolve(Deno.cwd(), siteConfig.srcPath ?? "");
 
   // read config file, and get options from it
-  const configPath = resolve(srcPath, siteConfig.configPath ?? "punch.json");
+  const configPath = resolve(srcPath, siteConfig.configPath ?? "punch.jsonc");
 
   // read the punch config
   const config = await getConfig(

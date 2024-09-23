@@ -66,7 +66,7 @@ function copyTemplates(path: string, force: boolean) {
     ),
 
     writeTextFile(
-      join(path, "punch.json"),
+      join(path, "punch.jsonc"),
       punchJson,
     ),
     writeTextFile(

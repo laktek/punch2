@@ -26,7 +26,6 @@
 * Host it anywhere Vercel, Netlify, GitHub Pages, S3, or VPS
 
 Future releases:
-* Support for joins in query API
 * Single command publish (to punch.host)
 * Image optimizations
 * Font optimizations
@@ -51,6 +50,7 @@ Future releases:
 * tsconfig
 * Publish to JSR (so it can be imported for customization)
 * punch upgrade command
+* Support for joins in query API
 
 ### What you can build with Punch?
 
