@@ -21,8 +21,8 @@
     "deno_dom": "jsr:@b-fuze/deno-dom@^0.1.47",
     "postcss": "npm:postcss@8.4.39",
     "autoprefixer": "npm:autoprefixer@10.4.19",
-    "tailwindcss": "npm:tailwindcss@3.4.6",
-    "esbuild": "https://deno.land/x/esbuild@v0.19.5/mod.js",
+    "tailwindcss": "npm:tailwindcss@3.4.12",
+    "esbuild": "https://deno.land/x/esbuild@v0.24.0/mod.js",
     "sqlite": "jsr:@db/sqlite@0.12",
     "cssnano": "npm:cssnano@7.0.4"
   },

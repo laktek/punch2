@@ -19,6 +19,14 @@ interface OndemandRenderOpts {
   disabled: boolean;
 }
 
+interface CssOpts {
+  tailwind?: string | TailwindConfig;
+}
+
+interface JsOpts {
+  tsconfig?: string;
+}
+
 export interface Config {
   output?: string;
   db?: string;
@@ -50,7 +58,10 @@ export interface Config {
     timestamp?: "utc" | "local";
     ondemandRender?: OndemandRenderOpts;
   };
-  tailwind?: string | TailwindConfig;
+  assets?: {
+    css?: CssOpts;
+    js?: JsOpts;
+  };
 }
 
 async function parseConfig(configPath: string): Promise<unknown> {

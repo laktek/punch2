@@ -12,22 +12,24 @@ export async function getTailwindConfig(
   config: Config,
   srcPath: string,
 ): Promise<TailwindConfig | undefined> {
-  if (!config.tailwind) {
+  const tailwindConfig = config.assets?.css?.tailwind;
+  if (!tailwindConfig) {
     return;
   }
 
   // read the config from given path
   // has to be a JSON file (tailwind.config.js isn't supported)
-  if (typeof config.tailwind === "string") {
+  // NOTE: Currently cannot configure tailwind plugins and presets
+  if (typeof tailwindConfig === "string") {
     try {
       return JSON.parse(
-        await Deno.readTextFile(join(srcPath, config.tailwind)),
+        await Deno.readTextFile(join(srcPath, tailwindConfig)),
       );
     } catch (e) {
       console.error("failed to read and parse tailwind config", e);
     }
   } else {
-    return config.tailwind;
+    return tailwindConfig;
   }
 }
 

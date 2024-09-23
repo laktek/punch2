@@ -1,17 +1,47 @@
+import { join } from "@std/path";
 import * as esbuild from "esbuild";
 import { extname } from "@std/path";
 
+import { Config } from "../../config/config.ts";
+
 const loaders = {
   ".js": "js",
+  ".mjs": "js",
+  ".cjs": "js",
   ".ts": "ts",
+  ".mts": "ts",
+  ".cts": "ts",
   ".jsx": "jsx",
   ".tsx": "tsx",
   ".json": "json",
 };
 
+export async function getTsConfig(
+  config: Config,
+  srcPath: string,
+): Promise<string | undefined> {
+  const tsconfig = config.assets?.js?.tsconfig;
+  if (!tsconfig) {
+    return;
+  }
+
+  // read the config from given path
+  // has to be a JSON file (tailwind.config.js isn't supported)
+  if (typeof tsconfig === "string") {
+    try {
+      return await Deno.readTextFile(join(srcPath, tsconfig));
+    } catch (e) {
+      console.error("failed to read and parse tsconfig", e);
+    }
+  } else {
+    return JSON.stringify(tsconfig);
+  }
+}
+
 export async function renderJS(
   path: string,
   resolveDir: string,
+  tsconfigRaw?: string,
 ): Promise<any> {
   try {
     const raw = await Deno.readTextFile(path);
@@ -22,8 +52,8 @@ export async function renderJS(
         loader: loaders[ext as keyof typeof loaders] as esbuild.Loader ?? "js",
         resolveDir,
       },
-      jsx: "automatic",
-      format: "esm",
+      tsconfigRaw,
+      format: "iife",
       bundle: true,
       minify: true,
       //sourcemap: true,

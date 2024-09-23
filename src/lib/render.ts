@@ -8,7 +8,7 @@ import { Config } from "../config/config.ts";
 import { findResource, getRouteParams, ResourceType } from "../utils/routes.ts";
 import { NotFoundError, renderHTML } from "../utils/renderers/html.ts";
 import { getTailwindConfig, renderCSS } from "../utils/renderers/css.ts";
-import { renderJS } from "../utils/renderers/js.ts";
+import { getTsConfig, renderJS } from "../utils/renderers/js.ts";
 import { renderImage } from "../utils/renderers/image.ts";
 import { renderMedia } from "../utils/renderers/media.ts";
 import { RenderableDocument } from "../utils/dom.ts";
@@ -246,7 +246,15 @@ export class Renderer {
         resourceType,
       };
     } else if (resourceType === ResourceType.JS) {
-      const result = await renderJS(path, join(srcPath, config.dirs!.js!));
+      const tsConfig = await getTsConfig(
+        config,
+        srcPath,
+      );
+      const result = await renderJS(
+        path,
+        join(srcPath, config.dirs!.js!),
+        tsConfig,
+      );
       return {
         route,
         content: encoder.encode(result.outputFiles[0].text),
