@@ -58,7 +58,9 @@ async function prepareSite(siteConfig: SiteConfig): Promise<Site> {
   // prepare contents
   const contentsPath = join(srcPath, config.dirs!.contents!);
 
-  const db = new Database(resolve(srcPath, config.db ?? "punch.db"));
+  const db = new Database(resolve(srcPath, config.db ?? "punch.db"), {
+    unsafeConcurrency: true,
+  });
 
   const contents = new Contents(db);
   // TODO: if the `contents` table already exists, skip prepare

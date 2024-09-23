@@ -151,7 +151,11 @@ export async function build(opts: BuildOpts): Promise<boolean> {
 
   // prepare contents
   const contentsPath = join(srcPath, config.dirs!.contents!);
-  const db = new Database(resolve(srcPath, config.db ?? "punch.db"));
+  const db = new Database(resolve(srcPath, config.db ?? "punch.db"), {
+    unsafeConcurrency: true,
+  });
+  db.exec("pragma temp_store = memory");
+  db.exec(`pragma threads = ${globalThis.navigator.hardwareConcurrency}`);
 
   const contents = new Contents(db);
   performance.mark("content-prep-started");
