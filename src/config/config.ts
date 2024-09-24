@@ -21,6 +21,7 @@ interface OndemandRenderOpts {
 
 interface CssOpts {
   tailwind?: string | TailwindConfig;
+  browserTargets?: string | string[];
 }
 
 interface JsOpts {

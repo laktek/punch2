@@ -17,10 +17,9 @@ const loaders = {
 };
 
 export async function getTsConfig(
-  config: Config,
+  tsconfig: undefined | string | unknown,
   srcPath: string,
 ): Promise<string | undefined> {
-  const tsconfig = config.assets?.js?.tsconfig;
   if (!tsconfig) {
     return;
   }

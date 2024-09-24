@@ -7,7 +7,12 @@ import { Contents } from "./contents.ts";
 import { Config } from "../config/config.ts";
 import { findResource, getRouteParams, ResourceType } from "../utils/routes.ts";
 import { NotFoundError, renderHTML } from "../utils/renderers/html.ts";
-import { getTailwindConfig, renderCSS } from "../utils/renderers/css.ts";
+import {
+  getBrowserTargets,
+  getTailwindConfig,
+  renderCSS,
+  Targets,
+} from "../utils/renderers/css.ts";
 import { getTsConfig, renderJS } from "../utils/renderers/js.ts";
 import { renderImage } from "../utils/renderers/image.ts";
 import { renderMedia } from "../utils/renderers/media.ts";
@@ -49,6 +54,7 @@ function queryContents(contents: Contents, params: any) {
 export class Renderer {
   #htmlTemplateCache: Map<string, Promise<Script>>;
   #partialsCache: Map<string, Script>;
+  #browserTargets?: Targets;
   context: Context;
 
   constructor(context: Context) {
@@ -58,8 +64,13 @@ export class Renderer {
   }
 
   static async init(context: Context) {
+    const { config } = context;
+
     const renderer = new Renderer(context);
     await renderer.#cachePartials();
+    renderer.#browserTargets = getBrowserTargets(
+      config.assets?.css?.browserTargets,
+    );
     return renderer;
   }
 
@@ -236,10 +247,15 @@ export class Renderer {
       };
     } else if (resourceType === ResourceType.CSS) {
       const tailwindConfig = await getTailwindConfig(
-        config,
+        config.assets?.css?.tailwind,
         srcPath,
       );
-      const content = await renderCSS(path, opts?.usedBy, tailwindConfig);
+      const content = await renderCSS(
+        path,
+        this.#browserTargets,
+        opts?.usedBy,
+        tailwindConfig,
+      );
       return {
         route,
         content: encoder.encode(content),
@@ -247,7 +263,7 @@ export class Renderer {
       };
     } else if (resourceType === ResourceType.JS) {
       const tsConfig = await getTsConfig(
-        config,
+        config.assets?.js?.tsconfig,
         srcPath,
       );
       const result = await renderJS(

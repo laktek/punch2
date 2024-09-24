@@ -2,7 +2,13 @@ import postcss from "postcss";
 import { join } from "@std/path";
 import { Config as TailwindConfig, default as tailwindcss } from "tailwindcss";
 import postcssImport from "postcss-import";
-import initLightningWasm, { transform } from "lightningcss-wasm";
+import browserslist from "browserslist";
+import initLightningWasm, {
+  browserslistToTargets,
+  Targets,
+  transform,
+} from "lightningcss-wasm";
+export type { Targets };
 
 import { Config } from "../../config/config.ts";
 
@@ -11,10 +17,9 @@ import { RenderableDocument } from "../dom.ts";
 initLightningWasm();
 
 export async function getTailwindConfig(
-  config: Config,
+  tailwindConfig: undefined | string | TailwindConfig,
   srcPath: string,
 ): Promise<TailwindConfig | undefined> {
-  const tailwindConfig = config.assets?.css?.tailwind;
   if (!tailwindConfig) {
     return;
   }
@@ -35,8 +40,13 @@ export async function getTailwindConfig(
   }
 }
 
+export function getBrowserTargets(queries: undefined | string | string[]) {
+  return browserslistToTargets(browserslist(queries));
+}
+
 export async function renderCSS(
   path: string,
+  targets: undefined | Targets,
   usedBy?: RenderableDocument[],
   config?: TailwindConfig,
 ): Promise<string> {
@@ -59,6 +69,7 @@ export async function renderCSS(
     let { code, map } = transform({
       filename: path,
       code: new TextEncoder().encode(css),
+      targets,
       minify: true,
     });
 
