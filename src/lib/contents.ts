@@ -127,6 +127,7 @@ export class Contents {
       sql[0],
     );
     const records = stmt.all(sql[1] || []);
+    stmt.finalize();
     return parseRecords(records);
   }
 
@@ -198,6 +199,7 @@ export class Contents {
       return stmt.values([...where_params, limit, offset]).flat();
     }
     const records = stmt.all([...where_params, limit, offset]);
+    stmt.finalize();
     return parseRecords(records);
   }
 
