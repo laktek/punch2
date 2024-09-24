@@ -442,6 +442,30 @@ Deno.test("Contents.query", async (t) => {
     );
     db.close();
   });
+
+  await t.step("can query directly using SQL", () => {
+    const db = new Database(":memory:");
+    const contents = new Contents(db);
+    contents.insertAll("foo", [{ "hello": "world" }, { "hello": "world1" }, {
+      "hello": "world2",
+    }]);
+    assertEquals(
+      contents.query("foo", {
+        sql: ["select * from foo where hello = ?", ["world1"]],
+      }),
+      [{ "hello": "world1" }],
+      "expected to return results for sql query",
+    );
+
+    assertEquals(
+      contents.query("foo", {
+        sql: ["select * from foo where hello = :val", { val: "world2" }],
+      }),
+      [{ "hello": "world2" }],
+      "expected to return results for sql query",
+    );
+    db.close();
+  });
 });
 
 Deno.test("Contents.proxy", async (t) => {

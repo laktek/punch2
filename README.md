@@ -14,6 +14,7 @@
 * Built-in support for Tailwind
 * Built-in support for TypeScript, JS imports
 * Automatic asset minification and fingerprinting
+* Only build assets that are used in pages
 * Easy RSS feed generation
 * Serve multiple websites with different domains (with SSL)
 * On-demand Rendering on server-side
@@ -26,7 +27,7 @@
 * Host it anywhere Vercel, Netlify, GitHub Pages, S3, or VPS
 
 Future releases:
-* Single command publish (to punch.host)
+* Single command publish (to punch.host and other providers)
 * Image optimizations
 * Font optimizations
 * Support for diagrams in markdown content (mermaid)
@@ -42,13 +43,12 @@ Future releases:
 
 ### TODO
 
-* CSS Transpile / Browserlist config
 * Sourcemap for css and JS
 * Support for db indexes
-* Option to provide direct sql query
 * auto-redirect www to host
 * on-demand rendering [~]
   - write rendered resources to disk
+* Content API config (CORS, auth, block endpoints)
 * ability to import .ts files directly in script tags
 * Publish to JSR (so it can be imported for customization)
 * punch upgrade command

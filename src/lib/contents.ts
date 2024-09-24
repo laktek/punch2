@@ -5,12 +5,32 @@ import { resolve } from "@std/path";
 import { commonSkipPaths } from "../utils/paths.ts";
 import { parseDir, parseFile } from "../utils/content_parsers.ts";
 
+type SqlQuery = [string, string[] | Record<string, any>];
+
 interface QueryOpts {
   count?: boolean;
   where?: [string, any][];
   limit?: number;
   offset?: number;
   order_by?: string;
+  sql?: SqlQuery;
+}
+
+function parseRecords(records: any[]): unknown[] {
+  return records.map((record) => {
+    for (const [key, value] of Object.entries(record)) {
+      if (typeof value === "string") {
+        if (value.match(/^(\[|\{)(.*)(\]|\})$/)) {
+          try {
+            record[key] = JSON.parse(value);
+          } catch (e) {
+            record[key] = value;
+          }
+        }
+      }
+    }
+    return record;
+  });
 }
 
 export class Contents {
@@ -99,7 +119,22 @@ export class Contents {
     insertRecords(records);
   }
 
+  #runSql(sql: SqlQuery) {
+    if (typeof sql[0] !== "string") {
+      throw new Error("first argument to sql option must be a string");
+    }
+    const stmt = this.#db.prepare(
+      sql[0],
+    );
+    const records = stmt.all(sql[1] || []);
+    return parseRecords(records);
+  }
+
   query(table: string, opts?: QueryOpts): unknown[] {
+    if (opts?.sql) {
+      return this.#runSql(opts?.sql);
+    }
+
     let select = "*";
     if (opts?.count) {
       select = "count(*)";
@@ -163,20 +198,7 @@ export class Contents {
       return stmt.values([...where_params, limit, offset]).flat();
     }
     const records = stmt.all([...where_params, limit, offset]);
-    return records.map((record) => {
-      for (const [key, value] of Object.entries(record)) {
-        if (typeof value === "string") {
-          if (value.match(/^(\[|\{)(.*)(\]|\})$/)) {
-            try {
-              record[key] = JSON.parse(value);
-            } catch (e) {
-              record[key] = value;
-            }
-          }
-        }
-      }
-      return record;
-    });
+    return parseRecords(records);
   }
 
   proxy(temp?: { [key: string]: unknown }) {
