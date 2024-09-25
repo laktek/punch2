@@ -35,6 +35,7 @@ program.command("build")
   .argument("[SOURCE]", "path of the site to build")
   .option("-o, --output <DIR>", "output directory for the built site")
   .option("-c, --config <PATH>", "path for the config file")
+  .option("-q, --quiet", "suppress build logs")
   .option(
     "--base-url <URL>",
     "Base URL of the site (eg: https://example.com)",

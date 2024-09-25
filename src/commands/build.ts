@@ -18,11 +18,20 @@ interface BuildOpts {
   output?: string;
   config?: string;
   baseUrl?: string;
+  quiet?: boolean;
 }
 
 interface BatchedRenderResult {
   pages: Output[];
   assetMap: AssetMap;
+}
+
+globalThis.isQuiet = false;
+function withQuiet(fn: () => void) {
+  if (globalThis.isQuiet) {
+    return;
+  }
+  fn();
 }
 
 async function batchedRender(
@@ -48,35 +57,20 @@ async function batchedRender(
     }
   };
 
-  console.info("- rendering pages...");
-  performance.mark("render-started");
+  withQuiet(() => console.info("- rendering pages..."));
+  withQuiet(() => console.time("- rendered pages"));
   for (let i = 0; i < routes.length; i += batchSize) {
-    performance.mark(`render-started-${i}`);
+    withQuiet(() =>
+      console.time(`-- rendered pages (batch: ${i} - ${i + batchSize})`)
+    );
     const batch = routes.slice(i, i + batchSize);
     await Promise.all(batch.map(renderRoute));
-    performance.mark(`render-finished-${i}`);
-    const batchRenderDuration = performance.measure(
-      `render-duration-${i}`,
-      `render-started-${i}`,
-      `render-finished-${i}`,
-    );
-    console.info(
-      `-- rendered ${
-        routes.length < i + batchSize ? routes.length - i : batchSize
-      } pages (in ${Math.round(batchRenderDuration.duration * 100) / 100}ms)`,
+    withQuiet(() =>
+      console.timeEnd(`-- rendered pages (batch: ${i} - ${i + batchSize})`)
     );
   }
-  performance.mark("render-finished");
-
-  const renderDuration = performance.measure(
-    "render-duration",
-    "render-started",
-    "render-finished",
-  );
-  console.info(
-    `- rendered pages (${pages.length} pages in ${
-      Math.round(renderDuration.duration * 100) / 100
-    }ms)`,
+  withQuiet(() =>
+    console.timeLog("- rendered pages", `(${pages.length} pages)`)
   );
 
   return { pages, assetMap };
@@ -89,7 +83,7 @@ async function batchedWrite(
   pages: Output[],
 ): Promise<void> {
   const batchSize = config.build?.batchSize || 100;
-  performance.mark("write-started");
+  withQuiet(() => console.time("- wrote files to disk"));
   const textEncoder = new TextEncoder();
 
   const writePage = async (page: Output) => {
@@ -123,21 +117,14 @@ async function batchedWrite(
   );
   resources.insertAll(resourcesArr);
 
-  performance.mark("write-finished");
-  const writeDuration = performance.measure(
-    "write-duration",
-    "write-started",
-    "write-finished",
-  );
-  console.info(
-    `- wrote files to disk (${pages.length} pages in ${
-      Math.round(writeDuration.duration * 100) / 100
-    }ms)`,
+  withQuiet(() =>
+    console.timeLog("- wrote files to disk", `(${pages.length} pages)`)
   );
 }
 
 export async function build(opts: BuildOpts): Promise<boolean> {
-  console.info("Build started...");
+  globalThis.isQuiet = opts.quiet;
+  withQuiet(() => console.info("Build started..."));
   const srcPath = resolve(Deno.cwd(), opts.srcPath ?? "");
   const configPath = resolve(srcPath, opts.config ?? "punch.jsonc");
 
@@ -158,19 +145,9 @@ export async function build(opts: BuildOpts): Promise<boolean> {
   db.exec(`pragma threads = ${globalThis.navigator.hardwareConcurrency}`);
 
   const contents = new Contents(db);
-  performance.mark("content-prep-started");
+  withQuiet(() => console.time("- indexed content"));
   await contents.prepare(contentsPath);
-  performance.mark("content-prep-finished");
-  const contentPrepDuration = performance.measure(
-    "content-prep-duration",
-    "content-prep-started",
-    "content-prep-finished",
-  );
-  console.info(
-    `- indexed content (${
-      Math.round(contentPrepDuration.duration * 100) / 100
-    }ms)`,
-  );
+  withQuiet(() => console.timeLog("- indexed content"));
 
   const resources = new Resources(db);
   // clear resources from previous build
@@ -202,7 +179,7 @@ export async function build(opts: BuildOpts): Promise<boolean> {
 
   const { pages, assetMap } = await batchedRender(config, renderer, routes);
 
-  performance.mark("assets-started");
+  withQuiet(() => console.time("- built assets"));
   await assetMap.render(destPath);
   const resourcesArr: Resource[] = [];
   // write resources to DB
@@ -216,27 +193,24 @@ export async function build(opts: BuildOpts): Promise<boolean> {
     })
   );
   resources.insertAll(resourcesArr);
-  performance.mark("assets-finished");
-  const assetsDuration = performance.measure(
-    "assets-duration",
-    "assets-started",
-    "assets-finished",
-  );
-  console.info(
-    `- built assets (${assetMap.assets.size} assets in ${
-      Math.round(assetsDuration.duration / 100) * 100
-    }ms)`,
+  withQuiet(() =>
+    console.timeLog(
+      "- built assets",
+      `(${assetMap.assets.size} assets)`,
+    )
   );
 
   await batchedWrite(config, destPath, resources, pages);
 
   // add sitemap
   if (config.build?.sitemap) {
+    withQuiet(() => console.time("- built sitemap"));
     await generateSitemap(config, destPath, resources, opts.baseUrl);
+    withQuiet(() => console.timeEnd("- built sitemap"));
   }
 
   db.close();
 
-  console.log(`Built site in ${destPath}`);
+  withQuiet(() => console.info(`Built site in ${destPath}`));
   return true;
 }

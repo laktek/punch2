@@ -10,7 +10,6 @@ export async function generateSitemap(
   resources: Resources,
   customBaseURL?: string,
 ) {
-  performance.mark("sitemap-started");
   let baseURL = customBaseURL || config.baseURL;
   if (!baseURL) {
     // TODO: change the default base url
@@ -31,14 +30,5 @@ export async function generateSitemap(
     `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${
       entries.join("\n")
     }</urlset>`,
-  );
-  performance.mark("sitemap-finished");
-  const sitemapDuration = performance.measure(
-    "sitemap-duration",
-    "sitemap-started",
-    "sitemap-finished",
-  );
-  console.info(
-    `- built sitemap (${Math.round(sitemapDuration.duration * 100) / 100}ms)`,
   );
 }
