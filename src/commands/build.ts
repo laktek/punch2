@@ -26,6 +26,9 @@ interface BatchedRenderResult {
   assetMap: AssetMap;
 }
 
+declare global {
+  var isQuiet: undefined | boolean;
+}
 globalThis.isQuiet = false;
 function withQuiet(fn: () => void) {
   if (globalThis.isQuiet) {
