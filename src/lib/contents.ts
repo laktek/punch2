@@ -35,10 +35,12 @@ function parseRecords(records: any[]): unknown[] {
 
 export class Contents {
   #db: Database;
+  #indexes?: Record<string, string[]>;
 
-  constructor(db?: Database) {
+  constructor(db?: Database, indexes?: Record<string, string[]>) {
     this.#db = db ?? new Database(":memory:");
     this.#db.int64 = true;
+    this.#indexes = indexes;
   }
 
   async prepare(contentsPath: string): Promise<void> {
@@ -79,7 +81,10 @@ export class Contents {
     }
   }
 
-  insertAll(table: string, records: any[]): void {
+  insertAll(
+    table: string,
+    records: any[],
+  ): void {
     const columns = Array.from(
       records.reduce((cols: Set<string>, record): Set<string> => {
         Object.keys(record as Object).map((k) => cols.add(k));
@@ -99,10 +104,13 @@ export class Contents {
       `create table if not exists '${table}' (${columns.join(",")})`,
     );
 
-    // TODO: support adding indexes
-    // if (table === "blog") {
-    //   this.#db.exec(`create index if not exists slug_index on ${table} (slug)`);
-    // }
+    if (this.#indexes && this.#indexes[table]) {
+      const index_columns = this.#indexes[table].join(",");
+      this.#db.exec(
+        `create index if not exists index_${table} on ${table} (${index_columns})`,
+      );
+      console.log("created indexes", index_columns);
+    }
 
     const stmt = this.#db.prepare(
       `insert into "${table}" (${columns.join(",")}) values(${

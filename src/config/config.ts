@@ -30,7 +30,6 @@ interface JsOpts {
 
 export interface Config {
   output?: string;
-  db?: string;
   baseURL?: string;
   routes?: string[];
   redirects?: Record<string, RedirectValue>;
@@ -63,6 +62,10 @@ export interface Config {
     css?: CssOpts;
     js?: JsOpts;
   };
+  db?: {
+    path?: string;
+    indexes?: Record<string, string[]>;
+  };
 }
 
 async function parseConfig(configPath: string): Promise<unknown> {
@@ -86,7 +89,9 @@ export async function getConfig(
 ): Promise<Config> {
   const defaultConfig = {
     output: "dist",
-    db: "punch.db",
+    db: {
+      path: "punch.db",
+    },
     dirs: {
       public: "public",
       pages: "pages",

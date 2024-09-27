@@ -58,7 +58,7 @@ export async function dev(opts: DevOpts): Promise<void> {
   const contentsPath = join(srcPath, config.dirs!.contents!);
   // setup an in-memory DB
   const db = new Database(":memory:");
-  const contents = new Contents(db);
+  const contents = new Contents(db, config.db?.indexes);
   // TODO: if the `contents` table already exists, skip prepare
   await contents.prepare(contentsPath);
 
