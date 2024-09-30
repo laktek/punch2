@@ -1,4 +1,4 @@
-import { join } from "@std/path";
+import { extname, join } from "@std/path";
 
 import { Config } from "../config/config.ts";
 import { Renderer } from "./render.ts";
@@ -88,16 +88,21 @@ export class AssetMap {
           return;
         }
 
-        const { content } = output;
+        const { content, metadata } = output;
 
         const hash = await hashContent(content! as Uint8Array);
-        const assetPath = routeWithContentHash(route, hash);
+        let assetPath = routeWithContentHash(route, hash);
+
+        if (asset.resourceType === ResourceType.IMAGE && metadata?.ext) {
+          const ext = extname(assetPath);
+          assetPath = assetPath.replace(ext, metadata?.ext);
+        }
 
         asset.hash = hash;
 
         // update all used by files with new ref
         asset.usedBy.forEach((doc) =>
-          doc.updateAssetPaths(asset.resourceType, route, assetPath)
+          doc.updateAssetPaths(asset.resourceType, route, assetPath, metadata)
         );
 
         if (write) {

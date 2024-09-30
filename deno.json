@@ -25,7 +25,8 @@
     "esbuild": "https://deno.land/x/esbuild@v0.24.0/mod.js",
     "sqlite": "jsr:@db/sqlite@0.12",
     "lightningcss-wasm": "npm:lightningcss-wasm@1.27.0",
-    "browserslist": "npm:browserslist@4.23.3"
+    "browserslist": "npm:browserslist@4.23.3",
+    "magick-wasm": "npm:@imagemagick/magick-wasm@0.0.30"
   },
   "tasks": {
     "test": "deno test -A --unstable-ffi ./src",

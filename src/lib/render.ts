@@ -14,7 +14,7 @@ import {
   Targets,
 } from "../utils/renderers/css.ts";
 import { getTsConfig, renderJS } from "../utils/renderers/js.ts";
-import { renderImage } from "../utils/renderers/image.ts";
+import { ImageMetadata, renderImage } from "../utils/renderers/image.ts";
 import { renderMedia } from "../utils/renderers/media.ts";
 import { RenderableDocument } from "../utils/dom.ts";
 import { commonSkipPaths } from "../utils/paths.ts";
@@ -30,6 +30,7 @@ export interface Output {
   route: string;
   resourceType?: ResourceType;
   content?: RenderableDocument | Uint8Array;
+  metadata?: ImageMetadata;
   hash?: string;
   errorStatus?: number;
   errorMessage?: string;
@@ -278,10 +279,11 @@ export class Renderer {
         resourceType,
       };
     } else if (resourceType === ResourceType.IMAGE) {
-      const { content } = await renderImage(path);
+      const { content, metadata } = await renderImage(path);
       return {
         route,
         content,
+        metadata,
         resourceType,
       };
     } else if (

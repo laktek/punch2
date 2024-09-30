@@ -1637,6 +1637,7 @@
       "jsr:@std/testing@^0.225.3",
       "jsr:@std/toml@^1.0.0",
       "jsr:@std/yaml@^0.224.3",
+      "npm:@imagemagick/magick-wasm@0.0.30",
       "npm:browserslist@4.23.3",
       "npm:commander@11.1.0",
       "npm:gray-matter@4.0.3",

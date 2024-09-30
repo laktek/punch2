@@ -17,4 +17,11 @@
 	"redirects": {
     // "/old-page": { "destination": "/new-page", "permanent": true }
   }
+
+  // Set the DB indexes to make content queries faster
+  "db": {
+    "indexes": {
+      "blog": ["slug"]
+    }
+  }
 }

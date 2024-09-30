@@ -155,15 +155,22 @@ export class RenderableDocument {
     );
   }
 
-  #updateImagePaths(oldPath: string, newPath: string) {
+  #updateImagePaths(oldPath: string, newPath: string, metadata?: any) {
     if (!this.document) {
       return;
     }
     const srcMatches = this.document.querySelectorAll(`img[src="${oldPath}"]`);
-    srcMatches.forEach((match) =>
-      (match as Element).setAttribute("src", newPath)
-    );
+    srcMatches.forEach((match) => {
+      (match as Element).setAttribute("src", newPath);
+      (match as Element)
+        .setAttribute("width", metadata?.width);
+      (match as Element).setAttribute(
+        "height",
+        metadata?.height,
+      );
+    });
 
+    // TODO: width/height for srcset
     const srcsetMatches = this.document.querySelectorAll(
       `img[srcset*="${oldPath}"]`,
     );
@@ -239,13 +246,14 @@ export class RenderableDocument {
     resourceType: ResourceType,
     oldPath: string,
     newPath: string,
+    metadata?: any,
   ) {
     if (resourceType === ResourceType.JS) {
       this.#updateScriptPaths(oldPath, newPath);
     } else if (resourceType === ResourceType.CSS) {
       this.#updateStylesheetPaths(oldPath, newPath);
     } else if (resourceType === ResourceType.IMAGE) {
-      this.#updateImagePaths(oldPath, newPath);
+      this.#updateImagePaths(oldPath, newPath, metadata);
     } else if (resourceType === ResourceType.AUDIO) {
       this.#updateAudioPaths(oldPath, newPath);
     } else if (resourceType === ResourceType.VIDEO) {
