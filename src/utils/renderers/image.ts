@@ -26,7 +26,7 @@ export async function renderImage(path: string): Promise<Result> {
 
     let result = ImageMagick.read(
       content,
-      (img): Uint8Array => {
+      (img): Result => {
         const width = img.width;
         const height = img.height;
 
