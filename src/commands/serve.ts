@@ -117,6 +117,7 @@ async function prepareSite(siteConfig: SiteConfig): Promise<Site> {
   };
 }
 
+// TODO: call render.complete() before shutdown
 export async function serve(opts: ServeOpts): Promise<void> {
   const sitesConfigPath = resolve(Deno.cwd(), opts.sites || "");
 

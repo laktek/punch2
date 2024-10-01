@@ -8,15 +8,15 @@ await initializeImageMagick(
   wasmBytes,
 );
 
-export interface ImageMetadata {
+interface Metadata {
   ext: string;
   width: number;
   height: number;
 }
 
-interface Result {
+export interface Result {
   content: Uint8Array;
-  metadata: ImageMetadata;
+  metadata: Metadata;
 }
 
 export async function renderImage(path: string): Promise<Result> {

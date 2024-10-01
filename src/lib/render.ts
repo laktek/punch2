@@ -14,7 +14,7 @@ import {
   Targets,
 } from "../utils/renderers/css.ts";
 import { getTsConfig, renderJS } from "../utils/renderers/js.ts";
-import { ImageMetadata, renderImage } from "../utils/renderers/image.ts";
+import { Result as ImageResult } from "../utils/renderers/image.ts";
 import { renderMedia } from "../utils/renderers/media.ts";
 import { RenderableDocument } from "../utils/dom.ts";
 import { commonSkipPaths } from "../utils/paths.ts";
@@ -30,7 +30,7 @@ export interface Output {
   route: string;
   resourceType?: ResourceType;
   content?: RenderableDocument | Uint8Array;
-  metadata?: ImageMetadata;
+  metadata?: ImageResult["metadata"];
   hash?: string;
   errorStatus?: number;
   errorMessage?: string;
@@ -53,16 +53,71 @@ function queryContents(contents: Contents, params: any) {
   return results;
 }
 
+class ImageWorkerPool {
+  #workers: Worker[];
+  #current: number;
+  #pendingJobs: Map<string, (result: any) => void>;
+
+  constructor() {
+    this.#workers = [];
+    this.#pendingJobs = new Map();
+    this.#current = 0;
+
+    const workerCount = navigator.hardwareConcurrency;
+
+    for (let i = 0; i < workerCount; i++) {
+      const worker = new Worker(
+        import.meta.resolve("../utils/workers/image_worker.ts"),
+        {
+          type: "module",
+        },
+      );
+      worker.onmessage = (e) => {
+        const { path, result } = e.data;
+        const resolve = this.#pendingJobs.get(path);
+        if (resolve) {
+          resolve(result);
+          this.#pendingJobs.delete(path);
+        }
+      };
+      this.#workers.push(worker);
+    }
+  }
+
+  terminateAll() {
+    this.#workers.forEach((worker) => worker.terminate());
+  }
+
+  #next(): number {
+    const nextWorker = this.#current;
+    this.#current = (this.#current + 1) %
+      this.#workers.length;
+    return nextWorker;
+  }
+
+  process(path: string): Promise<ImageResult> {
+    const worker = this.#workers[this.#next()];
+    worker.postMessage({ path });
+    return new Promise((resolve) => {
+      this.#pendingJobs.set(path, resolve);
+    });
+  }
+}
+
 export class Renderer {
   #htmlTemplateCache: Map<string, Promise<Script>>;
   #partialsCache: Map<string, Script>;
   #browserTargets?: Targets;
+
+  #imageWorkerPool: ImageWorkerPool;
+
   context: Context;
 
   constructor(context: Context) {
     this.context = context;
     this.#htmlTemplateCache = new Map();
     this.#partialsCache = new Map();
+    this.#imageWorkerPool = new ImageWorkerPool();
   }
 
   static async init(context: Context) {
@@ -79,6 +134,10 @@ export class Renderer {
   async refresh() {
     this.#htmlTemplateCache = new Map();
     await this.#cachePartials();
+  }
+
+  complete() {
+    this.#imageWorkerPool.terminateAll();
   }
 
   async #cachePartials() {
@@ -279,7 +338,7 @@ export class Renderer {
         resourceType,
       };
     } else if (resourceType === ResourceType.IMAGE) {
-      const { content, metadata } = await renderImage(path);
+      const { content, metadata } = await this.#imageWorkerPool.process(path);
       return {
         route,
         content,

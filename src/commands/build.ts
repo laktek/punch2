@@ -213,6 +213,7 @@ export async function build(opts: BuildOpts): Promise<boolean> {
   }
 
   db.close();
+  renderer.complete();
 
   withQuiet(() => console.info(`Built site in ${destPath}`));
   return true;

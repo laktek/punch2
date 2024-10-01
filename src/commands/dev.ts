@@ -99,6 +99,7 @@ export async function dev(opts: DevOpts): Promise<void> {
     dispatchEvent(new CustomEvent("file_changed", { detail: { paths } }));
   };
 
+  // TODO: call render.complete() before shutdown
   Deno.serve(
     {
       port,
