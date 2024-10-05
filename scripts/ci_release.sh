@@ -9,4 +9,4 @@ set -e
 rm -rf ./bin
 deno run -A -c deno.json ./scripts/writeTemplate.ts
 deno run -A ./scripts/writeVersion.ts
-deno compile -A -c deno.json --output bin/punch-${1} --reload --include ./src/lib/dev_watcher.ts --include ./src/utils/workers/image_worker.ts --target ${1} ./src/index.ts
+deno compile -A -c deno.json --output bin/punch-${1} --reload --include ./src/lib/dev_watcher.ts --include ./src/utils/workers/image_worker.ts --include ./src/utils/workers/html_worker.ts --target ${1} ./src/index.ts

@@ -1,6 +1,6 @@
 import { assertEquals } from "@std/assert";
 import { join } from "@std/path";
-import { Database } from "sqlite";
+import { DB } from "sqlite";
 
 import {
   findResource,
@@ -462,7 +462,7 @@ Deno.test("getRouteParams", async (t) => {
 });
 
 Deno.test("prepareExplicitRoutes", async (t) => {
-  const db = new Database(":memory:");
+  const db = new DB(":memory:");
   const contents = new Contents(db);
   contents.insertAll("posts", [{
     "year": 2023,
@@ -550,5 +550,5 @@ Deno.test("prepareExplicitRoutes", async (t) => {
     },
   );
 
-  db.close();
+  db.close(true);
 });

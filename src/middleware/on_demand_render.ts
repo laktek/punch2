@@ -57,10 +57,13 @@ export default async function (ctx: Context, next: NextFn) {
 
         if (!devMode && resources) {
           assetMap.assets.forEach((asset, route) => {
-            const resource: Resource | undefined = resources.get(
+            const resource = resources.get(
               route,
             );
-            const assetPath = routeWithContentHash(route, resource?.hash || "");
+            const assetPath = routeWithContentHash(
+              route,
+              (resource?.hash as string) || "",
+            );
             const doc = output.content as RenderableDocument;
             doc.updateAssetPaths(asset.resourceType, route, assetPath);
           });

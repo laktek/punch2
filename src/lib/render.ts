@@ -53,12 +53,17 @@ function queryContents(contents: Contents, params: any) {
   return results;
 }
 
-class ImageWorkerPool {
+interface WorkerMsg {
+  path: string;
+  [prop: string]: string | number | object | boolean;
+}
+
+class WorkerPool {
   #workers: Worker[];
   #current: number;
   #pendingJobs: Map<string, (result: any) => void>;
 
-  constructor() {
+  constructor(src: string) {
     this.#workers = [];
     this.#pendingJobs = new Map();
     this.#current = 0;
@@ -67,7 +72,7 @@ class ImageWorkerPool {
 
     for (let i = 0; i < workerCount; i++) {
       const worker = new Worker(
-        import.meta.resolve("../utils/workers/image_worker.ts"),
+        import.meta.resolve(src),
         {
           type: "module",
         },
@@ -95,21 +100,22 @@ class ImageWorkerPool {
     return nextWorker;
   }
 
-  process(path: string): Promise<ImageResult> {
+  process(msg: WorkerMsg): Promise<any> {
     const worker = this.#workers[this.#next()];
-    worker.postMessage({ path });
+    worker.postMessage(msg);
     return new Promise((resolve) => {
-      this.#pendingJobs.set(path, resolve);
+      this.#pendingJobs.set(msg.path, resolve);
     });
   }
 }
 
 export class Renderer {
   #htmlTemplateCache: Map<string, Promise<Script>>;
-  #partialsCache: Map<string, Script>;
+  #partialsCache: Map<string, string>;
   #browserTargets?: Targets;
 
-  #imageWorkerPool: ImageWorkerPool;
+  #imageWorkerPool: WorkerPool;
+  #htmlWorkerPool: WorkerPool;
 
   context: Context;
 
@@ -117,7 +123,12 @@ export class Renderer {
     this.context = context;
     this.#htmlTemplateCache = new Map();
     this.#partialsCache = new Map();
-    this.#imageWorkerPool = new ImageWorkerPool();
+    this.#imageWorkerPool = new WorkerPool(
+      "../utils/workers/image_worker.ts",
+    );
+    this.#htmlWorkerPool = new WorkerPool(
+      "../utils/workers/html_worker.ts",
+    );
   }
 
   static async init(context: Context) {
@@ -138,6 +149,7 @@ export class Renderer {
 
   complete() {
     this.#imageWorkerPool.terminateAll();
+    this.#htmlWorkerPool.terminateAll();
   }
 
   async #cachePartials() {
@@ -155,10 +167,10 @@ export class Renderer {
     ) {
       if (entry.isFile) {
         const tmpl = await Deno.readTextFile(entry.path);
-        const script = new Script("`" + tmpl + "`");
+        //const script = new Script("`" + tmpl + "`");
         const ext = extname(entry.name);
         const name = basename(entry.name, ext);
-        this.#partialsCache.set(name, script);
+        this.#partialsCache.set(name, tmpl);
       }
     }
   }
@@ -192,70 +204,82 @@ export class Renderer {
 
     const partialsCache = this.#partialsCache;
 
-    const builtins = {
-      console,
-      Date,
-      Intl,
-      JSON,
-      atob,
-      btoa,
-      TextEncoder,
-      TextDecoder,
-      URL,
-      URLPattern,
-      URLSearchParams,
-      Punch: {
-        route: getRouteParams(
-          route,
-          relative(join(srcPath, config.dirs!.pages!), path),
-        ),
-        one: (params: any, callback: (i: unknown) => string) => {
-          const results = queryContents(contents, {
-            ...params,
-            limit: 1,
-          });
-          return callback(results[0]);
-        },
-        all: (params: any, callback: (i: unknown) => string) => {
-          return queryContents(contents, params).map((result) =>
-            callback(result)
-          )
-            .join("");
-        },
-        count: (params: any) => {
-          return queryContents(contents, { ...params, limit: 1, count: true });
-        },
-        partial: (name: string, params?: any) => {
-          const tmpl = partialsCache.get(name);
-          if (!tmpl) {
-            throw new Error(`partial not found. name: ${name}`);
-          }
-          const context = createContext({
-            ...params,
-            ...builtins,
-            _params: { ...params },
-          });
-          return renderHTML(tmpl, context);
-        },
-        notFound: () => {
-          throw new NotFoundError();
-        },
-        escape,
-        unescape,
-        devMode,
-      },
-    };
+    // const builtins = {
+    //   console,
+    //   Date,
+    //   Intl,
+    //   JSON,
+    //   atob,
+    //   btoa,
+    //   TextEncoder,
+    //   TextDecoder,
+    //   URL,
+    //   URLPattern,
+    //   URLSearchParams,
+    //   Punch: {
+    //     route: getRouteParams(
+    //       route,
+    //       relative(join(srcPath, config.dirs!.pages!), path),
+    //     ),
+    //     one: (params: any, callback: (i: unknown) => string) => {
+    //       const results = queryContents(contents, {
+    //         ...params,
+    //         limit: 1,
+    //       });
+    //       return callback(results[0]);
+    //     },
+    //     all: (params: any, callback: (i: unknown) => string) => {
+    //       return queryContents(contents, params).map((result) =>
+    //         callback(result)
+    //       )
+    //         .join("");
+    //     },
+    //     count: (params: any) => {
+    //       return queryContents(contents, { ...params, limit: 1, count: true });
+    //     },
+    //     partial: (name: string, params?: any) => {
+    //       const tmpl = partialsCache.get(name);
+    //       if (!tmpl) {
+    //         throw new Error(`partial not found. name: ${name}`);
+    //       }
+    //       const context = createContext({
+    //         ...params,
+    //         ...builtins,
+    //         _params: { ...params },
+    //       });
+    //       const script = new Script("`" + tmpl + "`");
+    //       return renderHTML(script, context);
+    //     },
+    //     notFound: () => {
+    //       throw new NotFoundError();
+    //     },
+    //     escape,
+    //     unescape,
+    //     devMode,
+    //   },
+    // };
 
     const encoder = new TextEncoder();
-    const renderHTMLContext = createContext(
-      contents.proxy({ ...builtins }),
-    );
+    // const renderHTMLContext = createContext(
+    //   contents.proxy({ ...builtins }),
+    // );
 
     if (resourceType === ResourceType.HTML) {
-      const tmpl = await this.#getHTMLTemplate(path);
-      const content = renderHTML(
-        tmpl,
-        renderHTMLContext,
+      //const tmpl = await this.#getHTMLTemplate(path);
+      // const content = renderHTML(
+      //   tmpl,
+      //   renderHTMLContext,
+      // );
+      const content = await this.#htmlWorkerPool.process(
+        {
+          srcPath,
+          config,
+          devMode,
+          templatePath: path,
+          route,
+          path: route, // fixme
+          partialsCache,
+        },
       );
 
       if (!content) {
@@ -281,10 +305,21 @@ export class Renderer {
         resourceType,
       };
     } else if (resourceType === ResourceType.XML) {
-      const tmpl = await this.#getHTMLTemplate(path);
-      const content = renderHTML(
-        tmpl,
-        renderHTMLContext,
+      // const tmpl = await this.#getHTMLTemplate(path);
+      // const content = renderHTML(
+      //   tmpl,
+      //   renderHTMLContext,
+      // );
+      const content = await this.#htmlWorkerPool.process(
+        {
+          srcPath,
+          config,
+          devMode,
+          templatePath: path,
+          route,
+          path: route, // fixme
+          partialsCache,
+        },
       );
 
       if (!content) {
@@ -338,7 +373,9 @@ export class Renderer {
         resourceType,
       };
     } else if (resourceType === ResourceType.IMAGE) {
-      const { content, metadata } = await this.#imageWorkerPool.process(path);
+      const { content, metadata } = await this.#imageWorkerPool.process({
+        path,
+      });
       return {
         route,
         content,

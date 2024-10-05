@@ -36,6 +36,7 @@ Future releases:
 * Migrate Jekyll, 11ty, Astro, and Hugo sites
 * Easy A/B testing
 * Support for i18n (multi-language sites)
+* Middleware to render-partials (htmx use case)
 * Immutable builds
   - serve can choose which build to use
   - build refs are stored in DB

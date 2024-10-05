@@ -1,5 +1,5 @@
 import { join, resolve } from "@std/path";
-import { Database } from "sqlite";
+import { DB } from "sqlite";
 
 import { Config, getConfig } from "../config/config.ts";
 import { Contents } from "../lib/contents.ts";
@@ -141,11 +141,8 @@ export async function build(opts: BuildOpts): Promise<boolean> {
 
   // prepare contents
   const contentsPath = join(srcPath, config.dirs!.contents!);
-  const db = new Database(resolve(srcPath, config.db?.path ?? "punch.db"), {
-    unsafeConcurrency: true,
-  });
-  db.exec("pragma temp_store = memory");
-  db.exec(`pragma threads = ${globalThis.navigator.hardwareConcurrency}`);
+  const db = new DB(resolve(srcPath, config.db?.path ?? "punch.db"), {});
+  db.execute("pragma temp_store = memory");
 
   const contents = new Contents(db, config.db?.indexes);
   withQuiet(() => console.time("- indexed content"));
@@ -154,7 +151,7 @@ export async function build(opts: BuildOpts): Promise<boolean> {
 
   const resources = new Resources(db);
   // clear resources from previous build
-  await resources.clear();
+  resources.clear();
 
   const context = {
     srcPath,
@@ -184,6 +181,10 @@ export async function build(opts: BuildOpts): Promise<boolean> {
 
   withQuiet(() => console.time("- built assets"));
   await assetMap.render(destPath);
+
+  // NOTE: complete needs to be called before inserting resources to DB (releases the DB locks)
+  renderer.complete();
+
   const resourcesArr: Resource[] = [];
   // write resources to DB
   const lastmod = new Date().toJSON();
@@ -195,6 +196,7 @@ export async function build(opts: BuildOpts): Promise<boolean> {
       lastmod,
     })
   );
+
   resources.insertAll(resourcesArr);
   withQuiet(() =>
     console.timeLog(
@@ -212,8 +214,7 @@ export async function build(opts: BuildOpts): Promise<boolean> {
     withQuiet(() => console.timeEnd("- built sitemap"));
   }
 
-  db.close();
-  renderer.complete();
+  db.close(true);
 
   withQuiet(() => console.info(`Built site in ${destPath}`));
   return true;

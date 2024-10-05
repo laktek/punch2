@@ -1,4 +1,4 @@
-import { Database, Statement } from "sqlite";
+import { DB, PreparedQuery } from "sqlite";
 
 import { ResourceType } from "../utils/routes.ts";
 
@@ -10,49 +10,46 @@ export type Resource = {
 };
 
 export class Resources {
-  #db: Database;
-  #insertStmt: Statement;
+  #db: DB;
 
-  insertAll: (resources: Resource[]) => void;
-
-  constructor(db?: Database) {
-    this.#db = db ?? new Database(":memory:");
+  constructor(db?: DB) {
+    this.#db = db ?? new DB(":memory:");
 
     // create the contents table
-    this.#db.exec(
+    this.#db.execute(
       `create table if not exists 'punch_resources' (route, type, hash, lastmod)`,
     );
+  }
 
+  insertAll(resources: Resource[]) {
     // prepare insert statement
-    this.#insertStmt = this.#db.prepare(
-      `insert into "punch_resources" (route, type, hash, lastmod) values(:route, :type, :hash, :lastmod)`,
+    const stmt = this.#db.prepareQuery(
+      `insert into "punch_resources" (route, type, hash, lastmod) values (:route, :type, :hash, :lastmod)`,
     );
 
-    this.insertAll = this.#db.transaction(
-      (resources: Resource[]) => {
-        for (const resource of resources) {
-          this.#insertStmt.run(resource);
-        }
-      },
-    );
+    this.#db.execute("begin");
+    for (const resource of resources) {
+      stmt.execute(resource);
+    }
+    this.#db.execute("commit");
   }
 
-  get(route: string): Resource | undefined {
-    const stmt = this.#db.prepare(
+  get(route: string) {
+    return this.#db.queryEntries(
       `select * from punch_resources where route = ? limit 1`,
-    );
-    return stmt.get<Resource>(route);
+      [route],
+    ).shift();
   }
 
-  all(type: ResourceType): Resource[] {
-    const stmt = this.#db.prepare(
+  all(type: ResourceType) {
+    return this.#db.queryEntries(
       `select * from punch_resources where type = ?`,
+      [type],
     );
-    return stmt.all<Resource>(type);
   }
 
   clear() {
-    this.#db.exec(
+    this.#db.execute(
       `delete from 'punch_resources'`,
     );
   }

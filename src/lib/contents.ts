@@ -1,5 +1,5 @@
 import { exists, walk } from "@std/fs";
-import { Database } from "sqlite";
+import { DB } from "sqlite";
 import { resolve } from "@std/path";
 
 import { commonSkipPaths } from "../utils/paths.ts";
@@ -34,12 +34,12 @@ function parseRecords(records: any[]): unknown[] {
 }
 
 export class Contents {
-  #db: Database;
+  #db: DB;
   #indexes?: Record<string, string[]>;
 
-  constructor(db?: Database, indexes?: Record<string, string[]>) {
-    this.#db = db ?? new Database(":memory:");
-    this.#db.int64 = true;
+  constructor(db?: DB, indexes?: Record<string, string[]>) {
+    this.#db = db ?? new DB(":memory:");
+    //this.#db.int64 = true;
     this.#indexes = indexes;
   }
 
@@ -47,6 +47,8 @@ export class Contents {
     if (!(await exists(contentsPath))) {
       return;
     }
+
+    const tables = new Map();
 
     // walk content directory
     for await (
@@ -59,12 +61,12 @@ export class Contents {
       if (entry.isFile) {
         const result = await parseFile(entry.path);
         if (result) {
-          this.insertAll(result.key, result.records);
+          tables.set(result.key, result.records);
         }
       } else if (entry.isDirectory) {
         const result = await parseDir(entry.path);
         if (result) {
-          this.insertAll(result.key, result.records);
+          tables.set(result.key, result.records);
         }
       } else if (entry.isSymlink) {
         const originalPath = resolve(
@@ -75,9 +77,13 @@ export class Contents {
 
         const result = await parseFile(originalPath);
         if (result) {
-          this.insertAll(result.key, result.records);
+          tables.set(result.key, result.records);
         }
       }
+    }
+
+    for (const [name, records] of tables) {
+      this.insertAll(name, records);
     }
   }
 
@@ -98,44 +104,45 @@ export class Contents {
 
     // drop existing table before creating a new one
     // TODO: make dropping table configurable
-    this.#db.exec(`drop table if exists '${table}'`);
+    this.#db.execute(`drop table if exists '${table}'`);
 
-    this.#db.exec(
+    this.#db.execute(
       `create table if not exists '${table}' (${columns.join(",")})`,
     );
 
     if (this.#indexes && this.#indexes[table]) {
       const index_columns = this.#indexes[table].join(",");
-      this.#db.exec(
+      this.#db.execute(
         `create index if not exists index_${table} on ${table} (${index_columns})`,
       );
-      console.log("created indexes", index_columns);
     }
 
-    const stmt = this.#db.prepare(
+    const stmt = this.#db.prepareQuery(
       `insert into "${table}" (${columns.join(",")}) values(${
         columns.map((col) => `:${col}`).join(",")
       })`,
     );
 
-    const insertRecords = this.#db.transaction((records: any[]) => {
-      for (const record of records) {
-        stmt.run(record);
+    this.#db.execute("begin");
+    for (const record of records) {
+      for (const [key, value] of Object.entries(record)) {
+        if (typeof value !== "string" && typeof value !== "number") {
+          record[key] = JSON.stringify(value);
+        }
       }
-    });
 
-    insertRecords(records);
+      stmt.execute(record);
+    }
+    this.#db.execute("commit");
+
+    stmt.finalize();
   }
 
   #runSql(sql: SqlQuery) {
     if (typeof sql[0] !== "string") {
       throw new Error("first argument to sql option must be a string");
     }
-    const stmt = this.#db.prepare(
-      sql[0],
-    );
-    const records = stmt.all(sql[1] || []);
-    stmt.finalize();
+    const records = this.#db.queryEntries(sql[0], sql[1] || []);
     return parseRecords(records);
   }
 
@@ -200,13 +207,13 @@ export class Contents {
       where = `where ${where_exprs.join(" and ")}`;
     }
 
-    const stmt = this.#db.prepare(
+    const stmt = this.#db.prepareQuery(
       `select ${select} from ${table} ${where} ${order_by} limit ? offset ?`,
     );
     if (opts?.count) {
-      return stmt.values([...where_params, limit, offset]).flat();
+      return stmt.all([...where_params, limit, offset]).flat();
     }
-    const records = stmt.all([...where_params, limit, offset]);
+    const records = stmt.allEntries([...where_params, limit, offset]);
     stmt.finalize();
     return parseRecords(records);
   }

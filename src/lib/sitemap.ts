@@ -1,6 +1,6 @@
 import { join } from "@std/path";
 
-import { Resources } from "./resources.ts";
+import { Resource, Resources } from "./resources.ts";
 import { Config } from "../config/config.ts";
 import { ResourceType } from "../utils/routes.ts";
 
@@ -19,7 +19,7 @@ export async function generateSitemap(
     );
   }
 
-  const pages = resources.all(ResourceType.HTML);
+  const pages = resources.all(ResourceType.HTML) as Resource[];
   const entries = pages.map((page) => {
     return `<url><loc>${
       new URL(page.route, baseURL).toString()

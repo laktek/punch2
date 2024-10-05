@@ -1,18 +1,18 @@
 import { assert, assertEquals, assertThrows } from "@std/assert";
 import { join } from "@std/path";
-import { Database } from "sqlite";
+import { DB } from "sqlite";
 
 import { Contents } from "./contents.ts";
 
 Deno.test("Contents.prepare", async (t) => {
   await t.step("no contents directory", async () => {
-    const db = new Database(":memory:");
+    const db = new DB(":memory:");
     const contents = new Contents(db);
     assert(
       await contents.prepare("/path/contents") === undefined,
       "returns when contents directory does not exist",
     );
-    db.close();
+    db.close(true);
   });
 
   await t.step("a contents directory with 2 json files", async () => {
@@ -38,7 +38,7 @@ Deno.test("Contents.prepare", async (t) => {
       }]),
     );
 
-    const db = new Database(":memory:");
+    const db = new DB(":memory:");
     const contents = new Contents(db);
     await contents.prepare(contentsDir);
 
@@ -54,7 +54,7 @@ Deno.test("Contents.prepare", async (t) => {
       "expected the 1 record",
     );
 
-    db.close();
+    db.close(true);
     await Deno.remove(contentsDir, { recursive: true });
   });
 
@@ -76,7 +76,7 @@ Deno.test("Contents.prepare", async (t) => {
 
     await Deno.symlink(origPath, symPath);
 
-    const db = new Database(":memory:");
+    const db = new DB(":memory:");
     const contents = new Contents(db);
     await contents.prepare(contentsDir);
 
@@ -86,7 +86,7 @@ Deno.test("Contents.prepare", async (t) => {
       "expected the record to be added under original file name",
     );
 
-    db.close();
+    db.close(true);
     await Deno.remove(contentsDir, { recursive: true });
   });
 
@@ -116,7 +116,7 @@ Deno.test("Contents.prepare", async (t) => {
       }]),
     );
 
-    const db = new Database(":memory:");
+    const db = new DB(":memory:");
     const contents = new Contents(db);
     await contents.prepare(contentsDir);
 
@@ -126,14 +126,14 @@ Deno.test("Contents.prepare", async (t) => {
       "expected 3 records",
     );
 
-    db.close();
+    db.close(true);
     await Deno.remove(contentsDir, { recursive: true });
   });
 });
 
 Deno.test("Contents.insertAll", async (t) => {
   await t.step("valid json records", () => {
-    const db = new Database(":memory:");
+    const db = new DB(":memory:");
     const contents = new Contents(db);
     contents.insertAll("foo", [{ "hello": "world" }, { "hello1": "world1" }]);
     assertEquals(
@@ -141,11 +141,11 @@ Deno.test("Contents.insertAll", async (t) => {
       2,
       "expected the 2 records to inserted",
     );
-    db.close();
+    db.close(true);
   });
 
   await t.step("empty records", () => {
-    const db = new Database(":memory:");
+    const db = new DB(":memory:");
     const contents = new Contents(db);
     assertThrows(
       () => {
@@ -154,11 +154,11 @@ Deno.test("Contents.insertAll", async (t) => {
       Error,
       "failed to insert content",
     );
-    db.close();
+    db.close(true);
   });
 
   await t.step("invalid records", () => {
-    const db = new Database(":memory:");
+    const db = new DB(":memory:");
     const contents = new Contents(db);
     assertThrows(
       () => {
@@ -174,13 +174,13 @@ Deno.test("Contents.insertAll", async (t) => {
       Error,
       "failed to insert content",
     );
-    db.close();
+    db.close(true);
   });
 });
 
 Deno.test("Contents.query", async (t) => {
   await t.step("count records", () => {
-    const db = new Database(":memory:");
+    const db = new DB(":memory:");
     const contents = new Contents(db);
     contents.insertAll("foo", [{ "hello": "world" }, { "hello1": "world1" }]);
     assertEquals(
@@ -188,11 +188,11 @@ Deno.test("Contents.query", async (t) => {
       2,
       "expected the 2 records to inserted",
     );
-    db.close();
+    db.close(true);
   });
 
   await t.step("limit records", () => {
-    const db = new Database(":memory:");
+    const db = new DB(":memory:");
     const contents = new Contents(db);
     contents.insertAll("foo", [{ "hello": "world" }, { "hello": "world1" }, {
       "hello": "world2",
@@ -202,11 +202,11 @@ Deno.test("Contents.query", async (t) => {
       [{ "hello": "world" }, { "hello": "world1" }],
       "expected to limit to 2 records",
     );
-    db.close();
+    db.close(true);
   });
 
   await t.step("offset records", () => {
-    const db = new Database(":memory:");
+    const db = new DB(":memory:");
     const contents = new Contents(db);
     contents.insertAll("foo", [{ "hello": "world" }, { "hello": "world1" }, {
       "hello": "world2",
@@ -218,11 +218,11 @@ Deno.test("Contents.query", async (t) => {
       }],
       "expected to limit to 2 records",
     );
-    db.close();
+    db.close(true);
   });
 
   await t.step("sort records", () => {
-    const db = new Database(":memory:");
+    const db = new DB(":memory:");
     const contents = new Contents(db);
     contents.insertAll("animals", [
       { "name": "Dog", "legs": 4 },
@@ -284,11 +284,11 @@ Deno.test("Contents.query", async (t) => {
       ],
       "support multiple ordering terms",
     );
-    db.close();
+    db.close(true);
   });
 
   await t.step("filter records", () => {
-    const db = new Database(":memory:");
+    const db = new DB(":memory:");
     const contents = new Contents(db);
 
     contents.insertAll("animals", [
@@ -404,11 +404,11 @@ Deno.test("Contents.query", async (t) => {
       ],
       "should filter by not null value",
     );
-    db.close();
+    db.close(true);
   });
 
   await t.step("return all records", () => {
-    const db = new Database(":memory:");
+    const db = new DB(":memory:");
     const contents = new Contents(db);
     contents.insertAll("foo", [{ "hello": "world" }, { "hello": "world1" }, {
       "hello": "world2",
@@ -420,11 +420,11 @@ Deno.test("Contents.query", async (t) => {
       }],
       "expected to return all records",
     );
-    db.close();
+    db.close(true);
   });
 
   await t.step("preserves the data types of fields", () => {
-    const db = new Database(":memory:");
+    const db = new DB(":memory:");
     const contents = new Contents(db);
     contents.insertAll("foo", [{
       "id": 1,
@@ -440,11 +440,11 @@ Deno.test("Contents.query", async (t) => {
       }],
       "expected to preserve data types of fields",
     );
-    db.close();
+    db.close(true);
   });
 
   await t.step("can query directly using SQL", () => {
-    const db = new Database(":memory:");
+    const db = new DB(":memory:");
     const contents = new Contents(db);
     contents.insertAll("foo", [{ "hello": "world" }, { "hello": "world1" }, {
       "hello": "world2",
@@ -464,13 +464,13 @@ Deno.test("Contents.query", async (t) => {
       [{ "hello": "world2" }],
       "expected to return results for sql query",
     );
-    db.close();
+    db.close(true);
   });
 });
 
 Deno.test("Contents.proxy", async (t) => {
   await t.step("handles temp properties", () => {
-    const db = new Database(":memory:");
+    const db = new DB(":memory:");
     const contents = new Contents(db);
     contents.insertAll("foo", [{ "hello": "world" }, { "hello1": "world1" }]);
     const obj: any = contents.proxy({ "bar": "baz" });
@@ -480,11 +480,11 @@ Deno.test("Contents.proxy", async (t) => {
       "baz",
       "expected proxy to match temp properties",
     );
-    db.close();
+    db.close(true);
   });
 
   await t.step("proxies to query", () => {
-    const db = new Database(":memory:");
+    const db = new DB(":memory:");
     const contents = new Contents(db);
     contents.insertAll("foo", [{ "hello": "world" }, { "hello1": "world1" }]);
     const obj: any = contents.proxy();
@@ -508,6 +508,6 @@ Deno.test("Contents.proxy", async (t) => {
       "expected to return single record",
     );
 
-    db.close();
+    db.close(true);
   });
 });
