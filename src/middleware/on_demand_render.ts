@@ -88,19 +88,24 @@ export default async function (ctx: Context, next: NextFn) {
     }
   } catch (e) {
     console.error(e);
-
-    const errMsg = devMode
-      ? `<html>\n
+    // since type of `e` is unknown
+    if (e instanceof Error) {
+      const errMsg = devMode
+        ? `<html>\n
     <head>\n
       <title>Error Rendering Page</title>\n
     </head>\n
     <body>\n
       <h1>Error Rendering Page</h1>\n
       <pre><code>${e.stack || e.message}</code></pre>\n
-      ${e.cause ? `<pre><code>Caused by ${e.cause.stack}</code></pre>\n` : ""}
+      ${
+          e.cause
+            ? `<pre><code>Caused by ${(e.cause as Error).stack}</code></pre>\n`
+            : ""
+        }
     </body>\n
 </html>`
-      : `<html>\n
+        : `<html>\n
     <head>\n
       <title>Error Rendering Page</title>\n
     </head>\n
@@ -110,12 +115,15 @@ export default async function (ctx: Context, next: NextFn) {
     </body>\n
 </html>`;
 
-    newCtx.response = new Response(errMsg, {
-      status: 500,
-      headers: {
-        "content-type": "text/html; charset=UTF-8",
-      },
-    });
+      newCtx.response = new Response(errMsg, {
+        status: 500,
+        headers: {
+          "content-type": "text/html; charset=UTF-8",
+        },
+      });
+    } else {
+      throw e;
+    }
   }
 
   return next()(newCtx, next);

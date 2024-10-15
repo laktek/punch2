@@ -11,7 +11,11 @@ export default async function (ctx: Context, next: NextFn) {
   }
 
   // TODO: do in a worker
-  const ip = remoteAddr ? `${remoteAddr.hostname}:${remoteAddr.port}` : null;
+  const ip = remoteAddr
+    ? `${(remoteAddr as Deno.NetAddr).hostname}:${
+      (remoteAddr as Deno.NetAddr).port
+    }`
+    : null;
   const event = JSON.stringify({
     date: response ? response.headers.get("date") : null,
     ip,

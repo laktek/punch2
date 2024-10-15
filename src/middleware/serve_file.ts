@@ -7,7 +7,8 @@ async function getContents(filePath: string): Promise<Uint8Array | undefined> {
   try {
     return await Deno.readFile(filePath);
   } catch (e) {
-    if (e.code === "EISDIR") { // instanceof Deno.errors.IsADirectory doesn't work
+    // TODO: EISDIR will not work in Windows
+    if ((e as { code: string }).code === "EISDIR") { // instanceof Deno.errors.IsADirectory doesn't work
       // try reading the index.html
       return await getContents(join(filePath, "index.html"));
     } else if (e instanceof Deno.errors.NotFound && extname(filePath) === "") {

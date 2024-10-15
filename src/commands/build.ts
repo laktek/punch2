@@ -109,15 +109,12 @@ async function batchedWrite(
 
   // write resources to DB
   const lastmod = new Date().toJSON();
-  const resourcesArr: Resource[] = [];
-  pages.forEach((page) =>
-    resourcesArr.push({
-      route: page.route,
-      type: page.resourceType!,
-      hash: "",
-      lastmod,
-    })
-  );
+  const resourcesArr: Resource[] = pages.map((page) => ({
+    route: page.route,
+    type: page.resourceType!,
+    hash: "",
+    lastmod,
+  }));
   resources.insertAll(resourcesArr);
 
   withQuiet(() =>

@@ -12,7 +12,7 @@ export default class CustomRenderer extends Renderer {
     return this.#headings;
   }
 
-  heading({ tokens, depth }: Tokens.Heading): string {
+  override heading({ tokens, depth }: Tokens.Heading): string {
     const text: string = this.parser.parseInline(tokens);
     const slug = text.toLowerCase().replace(/[^\w]+/g, "-");
     this.#headings.push({ depth, text, slug });

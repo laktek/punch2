@@ -12,7 +12,7 @@ export interface Context {
   resources: Resources;
   renderer: Renderer;
   assetMap: AssetMap;
-  remoteAddr?: Deno.NetAddr;
+  remoteAddr?: Deno.Addr;
   devMode?: boolean;
 
   response?: Response;

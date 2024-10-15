@@ -51,22 +51,34 @@ function setupContents(srcPath: string, config: Config) {
   contents = new Contents(db, config.db?.indexes);
 }
 
-async function getHTMLTemplate(path: string): Promise<Script> {
-  const cached = htmlTemplateCache.get(path);
-  if (cached) {
-    return cached;
+async function getHTMLTemplate(
+  path: string,
+  skip_cache: boolean,
+): Promise<Script> {
+  if (!skip_cache) {
+    const cached = htmlTemplateCache.get(path);
+    if (cached) {
+      return cached;
+    }
   }
+
   const promise = (async () => {
     const tmpl = await Deno.readTextFile(path);
     return new Script("`" + tmpl + "`");
   })();
-  htmlTemplateCache.set(path, promise);
+
+  if (!skip_cache) {
+    htmlTemplateCache.set(path, promise);
+  }
+
   return promise;
 }
 
-(globalThis as any).onmessage = async (e: { data: InputMessage }) => {
-  const { srcPath, config, devMode, route, templatePath, partialsCache } =
-    e.data;
+(globalThis as any).onmessage = async (
+  e: { data: { key: string; msg: InputMessage } },
+) => {
+  const { key, msg } = e.data;
+  const { srcPath, config, devMode, route, templatePath, partialsCache } = msg;
 
   setupContents(srcPath, config);
 
@@ -125,7 +137,8 @@ async function getHTMLTemplate(path: string): Promise<Script> {
     },
   };
 
-  const tmpl = await getHTMLTemplate(templatePath);
+  // skip template cache is dev mode
+  const tmpl = await getHTMLTemplate(templatePath, devMode);
 
   const renderHTMLContext = createContext(
     contents!.proxy({ ...builtins }),
@@ -136,6 +149,5 @@ async function getHTMLTemplate(path: string): Promise<Script> {
     renderHTMLContext,
   );
 
-  // fixme path to id
-  (globalThis as any).postMessage({ path: route, result });
+  (globalThis as any).postMessage({ key, result });
 };
