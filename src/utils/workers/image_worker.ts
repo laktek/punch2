@@ -1,11 +1,11 @@
 import { renderImage } from "../renderers/image.ts";
 
 interface InputMessage {
-  path: string;
+  key: string;
 }
 
 (globalThis as any).onmessage = async (e: { data: InputMessage }) => {
-  const { path } = e.data;
-  const result = await renderImage(path);
-  (globalThis as any).postMessage({ path, result }, [result.content.buffer]);
+  const { key } = e.data;
+  const result = await renderImage(key);
+  (globalThis as any).postMessage({ key, result }, [result.content.buffer]);
 };

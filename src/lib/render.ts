@@ -54,7 +54,6 @@ function queryContents(contents: Contents, params: any) {
 }
 
 interface WorkerMsg {
-  path: string;
   [prop: string]: string | number | object | boolean;
 }
 
@@ -78,11 +77,11 @@ class WorkerPool {
         },
       );
       worker.onmessage = (e) => {
-        const { path, result } = e.data;
-        const resolve = this.#pendingJobs.get(path);
+        const { key, result } = e.data;
+        const resolve = this.#pendingJobs.get(key);
         if (resolve) {
           resolve(result);
-          this.#pendingJobs.delete(path);
+          this.#pendingJobs.delete(key);
         }
       };
       this.#workers.push(worker);
@@ -100,11 +99,11 @@ class WorkerPool {
     return nextWorker;
   }
 
-  process(msg: WorkerMsg): Promise<any> {
+  process(key: string, msg?: WorkerMsg): Promise<any> {
     const worker = this.#workers[this.#next()];
-    worker.postMessage(msg);
+    worker.postMessage({ key, msg });
     return new Promise((resolve) => {
-      this.#pendingJobs.set(msg.path, resolve);
+      this.#pendingJobs.set(key, resolve);
     });
   }
 }
@@ -136,6 +135,7 @@ export class Renderer {
 
     const renderer = new Renderer(context);
     await renderer.#cachePartials();
+
     renderer.#browserTargets = getBrowserTargets(
       config.assets?.css?.browserTargets,
     );
@@ -175,19 +175,6 @@ export class Renderer {
     }
   }
 
-  #getHTMLTemplate(path: string): Promise<Script> {
-    const cached = this.#htmlTemplateCache.get(path);
-    if (cached) {
-      return cached;
-    }
-    const promise = (async () => {
-      const tmpl = await Deno.readTextFile(path);
-      return new Script("`" + tmpl + "`");
-    })();
-    this.#htmlTemplateCache.set(path, promise);
-    return promise;
-  }
-
   async render(route: string, opts?: RenderOptions): Promise<Output> {
     const { srcPath, config, contents, devMode } = this.context;
 
@@ -204,80 +191,17 @@ export class Renderer {
 
     const partialsCache = this.#partialsCache;
 
-    // const builtins = {
-    //   console,
-    //   Date,
-    //   Intl,
-    //   JSON,
-    //   atob,
-    //   btoa,
-    //   TextEncoder,
-    //   TextDecoder,
-    //   URL,
-    //   URLPattern,
-    //   URLSearchParams,
-    //   Punch: {
-    //     route: getRouteParams(
-    //       route,
-    //       relative(join(srcPath, config.dirs!.pages!), path),
-    //     ),
-    //     one: (params: any, callback: (i: unknown) => string) => {
-    //       const results = queryContents(contents, {
-    //         ...params,
-    //         limit: 1,
-    //       });
-    //       return callback(results[0]);
-    //     },
-    //     all: (params: any, callback: (i: unknown) => string) => {
-    //       return queryContents(contents, params).map((result) =>
-    //         callback(result)
-    //       )
-    //         .join("");
-    //     },
-    //     count: (params: any) => {
-    //       return queryContents(contents, { ...params, limit: 1, count: true });
-    //     },
-    //     partial: (name: string, params?: any) => {
-    //       const tmpl = partialsCache.get(name);
-    //       if (!tmpl) {
-    //         throw new Error(`partial not found. name: ${name}`);
-    //       }
-    //       const context = createContext({
-    //         ...params,
-    //         ...builtins,
-    //         _params: { ...params },
-    //       });
-    //       const script = new Script("`" + tmpl + "`");
-    //       return renderHTML(script, context);
-    //     },
-    //     notFound: () => {
-    //       throw new NotFoundError();
-    //     },
-    //     escape,
-    //     unescape,
-    //     devMode,
-    //   },
-    // };
-
     const encoder = new TextEncoder();
-    // const renderHTMLContext = createContext(
-    //   contents.proxy({ ...builtins }),
-    // );
 
     if (resourceType === ResourceType.HTML) {
-      //const tmpl = await this.#getHTMLTemplate(path);
-      // const content = renderHTML(
-      //   tmpl,
-      //   renderHTMLContext,
-      // );
       const content = await this.#htmlWorkerPool.process(
+        route,
         {
           srcPath,
           config,
           devMode,
           templatePath: path,
           route,
-          path: route, // fixme
           partialsCache,
         },
       );
@@ -305,19 +229,14 @@ export class Renderer {
         resourceType,
       };
     } else if (resourceType === ResourceType.XML) {
-      // const tmpl = await this.#getHTMLTemplate(path);
-      // const content = renderHTML(
-      //   tmpl,
-      //   renderHTMLContext,
-      // );
       const content = await this.#htmlWorkerPool.process(
+        route,
         {
           srcPath,
           config,
           devMode,
           templatePath: path,
           route,
-          path: route, // fixme
           partialsCache,
         },
       );
@@ -373,9 +292,7 @@ export class Renderer {
         resourceType,
       };
     } else if (resourceType === ResourceType.IMAGE) {
-      const { content, metadata } = await this.#imageWorkerPool.process({
-        path,
-      });
+      const { content, metadata } = await this.#imageWorkerPool.process(path);
       return {
         route,
         content,

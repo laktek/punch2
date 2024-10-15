@@ -39,7 +39,6 @@ export class Contents {
 
   constructor(db?: DB, indexes?: Record<string, string[]>) {
     this.#db = db ?? new DB(":memory:");
-    //this.#db.int64 = true;
     this.#indexes = indexes;
   }
 
