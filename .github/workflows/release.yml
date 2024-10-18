@@ -57,3 +57,4 @@ jobs:
           tag: ${{ needs.version.outputs.version }}
           file_glob: true
           file: bin/*
+          overwrite: true
