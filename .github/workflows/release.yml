@@ -51,11 +51,11 @@ jobs:
         run: ./scripts/ci_release.sh ${{ matrix.env }}
 
       - name: Create Release Asset for ${{ matrix.env }}
-        id: create_release_asset
-        uses: ncipollo/release-action@v1.14.0
+        uses: softprops/action-gh-release@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          allowUpdates: true
-          tag: ${{ needs.version.outputs.version }}
-          artifacts: "./bin/*"
+          tag_name: "Release Draft"
+          draft: true
+          files: |
+            bin/*
