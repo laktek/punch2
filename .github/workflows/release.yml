@@ -51,11 +51,9 @@ jobs:
         run: ./scripts/ci_release.sh ${{ matrix.env }}
 
       - name: Create Release Asset for ${{ matrix.env }}
-        uses: softprops/action-gh-release@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: svenstaro/upload-release-action@v2
         with:
-          tag_name: "Release Draft"
-          draft: true
-          files: |
-            bin/*
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ needs.version.outputs.version }}
+          file_glob: true
+          file: bin/*
