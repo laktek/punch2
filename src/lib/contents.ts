@@ -36,10 +36,12 @@ function parseRecords(records: any[]): unknown[] {
 export class Contents {
   #db: DB;
   #indexes?: Record<string, string[]>;
+  #prepared: boolean;
 
   constructor(db?: DB, indexes?: Record<string, string[]>) {
     this.#db = db ?? new DB(":memory:");
     this.#indexes = indexes;
+    this.#prepared = false;
   }
 
   async prepare(contentsPath: string): Promise<void> {
@@ -84,6 +86,7 @@ export class Contents {
     for (const [name, records] of tables) {
       this.insertAll(name, records);
     }
+    this.#prepared = true;
   }
 
   insertAll(
@@ -254,6 +257,11 @@ export class Contents {
   }
 
   serialize() {
-    return this.#db.serialize();
+    if (this.#prepared) {
+      return this.#db.serialize();
+    } else {
+      // return an empty buffer
+      return new Uint8Array();
+    }
   }
 }

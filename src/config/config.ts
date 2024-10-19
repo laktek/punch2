@@ -89,9 +89,6 @@ export async function getConfig(
 ): Promise<Config> {
   const defaultConfig = {
     output: "dist",
-    db: {
-      path: "punch.db",
-    },
     dirs: {
       public: "public",
       pages: "pages",

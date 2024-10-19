@@ -54,7 +54,7 @@ function queryContents(contents: Contents, params: any) {
 }
 
 interface WorkerMsg {
-  [prop: string]: string | number | object | boolean;
+  [prop: string]: string | number | object | boolean | Uint8Array | null;
 }
 
 class WorkerPool {
@@ -62,12 +62,10 @@ class WorkerPool {
   #current: number;
   #pendingJobs: Map<string, (result: any) => void>;
 
-  constructor(src: string) {
+  constructor(src: string, workerCount: number) {
     this.#workers = [];
     this.#pendingJobs = new Map();
     this.#current = 0;
-
-    const workerCount = navigator.hardwareConcurrency;
 
     for (let i = 0; i < workerCount; i++) {
       const worker = new Worker(
@@ -99,6 +97,18 @@ class WorkerPool {
     return nextWorker;
   }
 
+  bootstrap(msg: WorkerMsg): Promise<unknown[]> {
+    msg.bootstrap = true;
+
+    return Promise.all(this.#workers.map((worker, i) => {
+      const key = `bootstrap-${i}`;
+      worker.postMessage({ key, msg });
+      return new Promise((resolve) => {
+        this.#pendingJobs.set(key, resolve);
+      });
+    }));
+  }
+
   process(key: string, msg?: WorkerMsg): Promise<any> {
     const worker = this.#workers[this.#next()];
     worker.postMessage({ key, msg });
@@ -124,20 +134,33 @@ export class Renderer {
     this.context = context;
     this.#htmlTemplateCache = new Map();
     this.#partialsCache = new Map();
+
+    const workerCount = context.devMode
+      ? 1
+      : Math.max(navigator.hardwareConcurrency - 1, 1);
     this.#imageWorkerPool = new WorkerPool(
       "../utils/workers/image_worker.ts",
+      workerCount,
     );
     this.#htmlWorkerPool = new WorkerPool(
       "../utils/workers/html_worker.ts",
+      workerCount,
     );
     this.#contentsDb = null;
   }
 
   static async init(context: Context) {
-    const { config } = context;
+    const { srcPath, config, contents } = context;
 
     const renderer = new Renderer(context);
     await renderer.#cachePartials();
+
+    await renderer.#htmlWorkerPool.bootstrap({
+      srcPath,
+      config,
+      contentsDb: contents.serialize(),
+      partialsCache: renderer.#partialsCache,
+    });
 
     renderer.#browserTargets = getBrowserTargets(
       config.assets?.css?.browserTargets,
@@ -170,7 +193,6 @@ export class Renderer {
     ) {
       if (entry.isFile) {
         const tmpl = await Deno.readTextFile(entry.path);
-        //const script = new Script("`" + tmpl + "`");
         const ext = extname(entry.name);
         const name = basename(entry.name, ext);
         this.#partialsCache.set(name, tmpl);
@@ -192,11 +214,16 @@ export class Renderer {
 
     const { path, resourceType } = resource;
 
-    const partialsCache = this.#partialsCache;
-
-    // memoize contents db (except in dev mode)
-    if (!this.#contentsDb || devMode) {
-      this.#contentsDb = contents.serialize();
+    // refresh contents DB before a request
+    if (
+      devMode && ([ResourceType.HTML, ResourceType.XML].includes(resourceType))
+    ) {
+      await this.#htmlWorkerPool.bootstrap({
+        srcPath,
+        config,
+        contentsDb: contents.serialize(),
+        partialsCache: this.#partialsCache,
+      });
     }
 
     const encoder = new TextEncoder();
@@ -205,13 +232,9 @@ export class Renderer {
       const content = await this.#htmlWorkerPool.process(
         route,
         {
-          srcPath,
-          config,
           devMode,
           templatePath: path,
           route,
-          partialsCache,
-          contentsDb: this.#contentsDb,
         },
       );
 
@@ -241,12 +264,9 @@ export class Renderer {
       const content = await this.#htmlWorkerPool.process(
         route,
         {
-          srcPath,
-          config,
           devMode,
           templatePath: path,
           route,
-          partialsCache,
         },
       );
 

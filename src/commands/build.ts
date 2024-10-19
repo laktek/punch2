@@ -138,7 +138,11 @@ export async function build(opts: BuildOpts): Promise<boolean> {
 
   // prepare contents
   const contentsPath = join(srcPath, config.dirs!.contents!);
-  const db = new DB(resolve(srcPath, config.db?.path ?? "punch.db"), {});
+  const dbPath = config.db?.path ?? ":memory:";
+  const db = new DB(
+    dbPath !== ":memory:" ? resolve(srcPath, dbPath) : ":memory:",
+    {},
+  );
   db.execute("pragma temp_store = memory");
 
   const contents = new Contents(db, config.db?.indexes);
@@ -158,6 +162,7 @@ export async function build(opts: BuildOpts): Promise<boolean> {
   };
 
   // setup renderer
+  withQuiet(() => console.time("- setup renderer"));
   let renderer: Renderer;
   if (config.modifiers?.renderer) {
     const { renderer: customRenderer } = await import(
@@ -167,6 +172,7 @@ export async function build(opts: BuildOpts): Promise<boolean> {
   } else {
     renderer = await Renderer.init(context);
   }
+  withQuiet(() => console.timeLog("- setup renderer"));
 
   // generate pages
   const pagesPath = join(srcPath, config.dirs!.pages!);

@@ -9,19 +9,26 @@ import { NotFoundError, renderHTML } from "../renderers/html.ts";
 import { getRouteParams } from "../routes.ts";
 import { commonSkipPaths } from "../paths.ts";
 
-interface InputMessage {
+interface BootstrapMessage {
+  bootstrap: boolean;
   srcPath: string;
   config: Config;
-  devMode: boolean;
+  contentsDb: Uint8Array;
+  partialsCache: Map<string, string>;
+}
 
+interface InputMessage {
+  bootstrap?: boolean;
+  devMode: boolean;
   path: string;
   templatePath: string;
   route: string;
-  partialsCache: Map<string, string>;
-  contentsDb: Uint8Array;
 }
 
+let srcPath: null | string = null;
+let config: null | Config = null;
 let contents: null | Contents = null;
+let partialsCache: null | Map<string, string> = null;
 
 const htmlTemplateCache = new Map();
 
@@ -40,17 +47,14 @@ function queryContents(contents: Contents, params: any) {
 
 // setup a new DB connection (this will be read-only)
 function setupContents(data: Uint8Array) {
-  // contents are already setup
-  if (contents !== null) {
-    return;
+  const db = new DB();
+  if (data.byteLength) {
+    db.deserialize(data, {
+      mode: "read",
+    });
   }
 
-  const db = new DB();
-  db.deserialize(data, {
-    mode: "read",
-  });
   db.execute("pragma temp_store = memory");
-
   contents = new Contents(db);
 }
 
@@ -77,21 +81,26 @@ async function getHTMLTemplate(
   return promise;
 }
 
-(globalThis as any).onmessage = async (
-  e: { data: { key: string; msg: InputMessage } },
-) => {
-  const { key, msg } = e.data;
+async function bootstrapWorker(key: string, msg: BootstrapMessage) {
+  srcPath = msg.srcPath;
+  config = msg.config;
+  partialsCache = msg.partialsCache;
+
+  setupContents(msg.contentsDb);
+
+  (globalThis as any).postMessage({ key, result: undefined });
+}
+
+async function processMessage(key: string, msg: InputMessage) {
+  if (!srcPath || !config || !contents || !partialsCache) {
+    throw new Error("worker bootstrap must be completed before sending inputs");
+  }
+
   const {
-    srcPath,
-    config,
     devMode,
     route,
     templatePath,
-    partialsCache,
-    contentsDb,
   } = msg;
-
-  setupContents(contentsDb);
 
   const builtins = {
     console,
@@ -161,4 +170,15 @@ async function getHTMLTemplate(
   );
 
   (globalThis as any).postMessage({ key, result });
+}
+
+(globalThis as any).onmessage = async (
+  e: { data: { key: string; msg: BootstrapMessage | InputMessage } },
+) => {
+  const { key, msg } = e.data;
+  if (msg.bootstrap) {
+    bootstrapWorker(key, msg as BootstrapMessage);
+  } else {
+    processMessage(key, msg as InputMessage);
+  }
 };
