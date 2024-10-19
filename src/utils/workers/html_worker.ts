@@ -18,6 +18,7 @@ interface InputMessage {
   templatePath: string;
   route: string;
   partialsCache: Map<string, string>;
+  contentsDb: Uint8Array;
 }
 
 let contents: null | Contents = null;
@@ -38,17 +39,19 @@ function queryContents(contents: Contents, params: any) {
 }
 
 // setup a new DB connection (this will be read-only)
-function setupContents(srcPath: string, config: Config) {
+function setupContents(data: Uint8Array) {
   // contents are already setup
   if (contents !== null) {
     return;
   }
-  const db = new DB(resolve(srcPath, config.db?.path ?? "punch.db"), {
+
+  const db = new DB();
+  db.deserialize(data, {
     mode: "read",
   });
   db.execute("pragma temp_store = memory");
 
-  contents = new Contents(db, config.db?.indexes);
+  contents = new Contents(db);
 }
 
 async function getHTMLTemplate(
@@ -78,9 +81,17 @@ async function getHTMLTemplate(
   e: { data: { key: string; msg: InputMessage } },
 ) => {
   const { key, msg } = e.data;
-  const { srcPath, config, devMode, route, templatePath, partialsCache } = msg;
+  const {
+    srcPath,
+    config,
+    devMode,
+    route,
+    templatePath,
+    partialsCache,
+    contentsDb,
+  } = msg;
 
-  setupContents(srcPath, config);
+  setupContents(contentsDb);
 
   const builtins = {
     console,

@@ -16,7 +16,7 @@
   // Add any routes you want to redirect here
 	"redirects": {
     // "/old-page": { "destination": "/new-page", "permanent": true }
-  }
+  },
 
   // Set the DB indexes to make content queries faster
   "db": {

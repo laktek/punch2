@@ -252,4 +252,8 @@ export class Contents {
       },
     });
   }
+
+  serialize() {
+    return this.#db.serialize();
+  }
 }

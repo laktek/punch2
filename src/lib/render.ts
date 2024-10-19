@@ -116,6 +116,8 @@ export class Renderer {
   #imageWorkerPool: WorkerPool;
   #htmlWorkerPool: WorkerPool;
 
+  #contentsDb: Uint8Array | null;
+
   context: Context;
 
   constructor(context: Context) {
@@ -128,6 +130,7 @@ export class Renderer {
     this.#htmlWorkerPool = new WorkerPool(
       "../utils/workers/html_worker.ts",
     );
+    this.#contentsDb = null;
   }
 
   static async init(context: Context) {
@@ -191,6 +194,11 @@ export class Renderer {
 
     const partialsCache = this.#partialsCache;
 
+    // memoize contents db (except in dev mode)
+    if (!this.#contentsDb || devMode) {
+      this.#contentsDb = contents.serialize();
+    }
+
     const encoder = new TextEncoder();
 
     if (resourceType === ResourceType.HTML) {
@@ -203,6 +211,7 @@ export class Renderer {
           templatePath: path,
           route,
           partialsCache,
+          contentsDb: this.#contentsDb,
         },
       );
 

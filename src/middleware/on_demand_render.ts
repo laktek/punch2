@@ -42,6 +42,7 @@ export default async function (ctx: Context, next: NextFn) {
       const contentsPath = join(srcPath, config.dirs!.contents!);
       await contents.prepare(contentsPath);
     }
+
     const output = await renderer.render(pathname, renderOpts);
 
     if (output.errorStatus) {
