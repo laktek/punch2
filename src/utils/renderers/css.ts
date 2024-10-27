@@ -76,5 +76,6 @@ export async function renderCSS(
     return new TextDecoder().decode(code);
   } catch (e) {
     console.error(`Failed to render CSS file - ${path}\n${e}`);
+    return "";
   }
 }

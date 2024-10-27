@@ -175,7 +175,7 @@ async function processMessage(key: string, msg: InputMessage) {
     (globalThis as any).postMessage({ key, result });
   } catch (e) {
     console.error(`Failed to render page ${key}\n${e}`);
-    (globalThis as any).postMessage({ key, result: e.message });
+    (globalThis as any).postMessage({ key, result: (e as Error).message });
   }
 }
 
