@@ -1,1 +1,64 @@
 @import "tailwind.css";
+
+body {
+  @apply antialiased max-w-3xl mx-auto px-4 leading-8 h-screen bg-white text-slate-900 dark:bg-gray-800 dark:text-slate-100;
+}
+
+header {
+  @apply my-4 flex justify-between items-center;
+
+  h1 {
+    @apply text-2xl;
+  }
+
+  nav {
+    @apply w-1/2 md:w-1/4 flex justify-between;
+  }
+}
+
+footer {
+  @apply w-full text-sm text-center;
+}
+
+main {
+  @apply my-8;
+
+  h2 {
+    @apply text-3xl my-2;
+  }
+
+  time {
+    @apply text-zinc-700 dark:text-zinc-400;
+  }
+
+  p {
+    @apply my-5;
+  }
+
+  a {
+    @apply text-blue-700 dark:text-blue-400;
+  }
+
+  code {
+    @apply bg-slate-200 dark:bg-slate-600 p-1;
+  }
+
+  pre {
+    @apply shadow-lg;
+  }
+}
+
+.posts {
+  @apply list-none mt-4;
+
+  li {
+    @apply flex flex-col my-4;
+
+    a {
+      @apply text-stone-900 dark:text-stone-200 no-underline text-lg;
+    }
+    time {
+      @apply text-sm;
+    }
+  }
+}

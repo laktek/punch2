@@ -3,12 +3,9 @@
   ${ Punch.partial("head", { site, title: "Page Not Found" }) }
 
   <body>
-    <div>
-      <h1 class="text-3xl">Page Not Found</h1>
-      <p>Page you tried to access doesn't exist</p>
+    <div class="w-full text-center h-5/6 flex flex-col justify-center items-center">
+      <h1 class="text-5xl">Page Not Found</h1>
     </div>
-    <footer>
-      <p>Powered by Punch</p>
-    </footer>
+    ${ Punch.partial("footer", { site }) }
   </body>
 </html>

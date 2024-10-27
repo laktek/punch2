@@ -2,20 +2,26 @@ import { join } from "@std/path";
 import { decodeBase64 } from "@std/encoding";
 
 import {
-  anotherPost,
+  archivePage,
   blogPage,
   favicon,
   feed,
+  footerPartial,
   gitignore,
   headPartial,
+  helloWorldImage,
   helloWorldPost,
   indexPage,
-  logo,
   mainCSS,
   notFoundPage,
+  nowContent,
+  nowPage,
   punchJson,
+  secondPost,
   siteContents,
   tailwindCSS,
+  thirdPost,
+  topbarPartial,
 } from "../utils/template.ts";
 
 interface NewSiteOpts {
@@ -35,8 +41,6 @@ function createDirs(path: string) {
 }
 
 function copyTemplates(path: string, force: boolean) {
-  // images/punch-logo.svg
-
   const writeTextFile = async (p: string, content: string) => {
     const textEncoder = new TextEncoder();
     await writeFile(p, textEncoder.encode(content));
@@ -91,12 +95,28 @@ function copyTemplates(path: string, force: boolean) {
       headPartial,
     ),
     writeTextFile(
+      join(path, "partials", "footer.html"),
+      footerPartial,
+    ),
+    writeTextFile(
+      join(path, "partials", "topbar.html"),
+      topbarPartial,
+    ),
+    writeTextFile(
       join(path, "pages", "index.html"),
       indexPage,
     ),
     writeTextFile(
       join(path, "pages", "404.html"),
       notFoundPage,
+    ),
+    writeTextFile(
+      join(path, "pages", "archive.html"),
+      archivePage,
+    ),
+    writeTextFile(
+      join(path, "pages", "now.html"),
+      nowPage,
     ),
     writeTextFile(
       join(path, "pages", "blog", "_slug_.html"),
@@ -107,16 +127,24 @@ function copyTemplates(path: string, force: boolean) {
       helloWorldPost,
     ),
     writeTextFile(
-      join(path, "contents", "blog", "another-post.md"),
-      anotherPost,
+      join(path, "contents", "blog", "second-post.md"),
+      secondPost,
+    ),
+    writeTextFile(
+      join(path, "contents", "blog", "third-post.md"),
+      thirdPost,
+    ),
+    writeTextFile(
+      join(path, "contents", "now.md"),
+      nowContent,
     ),
     writeFile(
       join(path, "public", "favicon.ico"),
       decodeBase64(favicon),
     ),
     writeFile(
-      join(path, "images", "logo.png"),
-      decodeBase64(logo),
+      join(path, "images", "hello-world.png"),
+      decodeBase64(helloWorldImage),
     ),
   ]);
 }

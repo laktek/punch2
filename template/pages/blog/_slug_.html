@@ -1,13 +1,23 @@
 <!doctype html>
 <html lang=${ site.language }>
-  ${Punch.one({ from: "blog", slug: Punch.route.slug }, (blog) => `
+  ${ Punch.one({ from: "blog", slug: Punch.route.slug }, (blog) => `
     ${ blog ?
-      `${Punch.partial("head", { site, title: blog.title })}
+      `${ Punch.partial("head", { site, title: blog.title }) }
        <body>
-         <h2 class="text-3xl">${ blog.title }</h2>
-         <div>
-           ${ blog.content }
-         </div>
+         ${ Punch.partial("topbar", { site }) }
+         <main>
+           <article>
+             <h2>${ blog.title }</h2>
+             <time pubdate datetime="${new Date(blog.published_on)}">
+               ${new Intl.DateTimeFormat('en-GB', { dateStyle: 'long' }).format(new Date(blog.published_on))}
+             </time>
+
+             <div>
+               ${ blog.content }
+             </div>
+          </article>
+         </main>
+         ${ Punch.partial("footer", { site }) }
        </body>`
        : Punch.notFound()
     }

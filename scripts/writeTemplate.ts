@@ -19,9 +19,31 @@ src += `export const headPartial = \`${
   headPartial.replace(/[`$]/g, "\\$&")
 }\`;\n`;
 
-// index
+// partial - footer
+const footerPartial = await Deno.readTextFile("template/partials/footer.html");
+src += `export const footerPartial = \`${
+  footerPartial.replace(/[`$]/g, "\\$&")
+}\`;\n`;
+
+// partial - topbar
+const topbarPartial = await Deno.readTextFile("template/partials/topbar.html");
+src += `export const topbarPartial = \`${
+  topbarPartial.replace(/[`$]/g, "\\$&")
+}\`;\n`;
+
+// pages - index
 const indexPage = await Deno.readTextFile("template/pages/index.html");
 src += `export const indexPage = \`${indexPage.replace(/[`$]/g, "\\$&")}\`;\n`;
+
+// pages - archive
+const archivePage = await Deno.readTextFile("template/pages/archive.html");
+src += `export const archivePage = \`${
+  archivePage.replace(/[`$]/g, "\\$&")
+}\`;\n`;
+
+// pages - now
+const nowPage = await Deno.readTextFile("template/pages/now.html");
+src += `export const nowPage = \`${nowPage.replace(/[`$]/g, "\\$&")}\`;\n`;
 
 // blog page template
 const blogPage = await Deno.readTextFile("template/pages/blog/_slug_.html");
@@ -45,13 +67,35 @@ src += `export const siteContents = \`${siteContents}\`;\n`;
 const helloWorldPost = await Deno.readTextFile(
   "template/contents/blog/hello-world.md",
 );
-src += `export const helloWorldPost = \`${helloWorldPost}\`;\n`;
+src += `export const helloWorldPost = \`${
+  helloWorldPost.replace(/[`$]/g, "\\$&")
+}\`;\n`;
 
-// another post
-const anotherPost = await Deno.readTextFile(
-  "template/contents/blog/another-post.md",
+// second post
+const secondPost = await Deno.readTextFile(
+  "template/contents/blog/second-post.md",
 );
-src += `export const anotherPost = \`${anotherPost}\`;\n`;
+src += `export const secondPost = \`${
+  secondPost.replace(/[`$]/g, "\\$&")
+}\`;\n`;
+
+// third post
+const thirdPost = await Deno.readTextFile(
+  "template/contents/blog/third-post.md",
+);
+src += `export const thirdPost = \`${thirdPost.replace(/[`$]/g, "\\$&")}\`;\n`;
+
+// contents - now
+const nowContent = await Deno.readTextFile(
+  "template/contents/now.md",
+);
+src += `export const nowContent = \`${
+  nowContent.replace(/[`$]/g, "\\$&")
+}\`;\n`;
+
+// hello-world image
+const helloWorldImage = await Deno.readFile("template/images/hello-world.png");
+src += `export const helloWorldImage = '${b64encode(helloWorldImage)}';\n`;
 
 // punch.json
 const punchJson = await Deno.readTextFile(
@@ -62,10 +106,6 @@ src += `export const punchJson = \`${punchJson}\`;\n`;
 // favicon
 const favicon = await Deno.readFile("template/public/favicon.ico");
 src += `export const favicon = '${b64encode(favicon)}';\n`;
-
-// logo.png
-const logo = await Deno.readFile("template/images/logo.png");
-src += `export const logo = '${b64encode(logo)}';\n`;
 
 await Deno.writeTextFile("src/utils/template.ts", src);
 console.info("wrote src/utils/template.ts");

@@ -3,18 +3,18 @@
     <title>${ site.title }</title>
     <link>${ site.url }</link>
     <description>${ site.description }</description>
-    <pubDate>${ blog.at(-1).publishDate }</pubDate>
+    <pubDate>${ blog.at(-1).published_on }</pubDate>
     <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
     <generator>https://punch.dev</generator>
     <language>${ site.language }</language>
 
-    ${Punch.all({ from: "blog", order_by: "publishDate desc" }, ({ title, slug, publishDate, content }) => `
+    ${Punch.all({ from: "blog", order_by: "published_on desc" }, ({ title, slug, published_on, content }) => `
       <item>
         <title>
           <![CDATA[ ${ title } ]]>
         </title>
         <link>${site.url}/${ slug }</link>
-        <pubDate>${ publishDate }</pubDate>
+        <pubDate>${ published_on }</pubDate>
         <description>
           <![CDATA[ ${ content } ]]>
         </description>

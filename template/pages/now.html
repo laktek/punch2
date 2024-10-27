@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang=${ site.language }>
+  ${ Punch.partial("head", { site, title: "Archive" }) }
+  <body>
+    ${ Punch.partial("topbar", { site }) }
+    <main>
+      <h2>Now</h2>
+      <time pubdate datetime="${new Date(now.updated_on)}">
+        Last updated ${new Intl.DateTimeFormat('en-GB', { dateStyle: 'long' }).format(new Date(now.updated_on))}
+      </time>
+
+      <div>
+        ${ now.content }
+      </div>
+   </main>
+    ${ Punch.partial("footer", { site }) }
+  </body>
+</html>

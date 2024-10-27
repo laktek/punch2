@@ -26,7 +26,23 @@
 * Automatic sitemap generation
 * Host it anywhere Vercel, Netlify, GitHub Pages, S3, or VPS
 
-Future releases:
+### TODO
+
+* Sourcemap for css and JS
+* Support for resizing images (for srcset)
+* Internal redirects for images loaded via CSS / JS
+* auto-redirect www to host
+* on-demand rendering [~]
+  - write rendered resources to disk
+* Content API config (CORS, auth, block endpoints)
+* Better error handling
+  - failing to render HTML template
+    -- (dev should show helpful error page, build should fail)
+* CSP header middleware
+* ability to import .ts files directly in script tags
+* Publish to JSR (so it can be imported for customization)
+* punch upgrade command
+
 * Single command publish (to punch.host and other providers)
 * Font optimizations
 * Support for diagrams in markdown content (mermaid)
@@ -41,19 +57,6 @@ Future releases:
   - serve can choose which build to use
   - build refs are stored in DB
 
-### TODO
-
-* Sourcemap for css and JS
-* Support for resizing images (for srcset)
-* Internal redirects for images loaded via CSS / JS
-* auto-redirect www to host
-* on-demand rendering [~]
-  - write rendered resources to disk
-* Content API config (CORS, auth, block endpoints)
-* ability to import .ts files directly in script tags
-* Publish to JSR (so it can be imported for customization)
-* punch upgrade command
-* Support for joins in query API
 
 ### What you can build with Punch?
 

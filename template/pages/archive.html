@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang=${ site.language }>
+  ${ Punch.partial("head", { site, title: "Archive" }) }
+  <body>
+    ${ Punch.partial("topbar", { site }) }
+    <main>
+      <h2>Archive</h2>
+
+      <ul class="posts">
+        ${ Punch.all({ from: "blog", order_by: "published_on desc" }, ({ title, published_on, slug}) => `
+          <li>
+            <a href="/blog/${slug}">${ title }</a>
+            <time pubdate datetime="${new Date(published_on)}">
+              ${new Intl.DateTimeFormat('en-GB', { dateStyle: 'long' }).format(new Date(published_on))}
+            </time>
+          </li>
+        `)}
+      </ul>
+   </main>
+    ${ Punch.partial("footer", { site }) }
+  </body>
+</html>

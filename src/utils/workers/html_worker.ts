@@ -92,84 +92,91 @@ async function bootstrapWorker(key: string, msg: BootstrapMessage) {
 }
 
 async function processMessage(key: string, msg: InputMessage) {
-  if (!srcPath || !config || !contents || !partialsCache) {
-    throw new Error("worker bootstrap must be completed before sending inputs");
-  }
+  try {
+    if (!srcPath || !config || !contents || !partialsCache) {
+      throw new Error(
+        "worker bootstrap must be completed before sending inputs",
+      );
+    }
 
-  const {
-    devMode,
-    route,
-    templatePath,
-  } = msg;
-
-  const builtins = {
-    console,
-    Date,
-    Intl,
-    JSON,
-    atob,
-    btoa,
-    TextEncoder,
-    TextDecoder,
-    URL,
-    URLPattern,
-    URLSearchParams,
-    Punch: {
-      route: getRouteParams(
-        route,
-        relative(join(srcPath, config.dirs!.pages!), templatePath),
-      ),
-      one: (params: any, callback: (i: unknown) => string) => {
-        const results = queryContents(contents!, {
-          ...params,
-          limit: 1,
-        });
-        return callback(results[0]);
-      },
-      all: (params: any, callback: (i: unknown) => string) => {
-        return queryContents(contents!, params).map((result) =>
-          callback(result)
-        )
-          .join("");
-      },
-      count: (params: any) => {
-        return queryContents(contents!, { ...params, limit: 1, count: true });
-      },
-      partial: (name: string, params?: any) => {
-        const tmpl = partialsCache!.get(name);
-        if (!tmpl) {
-          throw new Error(`partial not found. name: ${name}`);
-        }
-        const script = new Script("`" + tmpl + "`");
-        const context = createContext({
-          ...params,
-          ...builtins,
-          _params: { ...params },
-        });
-        return renderHTML(script, context);
-      },
-      notFound: () => {
-        throw new NotFoundError();
-      },
-      escape,
-      unescape,
+    const {
       devMode,
-    },
-  };
+      route,
+      templatePath,
+    } = msg;
 
-  // skip template cache is dev mode
-  const tmpl = await getHTMLTemplate(templatePath, devMode);
+    const builtins = {
+      console,
+      Date,
+      Intl,
+      JSON,
+      atob,
+      btoa,
+      TextEncoder,
+      TextDecoder,
+      URL,
+      URLPattern,
+      URLSearchParams,
+      Punch: {
+        route: getRouteParams(
+          route,
+          relative(join(srcPath, config.dirs!.pages!), templatePath),
+        ),
+        one: (params: any, callback: (i: unknown) => string) => {
+          const results = queryContents(contents!, {
+            ...params,
+            limit: 1,
+          });
+          return callback(results[0]);
+        },
+        all: (params: any, callback: (i: unknown) => string) => {
+          return queryContents(contents!, params).map((result) =>
+            callback(result)
+          )
+            .join("");
+        },
+        count: (params: any) => {
+          return queryContents(contents!, { ...params, limit: 1, count: true });
+        },
+        partial: (name: string, params?: any) => {
+          const tmpl = partialsCache!.get(name);
+          if (!tmpl) {
+            throw new Error(`partial not found. name: ${name}`);
+          }
+          const script = new Script("`" + tmpl + "`");
+          const context = createContext({
+            ...params,
+            ...builtins,
+            _params: { ...params },
+          });
+          return renderHTML(script, context);
+        },
+        notFound: () => {
+          throw new NotFoundError();
+        },
+        escape,
+        unescape,
+        devMode,
+      },
+    };
 
-  const renderHTMLContext = createContext(
-    contents!.proxy({ ...builtins }),
-  );
+    // skip template cache is dev mode
+    const tmpl = await getHTMLTemplate(templatePath, devMode);
 
-  const result = renderHTML(
-    tmpl,
-    renderHTMLContext,
-  );
+    const renderHTMLContext = createContext(
+      contents!.proxy({ ...builtins }),
+    );
 
-  (globalThis as any).postMessage({ key, result });
+    const result = renderHTML(
+      tmpl,
+      renderHTMLContext,
+    );
+
+    (globalThis as any).postMessage({ key, result });
+  } catch (e) {
+    console.error(`Failed to render page ${key}\n${e}`);
+    (globalThis as any).postMessage({ key, result: e.message });
+  }
 }
 
 (globalThis as any).onmessage = async (

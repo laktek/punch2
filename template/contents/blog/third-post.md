@@ -1,9 +1,6 @@
 ---
-title: "This is another post"
-authors:
-  - name: Lakshan Perera
-    url: https://laktek.com
-publishDate: 2024-01-21T10:00-07:00
+title: "Third post"
+published_on: "2024-12-25"
 description: "Another sample blog post for Punch"
 ---
 
