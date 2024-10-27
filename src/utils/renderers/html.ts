@@ -17,7 +17,6 @@ export function renderHTML(
     if (e instanceof NotFoundError) {
       return null;
     }
-    console.error(`Failed to render HTML template\n${e}`);
-    return `<p>Failed to render HTML template</p><p>${e}</p>`;
+    throw e;
   }
 }

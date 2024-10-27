@@ -173,9 +173,13 @@ async function processMessage(key: string, msg: InputMessage) {
     );
 
     (globalThis as any).postMessage({ key, result });
-  } catch (e) {
-    console.error(`Failed to render page ${key}\n${e}`);
-    (globalThis as any).postMessage({ key, result: (e as Error).message });
+  } catch (error) {
+    // TODO: investigate bug in Deno 2.0.3 where Error cannot be posted before `console.error` it.
+    console.error(error);
+    (globalThis as any).postMessage({
+      key,
+      error,
+    });
   }
 }
 

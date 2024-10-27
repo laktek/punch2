@@ -6,6 +6,11 @@ interface InputMessage {
 
 (globalThis as any).onmessage = async (e: { data: InputMessage }) => {
   const { key } = e.data;
-  const result = await renderImage(key);
-  (globalThis as any).postMessage({ key, result }, [result.content.buffer]);
+
+  try {
+    const result = await renderImage(key);
+    (globalThis as any).postMessage({ key, result }, [result.content.buffer]);
+  } catch (error) {
+    (globalThis as any).postMessage({ key, error });
+  }
 };

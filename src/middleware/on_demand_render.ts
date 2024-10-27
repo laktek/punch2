@@ -94,10 +94,10 @@ export default async function (ctx: Context, next: NextFn) {
       const errMsg = devMode
         ? `<html>\n
     <head>\n
-      <title>Error Rendering Page</title>\n
+      <title>Error Rendering Resource</title>\n
     </head>\n
     <body>\n
-      <h1>Error Rendering Page</h1>\n
+      <h1>Error Rendering Resource</h1>\n
       <pre><code>${e.stack || e.message}</code></pre>\n
       ${
           e.cause
@@ -108,10 +108,10 @@ export default async function (ctx: Context, next: NextFn) {
 </html>`
         : `<html>\n
     <head>\n
-      <title>Error Rendering Page</title>\n
+      <title>Error Rendering Resource</title>\n
     </head>\n
     <body>\n
-      <h1>Error Rendering Page</h1>\n
+      <h1>Error Rendering Resource</h1>\n
       <p>Please check the server logs for details</p>\n
     </body>\n
 </html>`;

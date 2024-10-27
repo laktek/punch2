@@ -50,32 +50,27 @@ export async function renderCSS(
   usedBy?: RenderableDocument[],
   config?: TailwindConfig,
 ): Promise<string> {
-  try {
-    const raw = await Deno.readTextFile(path);
-    const content = (usedBy || []).map((doc) => ({
-      raw: doc.toString(),
-      extension: "html",
-    }));
-    const { css } = await postcss([
-      postcssImport(),
-      tailwindcss({
-        ...(config ?? {}),
-        content,
-      }),
-    ]).process(raw, {
-      from: path,
-    });
+  const raw = await Deno.readTextFile(path);
+  const content = (usedBy || []).map((doc) => ({
+    raw: doc.toString(),
+    extension: "html",
+  }));
+  const { css } = await postcss([
+    postcssImport(),
+    tailwindcss({
+      ...(config ?? {}),
+      content,
+    }),
+  ]).process(raw, {
+    from: path,
+  });
 
-    let { code, map } = transform({
-      filename: path,
-      code: new TextEncoder().encode(css),
-      targets,
-      minify: true,
-    });
+  let { code, map } = transform({
+    filename: path,
+    code: new TextEncoder().encode(css),
+    targets,
+    minify: true,
+  });
 
-    return new TextDecoder().decode(code);
-  } catch (e) {
-    console.error(`Failed to render CSS file - ${path}\n${e}`);
-    return "";
-  }
+  return new TextDecoder().decode(code);
 }

@@ -60,7 +60,10 @@ interface WorkerMsg {
 class WorkerPool {
   #workers: Worker[];
   #current: number;
-  #pendingJobs: Map<string, (result: any) => void>;
+  #pendingJobs: Map<
+    string,
+    { resolve: (result: any) => void; reject: (reason: Error) => void }
+  >;
 
   constructor(src: string, workerCount: number) {
     this.#workers = [];
@@ -75,10 +78,10 @@ class WorkerPool {
         },
       );
       worker.onmessage = (e) => {
-        const { key, result } = e.data;
-        const resolve = this.#pendingJobs.get(key);
-        if (resolve) {
-          resolve(result);
+        const { key, result, error } = e.data;
+        const promise = this.#pendingJobs.get(key);
+        if (promise) {
+          error ? promise.reject(error) : promise.resolve(result);
           this.#pendingJobs.delete(key);
         }
       };
@@ -103,8 +106,8 @@ class WorkerPool {
     return Promise.all(this.#workers.map((worker, i) => {
       const key = `bootstrap-${i}`;
       worker.postMessage({ key, msg });
-      return new Promise((resolve) => {
-        this.#pendingJobs.set(key, resolve);
+      return new Promise((resolve, reject) => {
+        this.#pendingJobs.set(key, { resolve, reject });
       });
     }));
   }
@@ -112,8 +115,8 @@ class WorkerPool {
   process(key: string, msg?: WorkerMsg): Promise<any> {
     const worker = this.#workers[this.#next()];
     worker.postMessage({ key, msg });
-    return new Promise((resolve) => {
-      this.#pendingJobs.set(key, resolve);
+    return new Promise((resolve, reject) => {
+      this.#pendingJobs.set(key, { resolve, reject });
     });
   }
 }
