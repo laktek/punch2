@@ -3,7 +3,7 @@
 $ErrorActionPreference = 'Stop'
 
 if ($v) {
-  $Version = "v${v}"
+  $Version = "${v}"
 }
 if ($Args.Length -eq 1) {
   $Version = $Args.Get(0)
@@ -19,13 +19,11 @@ $BinDir = if ($PunchInstall) {
 $PunchExe = "$BinDir\punch.exe"
 $Target = 'x86_64-pc-windows-msvc'
 
-$Version = if (!$Version) {
-  "latest"
+$DownloadUrl = if (!$Version) {
+  "https://github.com/laktek/punch2/releases/latest/download/punch-${Target}.exe"
 } else {
-  $Version
+  "https://github.com/laktek/punch2/releases/download/$Version/punch-${Target}.exe"
 }
-
-$DownloadUrl = "https://github.com/laktek/punch2/releases/download/${Version}/punch-${Target}.exe"
 
 if (!(Test-Path $BinDir)) {
   New-Item $BinDir -ItemType Directory | Out-Null

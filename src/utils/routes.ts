@@ -1,11 +1,4 @@
-import {
-  basename,
-  dirname,
-  extname,
-  join,
-  relative,
-  SEPARATOR,
-} from "@std/path";
+import { basename, dirname, extname, join, relative } from "@std/path";
 import { exists, expandGlob, walk } from "@std/fs";
 
 import { Config } from "../config/config.ts";
@@ -148,8 +141,11 @@ export async function findResource(
   return null;
 }
 
+const TRAILING_SLASH_REGEX = new RegExp(
+  `[${(globalThis as any).Deno?.build.os === "windows" ? "\\\\" : "/"}]+$`,
+);
 function withoutTrailingSlash(p: string): string {
-  return p.replace(new RegExp(`[${SEPARATOR}]+$`), "");
+  return p.replace(TRAILING_SLASH_REGEX, "");
 }
 
 function withLeadingSlash(p: string): string {
