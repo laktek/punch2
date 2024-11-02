@@ -57,7 +57,6 @@
   - serve can choose which build to use
   - build refs are stored in DB
 
-
 ### What you can build with Punch?
 
 * Marketing sites

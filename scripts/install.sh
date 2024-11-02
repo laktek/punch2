@@ -46,4 +46,4 @@ else
 	echo "Run '$exe --help' to get started"
 fi
 echo
-echo "Need help? visit https://punch.dev/help"
+echo "Need help? visit https://punch.dev/docs"
