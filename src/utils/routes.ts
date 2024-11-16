@@ -1,18 +1,19 @@
-import { basename, dirname, extname, join } from "@std/path";
-import { join as posixJoin, relative as posixRelative } from "@std/path/posix";
+import { basename, dirname, extname, join, relative } from "@std/path";
+import { join as posixJoin } from "@std/path/posix";
 import { exists, expandGlob, walk } from "@std/fs";
 
 import { Config } from "../config/config.ts";
 import { Contents } from "../lib/contents.ts";
 import { commonSkipPaths } from "./paths.ts";
 
-const dynamicPageTmplExp = /\/_.+_\.html$/;
+const dynamicPageTmplExp = /(?:^|[\\/])_.+_\.html$/;
 
 export async function routesFromPages(
   pagesPath: string,
   pageExts: string[],
 ): Promise<string[]> {
   const routes: string[] = [];
+  const windowsSepRegExp = new RegExp("\\\\", "g");
   try {
     for await (
       const entry of walk(pagesPath, {
@@ -22,8 +23,12 @@ export async function routesFromPages(
       // only files and symlinks are parsed
       if (entry.isFile || entry.isSymlink) {
         if (pageExts.includes(extname(entry.path))) {
-          const relPath = posixRelative(pagesPath, entry.path);
-          routes.push(relPath);
+          const relPath = relative(pagesPath, entry.path);
+          routes.push(
+            (globalThis as any).Deno?.build.os === "windows"
+              ? relPath.replaceAll(windowsSepRegExp, "/")
+              : relPath,
+          );
         }
       }
     }

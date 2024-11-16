@@ -43,8 +43,8 @@ Deno.test("routesFromPages", async (t) => {
 
       const routes = await routesFromPages(pagesDir, [".html"]);
       assertEquals(
-        routes,
-        ["index.html", "foo/index.html", "foo/bar/baz.html"],
+        routes.sort(),
+        ["foo/bar/baz.html", "foo/index.html", "index.html"],
         "expected array of routes",
       );
     },
@@ -69,8 +69,8 @@ Deno.test("routesFromPages", async (t) => {
 
       const routes = await routesFromPages(pagesDir, [".html"]);
       assertEquals(
-        routes,
-        ["index.html", "foo/index.html", "foo/bar/baz.html"],
+        routes.sort(),
+        ["foo/bar/baz.html", "foo/index.html", "index.html"],
         "expected array of routes",
       );
     },
@@ -97,13 +97,13 @@ Deno.test("routesFromPages", async (t) => {
 
       const routes = await routesFromPages(pagesDir, [".html"]);
       assertEquals(
-        routes,
+        routes.sort(),
         [
-          "index.html",
-          "page_1_.html",
+          "foo/bar/baz.html",
           "foo/index.html",
           "foo/page_1_.html",
-          "foo/bar/baz.html",
+          "index.html",
+          "page_1_.html",
         ],
         "expected array of routes",
       );
