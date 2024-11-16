@@ -19,12 +19,14 @@ Deno.test("copyPublicFiles", async (t) => {
   await Deno.symlink(
     join(tmpDir, "bar.txt"),
     join(tmpDir, "public", "symlink.txt"),
+    { type: "junction" }, // only applies to Windows, ignored in other platforms
   );
 
   await Deno.writeTextFile(join(tmpDir, "public/path_a", "baz.txt"), "baz");
   await Deno.symlink(
     join(tmpDir, "public/path_a", "baz.txt"),
     join(tmpDir, "public", "symlink2.txt"),
+    { type: "junction" }, // only applies to Windows, ignored in other platforms
   );
 
   const destDir = await Deno.makeTempDir();

@@ -74,7 +74,7 @@ Deno.test("Contents.prepare", async (t) => {
       }),
     );
 
-    await Deno.symlink(origPath, symPath);
+    await Deno.symlink(origPath, symPath, { type: "junction" });
 
     const db = new DB(":memory:");
     const contents = new Contents(db);

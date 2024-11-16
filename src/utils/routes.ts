@@ -1,4 +1,5 @@
-import { basename, dirname, extname, join, relative } from "@std/path";
+import { basename, dirname, extname, join } from "@std/path";
+import { join as posixJoin, relative as posixRelative } from "@std/path/posix";
 import { exists, expandGlob, walk } from "@std/fs";
 
 import { Config } from "../config/config.ts";
@@ -21,7 +22,7 @@ export async function routesFromPages(
       // only files and symlinks are parsed
       if (entry.isFile || entry.isSymlink) {
         if (pageExts.includes(extname(entry.path))) {
-          const relPath = relative(pagesPath, entry.path);
+          const relPath = posixRelative(pagesPath, entry.path);
           routes.push(relPath);
         }
       }
@@ -112,8 +113,13 @@ export async function findResource(
 
   if (ext === "") {
     // check if there's a matching file name without the extension
+    const extlessPathRegex = new RegExp(
+      `${(globalThis as any).Deno?.build.os === "windows" ? "\\\\" : "/"}+$`,
+    );
     const matches = await Array.fromAsync(
-      expandGlob(`${fullPath.replace(/\/+$/, "")}.*`, { includeDirs: false }),
+      expandGlob(`${fullPath.replace(extlessPathRegex, "")}.*`, {
+        includeDirs: false,
+      }),
     );
     // if there are multiple matches, only the first one is used
     if (matches.length) {
@@ -148,8 +154,8 @@ function withoutTrailingSlash(p: string): string {
   return p.replace(TRAILING_SLASH_REGEX, "");
 }
 
-function withLeadingSlash(p: string): string {
-  return join("/", p);
+function normalizeRoute(p: string): string {
+  return posixJoin("/", p.replace(new RegExp("[/]+$"), ""));
 }
 
 async function findClosestTemplate(
@@ -185,13 +191,13 @@ export function getRouteParams(
   tmplPath: string,
 ): unknown {
   const segments = route.split("/").filter((t) => t);
-  const tmplPathWithSlash = join("/", tmplPath);
+  const tmplPathWithSlash = posixJoin("/", tmplPath);
   const tmplName = basename(tmplPathWithSlash).match(/^_(.+)_.*$/);
   // deno-lint-ignore prefer-const
   let tmplVar: Record<string, string | undefined> = {};
   if (tmplName) {
     const pattern = new URLPattern({
-      pathname: join(dirname(tmplPathWithSlash), `:${tmplName[1]}(.*)`),
+      pathname: posixJoin(dirname(tmplPathWithSlash), `:${tmplName[1]}(.*)`),
     });
     tmplVar = pattern.exec({ pathname: route })?.pathname.groups || {};
   }
@@ -251,5 +257,5 @@ export function prepareExplicitRoutes(
       // non-content token route
       return r;
     }
-  }).flat().map((r) => withoutTrailingSlash(withLeadingSlash(r)));
+  }).flat().map((r) => normalizeRoute(r));
 }
