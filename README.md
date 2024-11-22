@@ -56,6 +56,7 @@
 * Immutable builds
   - serve can choose which build to use
   - build refs are stored in DB
+* Content as txt files https://x.com/alexalbert__/status/1857457290917589509
 
 ### What you can build with Punch?
 

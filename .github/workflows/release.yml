@@ -45,7 +45,7 @@ jobs:
       - name: Set up Deno
         uses: denoland/setup-deno@v1
         with:
-          deno-version: v2.0.3
+          deno-version: v2.1.1
 
       - name: Build and zip binary for ${{ matrix.env }}
         run: ./scripts/ci_release.sh ${{ matrix.env }}
