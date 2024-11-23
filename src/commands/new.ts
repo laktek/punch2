@@ -1,28 +1,6 @@
-import { join } from "@std/path";
+import { join, relative } from "@std/path";
+import { walk } from "@std/fs";
 import { decodeBase64 } from "@std/encoding";
-
-import {
-  archivePage,
-  blogPage,
-  favicon,
-  feed,
-  footerPartial,
-  gitignore,
-  headPartial,
-  helloWorldImage,
-  helloWorldPost,
-  indexPage,
-  mainCSS,
-  notFoundPage,
-  nowContent,
-  nowPage,
-  punchJson,
-  secondPost,
-  siteContents,
-  tailwindCSS,
-  thirdPost,
-  topbarPartial,
-} from "../utils/template.ts";
 
 interface NewSiteOpts {
   force: boolean;
@@ -40,113 +18,22 @@ function createDirs(path: string) {
   Deno.mkdirSync(join(path, "feeds"), { recursive: true });
 }
 
-function copyTemplates(path: string, force: boolean) {
-  const writeTextFile = async (p: string, content: string) => {
-    const textEncoder = new TextEncoder();
-    await writeFile(p, textEncoder.encode(content));
-  };
-
-  const writeFile = async (p: string, content: Uint8Array) => {
-    try {
-      await Deno.writeFile(
-        p,
-        content,
-        { createNew: !force },
+async function copyTemplates(path: string, force: boolean) {
+  const templateDir = join(import.meta.dirname!, "../../template");
+  const promises = [];
+  for await (const entry of walk(templateDir)) {
+    if (entry.isFile) {
+      const relPath = relative(templateDir, entry.path);
+      promises.push(
+        Deno.copyFile(
+          entry.path,
+          join(path, relPath),
+        ),
       );
-    } catch (e) {
-      if (e instanceof Deno.errors.AlreadyExists) {
-        throw new Error(
-          `${p} alrady exists. If you wish to overwrite existing files run the command with --force option.`,
-        );
-      } else {
-        throw e;
-      }
     }
-  };
+  }
 
-  return Promise.all([
-    writeTextFile(
-      join(path, ".gitignore"),
-      gitignore,
-    ),
-
-    writeTextFile(
-      join(path, "punch.jsonc"),
-      punchJson,
-    ),
-    writeTextFile(
-      join(path, "css", "main.css"),
-      mainCSS,
-    ),
-    writeTextFile(
-      join(path, "css", "tailwind.css"),
-      tailwindCSS,
-    ),
-    writeTextFile(
-      join(path, "contents", "site.json"),
-      siteContents,
-    ),
-    writeTextFile(
-      join(path, "feeds", "rss.xml"),
-      feed,
-    ),
-    writeTextFile(
-      join(path, "partials", "head.html"),
-      headPartial,
-    ),
-    writeTextFile(
-      join(path, "partials", "footer.html"),
-      footerPartial,
-    ),
-    writeTextFile(
-      join(path, "partials", "topbar.html"),
-      topbarPartial,
-    ),
-    writeTextFile(
-      join(path, "pages", "index.html"),
-      indexPage,
-    ),
-    writeTextFile(
-      join(path, "pages", "404.html"),
-      notFoundPage,
-    ),
-    writeTextFile(
-      join(path, "pages", "archive.html"),
-      archivePage,
-    ),
-    writeTextFile(
-      join(path, "pages", "now.html"),
-      nowPage,
-    ),
-    writeTextFile(
-      join(path, "pages", "blog", "_slug_.html"),
-      blogPage,
-    ),
-    writeTextFile(
-      join(path, "contents", "blog", "hello-world.md"),
-      helloWorldPost,
-    ),
-    writeTextFile(
-      join(path, "contents", "blog", "second-post.md"),
-      secondPost,
-    ),
-    writeTextFile(
-      join(path, "contents", "blog", "third-post.md"),
-      thirdPost,
-    ),
-    writeTextFile(
-      join(path, "contents", "now.md"),
-      nowContent,
-    ),
-    writeFile(
-      join(path, "public", "favicon.ico"),
-      decodeBase64(favicon),
-    ),
-    writeFile(
-      join(path, "images", "hello-world.png"),
-      decodeBase64(helloWorldImage),
-    ),
-  ]);
+  return Promise.all(promises);
 }
 
 async function createDefaultSite(path: string, force: boolean) {

@@ -31,7 +31,7 @@
   "tasks": {
     "test": "deno test -A ./src",
     "testdata": "deno run -A scripts/testdata.ts",
-    "install": "rm -rf ./bin && deno run -A -c deno.json ./scripts/writeTemplate.ts && deno install --global -A -c deno.json --root . --name punch ./src/index.ts",
-    "compile": "rm -rf ./bin && deno run -A -c deno.json ./scripts/writeTemplate.ts && deno compile -A -c deno.json --output bin/punch --reload --include ./src/lib/dev_watcher.ts --include ./src/utils/workers/image_worker.ts --include ./src/utils/workers/html_worker.ts ./src/index.ts"
+    "install": "rm -rf ./bin && deno install --global -A -c deno.json --root . --name punch ./src/index.ts",
+    "compile": "rm -rf ./bin && deno compile -A -c deno.json --output bin/punch --reload --include ./template --include ./src/lib/dev_watcher.ts --include ./src/utils/workers/image_worker.ts --include ./src/utils/workers/html_worker.ts ./src/index.ts"
   },
 }

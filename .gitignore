@@ -3,6 +3,5 @@
 debug/
 target/
 temp/
-src/utils/template.ts
 
 .DS_Store

@@ -29,6 +29,7 @@
 ### TODO
 
 * Sourcemap for css and JS
+* CI tests for Windows
 * Support for resizing images (for srcset)
 * Internal redirects for images loaded via CSS / JS
 * auto-redirect www to host
