@@ -41,7 +41,7 @@ async function createDefaultSite(path: string, force: boolean) {
     createDirs(path);
     await copyTemplates(path, force);
     console.log(
-      `Site created!\nTo start the dev server run:\npunch dev ${path}`,
+      `Site created!\nExplore site files & directories:\ncd ${path}\nThen start the dev server:\npunch dev`,
     );
   } catch (e) {
     console.error(e);
