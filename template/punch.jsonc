@@ -6,7 +6,7 @@
   "baseURL": "http://localhost:8080",
 
   // Define any additional routes to generate here.
-  // Paths under 'pages/' will be auto added.
+  // HTML paths under 'pages/' will be auto added.
   // You can use content tokens in routes, which will be expanded into full routes.
 	"routes": [
     "/blog/[blog.slug]",

@@ -298,6 +298,32 @@ Deno.test("findResource", async (t) => {
     await Deno.remove(pagesPath, { recursive: true });
   });
 
+  await t.step("find txt files", async () => {
+    const pagesPath = join(srcPath, "pages");
+    await Deno.mkdir(pagesPath);
+    await Deno.writeTextFile(
+      join(pagesPath, "sample.txt"),
+      "foo bar",
+    );
+
+    const config = {
+      dirs: {
+        pages: "pages",
+      },
+    };
+
+    assertEquals(
+      await findResource(srcPath, config, "/sample.txt"),
+      { resourceType: ResourceType.TXT, path: join(pagesPath, "sample.txt") },
+    );
+    assertEquals(
+      await findResource(srcPath, config, "/not-exist.txt"),
+      null,
+    );
+
+    await Deno.remove(pagesPath, { recursive: true });
+  });
+
   await t.step("match extension less routes to page templates", async () => {
     const pagesPath = join(srcPath, "pages");
     await Deno.mkdir(pagesPath);

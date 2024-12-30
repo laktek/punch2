@@ -263,6 +263,29 @@ export class Renderer {
         content: doc,
         resourceType,
       };
+    } else if (resourceType === ResourceType.TXT) {
+      const content = await this.#htmlWorkerPool.process(
+        route,
+        {
+          devMode,
+          templatePath: path,
+          route,
+        },
+      );
+
+      if (!content) {
+        return {
+          route,
+          errorStatus: 404,
+          errorMessage: "not found",
+        };
+      }
+
+      return {
+        route,
+        content: encoder.encode(content),
+        resourceType,
+      };
     } else if (resourceType === ResourceType.XML) {
       const content = await this.#htmlWorkerPool.process(
         route,

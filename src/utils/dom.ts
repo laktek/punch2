@@ -41,11 +41,17 @@ export class RenderableDocument {
 
   // TODO: Support images, picture, and assets loaded via link preload (audio, video, fonts)
   get assets(): Record<
-    Exclude<ResourceType, ResourceType.HTML | ResourceType.XML>,
+    Exclude<
+      ResourceType,
+      ResourceType.HTML | ResourceType.XML | ResourceType.TXT
+    >,
     string[]
   > {
     const assets: Record<
-      Exclude<ResourceType, ResourceType.HTML | ResourceType.XML>,
+      Exclude<
+        ResourceType,
+        ResourceType.HTML | ResourceType.XML | ResourceType.TXT
+      >,
       string[]
     > = {
       [ResourceType.JS]: [],

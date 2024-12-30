@@ -50,6 +50,7 @@ export enum ResourceType {
   XML,
   AUDIO,
   VIDEO,
+  TXT,
 }
 
 interface Resource {
@@ -93,6 +94,10 @@ export async function findResource(
     // match HTML resource
     resourceDir = config.dirs!.pages!;
     resourceType = ResourceType.HTML;
+  } else if (ext === ".txt") {
+    // match TXT resource
+    resourceDir = config.dirs!.pages!;
+    resourceType = ResourceType.TXT;
   } else if (ext === "") {
     // if route has no extension, treat it as a page
     resourceDir = config.dirs!.pages!;
