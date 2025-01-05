@@ -15,7 +15,7 @@ program
 
 program.command("new")
   .description("create a new site")
-  .argument("[path]", "path to create the new site")
+  .argument("[PATH]", "path to create the new site")
   .option("-f, --force", "overwrite existing files")
   .action((path: string, options: any) => {
     newSite(path, options);
@@ -23,7 +23,7 @@ program.command("new")
 
 program.command("dev")
   .description("run the site in dev mode (watch and rebuild on changes)")
-  .argument("[SOURCE]", "path of the site to build")
+  .argument("[PATH]", "path of the site to build")
   .option("-p, --port <PORT>", "port to listen on", "8008")
   .option("-c, --config <PATH>", "path for the config file")
   .action((path = "", options: any) => {
@@ -32,7 +32,7 @@ program.command("dev")
 
 program.command("build")
   .description("generate a site suitable for hosting")
-  .argument("[SOURCE]", "path of the site to build")
+  .argument("[PATH]", "path of the site to build")
   .option("-o, --output <DIR>", "output directory for the built site")
   .option("-c, --config <PATH>", "path for the config file")
   .option("-q, --quiet", "suppress build logs")
