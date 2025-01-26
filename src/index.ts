@@ -22,23 +22,25 @@ program.command("new")
   });
 
 program.command("dev")
-  .description("run the site in dev mode (watch and rebuild on changes)")
+  .description(
+    "start the dev server for the site (it will watch files and rebuild on changes)",
+  )
   .argument("[PATH]", "path of the site to build")
   .option("-p, --port <PORT>", "port to listen on", "8008")
-  .option("-c, --config <PATH>", "path for the config file")
+  .option("-c, --config <PATH>", "path for the config file", "punch.jsonc")
   .action((path = "", options: any) => {
     dev({ srcPath: path, ...options });
   });
 
 program.command("build")
-  .description("generate a site suitable for hosting")
+  .description("produce a static output of the site suitable for hosting")
   .argument("[PATH]", "path of the site to build")
   .option("-o, --output <DIR>", "output directory for the built site")
-  .option("-c, --config <PATH>", "path for the config file")
+  .option("-c, --config <PATH>", "path for the config file", "punch.jsonc")
   .option("-q, --quiet", "suppress build logs")
   .option(
     "--base-url <URL>",
-    "Base URL of the site (eg: https://example.com)",
+    "Base URL of the site (used for sitemap.xml)",
   )
   .action((path = "", options: any) => {
     build({ srcPath: path, ...options });
@@ -46,7 +48,7 @@ program.command("build")
 
 program.command("serve")
   .description(
-    "serve site(s) in production mode",
+    "serve a single or multiple sites in production mode",
   )
   .option("-S, --sites <PATH>", "path for the multi-site config", "sites.json")
   .option("-p, --port <PORT>", "port to listen on", "8080")
