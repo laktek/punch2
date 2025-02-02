@@ -9,7 +9,6 @@ import { findResource, getRouteParams, ResourceType } from "../utils/routes.ts";
 import { NotFoundError, renderHTML } from "../utils/renderers/html.ts";
 import {
   getBrowserTargets,
-  getTailwindConfig,
   renderCSS,
   Targets,
 } from "../utils/renderers/css.ts";
@@ -316,15 +315,9 @@ export class Renderer {
         resourceType,
       };
     } else if (resourceType === ResourceType.CSS) {
-      const tailwindConfig = await getTailwindConfig(
-        config.assets?.css?.tailwind,
-        srcPath,
-      );
       const content = await renderCSS(
         path,
         this.#browserTargets,
-        opts?.usedBy,
-        tailwindConfig,
       );
       return {
         route,

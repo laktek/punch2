@@ -3,7 +3,6 @@ import { parse as yamlParse } from "@std/yaml";
 import { parse as tomlParse } from "@std/toml";
 import { parse as jsonParse } from "@std/jsonc";
 import { deepMerge } from "@std/collections";
-import { Config as TailwindConfig } from "tailwindcss";
 
 interface RedirectValue {
   destination: string;
@@ -20,7 +19,6 @@ interface OndemandRenderOpts {
 }
 
 interface CssOpts {
-  tailwind?: string | TailwindConfig;
   browserTargets?: string | string[];
 }
 
