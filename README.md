@@ -43,6 +43,7 @@
 * ability to import .ts files directly in script tags
 * Publish to JSR (so it can be imported for customization)
 * punch upgrade command
+* Support svg optimizations (https://github.com/noahbald/oxvg)
 
 * Single command publish (to punch.host and other providers)
 * Font optimizations
