@@ -1,4 +1,4 @@
-@import "tailwind.css";
+@import "tailwindcss";
 
 body {
   @apply antialiased max-w-3xl mx-auto px-4 leading-8 h-screen bg-white text-slate-900 dark:bg-gray-800 dark:text-slate-100;
