@@ -1,7 +1,7 @@
 import { basename, extname, join, relative, resolve } from "@std/path";
 import { exists, walk } from "@std/fs";
 import { createContext, Script } from "node:vm";
-import { DB } from "sqlite";
+import { DatabaseSync } from "node:sqlite";
 
 import { Contents } from "../../lib/contents.ts";
 import { Config } from "../../config/config.ts";
@@ -47,14 +47,16 @@ function queryContents(contents: Contents, params: any) {
 
 // setup a new DB connection (this will be read-only)
 function setupContents(data: Uint8Array) {
-  const db = new DB();
-  if (data.byteLength) {
-    db.deserialize(data, {
-      mode: "read",
-    });
-  }
+  const db = new DatabaseSync(":memory:");
+  // TODO: node:sqlite doesn't support deserialize yet
+  // Skip deserialize functionality for now
+  // if (data.byteLength) {
+  //   db.deserialize(data, {
+  //     mode: "read",
+  //   });
+  // }
 
-  db.execute("pragma temp_store = memory");
+  db.exec("pragma temp_store = memory");
   contents = new Contents(db);
 }
 

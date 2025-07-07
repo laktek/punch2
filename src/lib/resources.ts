@@ -1,4 +1,4 @@
-import { DB, PreparedQuery } from "sqlite";
+import { DatabaseSync } from "node:sqlite";
 
 import { ResourceType } from "../utils/routes.ts";
 
@@ -10,46 +10,46 @@ export type Resource = {
 };
 
 export class Resources {
-  #db: DB;
+  #db: DatabaseSync;
 
-  constructor(db?: DB) {
-    this.#db = db ?? new DB(":memory:");
+  constructor(db?: DatabaseSync) {
+    this.#db = db ?? new DatabaseSync(":memory:");
 
     // create the contents table
-    this.#db.execute(
+    this.#db.exec(
       `create table if not exists 'punch_resources' (route, type, hash, lastmod)`,
     );
   }
 
   insertAll(resources: Resource[]) {
     // prepare insert statement
-    const stmt = this.#db.prepareQuery(
-      `insert into "punch_resources" (route, type, hash, lastmod) values (:route, :type, :hash, :lastmod)`,
+    const stmt = this.#db.prepare(
+      `insert into "punch_resources" (route, type, hash, lastmod) values (?, ?, ?, ?)`,
     );
 
-    this.#db.execute("begin");
+    this.#db.exec("begin");
     for (const resource of resources) {
-      stmt.execute(resource);
+      stmt.run(resource.route, resource.type, resource.hash, resource.lastmod);
     }
-    this.#db.execute("commit");
+    this.#db.exec("commit");
   }
 
   get(route: string) {
-    return this.#db.queryEntries(
+    const stmt = this.#db.prepare(
       `select * from punch_resources where route = ? limit 1`,
-      [route],
-    ).shift();
+    );
+    return stmt.get(route);
   }
 
   all(type: ResourceType) {
-    return this.#db.queryEntries(
+    const stmt = this.#db.prepare(
       `select * from punch_resources where type = ?`,
-      [type],
     );
+    return stmt.all(type);
   }
 
   clear() {
-    this.#db.execute(
+    this.#db.exec(
       `delete from 'punch_resources'`,
     );
   }

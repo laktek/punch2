@@ -1,12 +1,12 @@
 import { assert, assertEquals, assertThrows } from "@std/assert";
 import { join } from "@std/path";
-import { DB } from "sqlite";
+import { DatabaseSync } from "node:sqlite";
 
 import { Contents } from "./contents.ts";
 
 Deno.test("Contents.prepare", async (t) => {
   await t.step("no contents directory", async () => {
-    const db = new DB(":memory:");
+    const db = new DatabaseSync(":memory:");
     const contents = new Contents(db);
     assert(
       await contents.prepare("/path/contents") === undefined,
@@ -38,7 +38,7 @@ Deno.test("Contents.prepare", async (t) => {
       }]),
     );
 
-    const db = new DB(":memory:");
+    const db = new DatabaseSync(":memory:");
     const contents = new Contents(db);
     await contents.prepare(contentsDir);
 
@@ -76,7 +76,7 @@ Deno.test("Contents.prepare", async (t) => {
 
     await Deno.symlink(origPath, symPath, { type: "junction" });
 
-    const db = new DB(":memory:");
+    const db = new DatabaseSync(":memory:");
     const contents = new Contents(db);
     await contents.prepare(contentsDir);
 
@@ -116,7 +116,7 @@ Deno.test("Contents.prepare", async (t) => {
       }]),
     );
 
-    const db = new DB(":memory:");
+    const db = new DatabaseSync(":memory:");
     const contents = new Contents(db);
     await contents.prepare(contentsDir);
 
@@ -133,7 +133,7 @@ Deno.test("Contents.prepare", async (t) => {
 
 Deno.test("Contents.insertAll", async (t) => {
   await t.step("valid json records", () => {
-    const db = new DB(":memory:");
+    const db = new DatabaseSync(":memory:");
     const contents = new Contents(db);
     contents.insertAll("foo", [{ "hello": "world" }, { "hello1": "world1" }]);
     assertEquals(
@@ -145,7 +145,7 @@ Deno.test("Contents.insertAll", async (t) => {
   });
 
   await t.step("empty records", () => {
-    const db = new DB(":memory:");
+    const db = new DatabaseSync(":memory:");
     const contents = new Contents(db);
     assertThrows(
       () => {
@@ -158,7 +158,7 @@ Deno.test("Contents.insertAll", async (t) => {
   });
 
   await t.step("invalid records", () => {
-    const db = new DB(":memory:");
+    const db = new DatabaseSync(":memory:");
     const contents = new Contents(db);
     assertThrows(
       () => {
@@ -180,7 +180,7 @@ Deno.test("Contents.insertAll", async (t) => {
 
 Deno.test("Contents.query", async (t) => {
   await t.step("count records", () => {
-    const db = new DB(":memory:");
+    const db = new DatabaseSync(":memory:");
     const contents = new Contents(db);
     contents.insertAll("foo", [{ "hello": "world" }, { "hello1": "world1" }]);
     assertEquals(
@@ -192,7 +192,7 @@ Deno.test("Contents.query", async (t) => {
   });
 
   await t.step("limit records", () => {
-    const db = new DB(":memory:");
+    const db = new DatabaseSync(":memory:");
     const contents = new Contents(db);
     contents.insertAll("foo", [{ "hello": "world" }, { "hello": "world1" }, {
       "hello": "world2",
@@ -206,7 +206,7 @@ Deno.test("Contents.query", async (t) => {
   });
 
   await t.step("offset records", () => {
-    const db = new DB(":memory:");
+    const db = new DatabaseSync(":memory:");
     const contents = new Contents(db);
     contents.insertAll("foo", [{ "hello": "world" }, { "hello": "world1" }, {
       "hello": "world2",
@@ -222,7 +222,7 @@ Deno.test("Contents.query", async (t) => {
   });
 
   await t.step("sort records", () => {
-    const db = new DB(":memory:");
+    const db = new DatabaseSync(":memory:");
     const contents = new Contents(db);
     contents.insertAll("animals", [
       { "name": "Dog", "legs": 4 },
@@ -288,7 +288,7 @@ Deno.test("Contents.query", async (t) => {
   });
 
   await t.step("filter records", () => {
-    const db = new DB(":memory:");
+    const db = new DatabaseSync(":memory:");
     const contents = new Contents(db);
 
     contents.insertAll("animals", [
@@ -408,7 +408,7 @@ Deno.test("Contents.query", async (t) => {
   });
 
   await t.step("return all records", () => {
-    const db = new DB(":memory:");
+    const db = new DatabaseSync(":memory:");
     const contents = new Contents(db);
     contents.insertAll("foo", [{ "hello": "world" }, { "hello": "world1" }, {
       "hello": "world2",
@@ -424,7 +424,7 @@ Deno.test("Contents.query", async (t) => {
   });
 
   await t.step("preserves the data types of fields", () => {
-    const db = new DB(":memory:");
+    const db = new DatabaseSync(":memory:");
     const contents = new Contents(db);
     contents.insertAll("foo", [{
       "id": 1,
@@ -444,7 +444,7 @@ Deno.test("Contents.query", async (t) => {
   });
 
   await t.step("can query directly using SQL", () => {
-    const db = new DB(":memory:");
+    const db = new DatabaseSync(":memory:");
     const contents = new Contents(db);
     contents.insertAll("foo", [{ "hello": "world" }, { "hello": "world1" }, {
       "hello": "world2",
@@ -470,7 +470,7 @@ Deno.test("Contents.query", async (t) => {
 
 Deno.test("Contents.proxy", async (t) => {
   await t.step("handles temp properties", () => {
-    const db = new DB(":memory:");
+    const db = new DatabaseSync(":memory:");
     const contents = new Contents(db);
     contents.insertAll("foo", [{ "hello": "world" }, { "hello1": "world1" }]);
     const obj: any = contents.proxy({ "bar": "baz" });
@@ -484,7 +484,7 @@ Deno.test("Contents.proxy", async (t) => {
   });
 
   await t.step("proxies to query", () => {
-    const db = new DB(":memory:");
+    const db = new DatabaseSync(":memory:");
     const contents = new Contents(db);
     contents.insertAll("foo", [{ "hello": "world" }, { "hello1": "world1" }]);
     const obj: any = contents.proxy();

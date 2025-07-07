@@ -1,5 +1,5 @@
 import { join, resolve } from "@std/path";
-import { DB } from "sqlite";
+import { DatabaseSync } from "node:sqlite";
 
 import { Config, getConfig } from "../config/config.ts";
 import { Middleware, MiddlewareChain } from "../lib/middleware.ts";
@@ -57,7 +57,7 @@ export async function dev(opts: DevOpts): Promise<void> {
   // prepare contents
   const contentsPath = join(srcPath, config.dirs!.contents!);
   // setup an in-memory DB
-  const db = new DB(":memory:");
+  const db = new DatabaseSync(":memory:");
   const contents = new Contents(db, config.db?.indexes);
   // TODO: if the `contents` table already exists, skip prepare
   await contents.prepare(contentsPath);

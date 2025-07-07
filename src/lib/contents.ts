@@ -1,5 +1,5 @@
 import { exists, walk } from "@std/fs";
-import { DB } from "sqlite";
+import { DatabaseSync } from "node:sqlite";
 import { resolve } from "@std/path";
 
 import { commonSkipPaths } from "../utils/paths.ts";
@@ -34,12 +34,12 @@ function parseRecords(records: any[]): unknown[] {
 }
 
 export class Contents {
-  #db: DB;
+  #db: DatabaseSync;
   #indexes?: Record<string, string[]>;
   #prepared: boolean;
 
-  constructor(db?: DB, indexes?: Record<string, string[]>) {
-    this.#db = db ?? new DB(":memory:");
+  constructor(db?: DatabaseSync, indexes?: Record<string, string[]>) {
+    this.#db = db ?? new DatabaseSync(":memory:");
     this.#indexes = indexes;
     this.#prepared = false;
   }
@@ -106,26 +106,26 @@ export class Contents {
 
     // drop existing table before creating a new one
     // TODO: make dropping table configurable
-    this.#db.execute(`drop table if exists '${table}'`);
+    this.#db.exec(`drop table if exists '${table}'`);
 
-    this.#db.execute(
+    this.#db.exec(
       `create table if not exists '${table}' (${columns.join(",")})`,
     );
 
     if (this.#indexes && this.#indexes[table]) {
       const index_columns = this.#indexes[table].join(",");
-      this.#db.execute(
+      this.#db.exec(
         `create index if not exists index_${table} on ${table} (${index_columns})`,
       );
     }
 
-    const stmt = this.#db.prepareQuery(
+    const stmt = this.#db.prepare(
       `insert into "${table}" (${columns.join(",")}) values(${
-        columns.map((col) => `:${col}`).join(",")
+        columns.map(() => "?").join(",")
       })`,
     );
 
-    this.#db.execute("begin");
+    this.#db.exec("begin");
     for (const record of records) {
       for (const [key, value] of Object.entries(record)) {
         if (typeof value !== "string" && typeof value !== "number") {
@@ -133,18 +133,41 @@ export class Contents {
         }
       }
 
-      stmt.execute(record);
+      const values = columns.map(col => {
+        const value = record[col as keyof typeof record];
+        if (value === undefined) return null;
+        // Convert boolean values to 0/1 for SQLite compatibility
+        if (typeof value === "boolean") return value ? 1 : 0;
+        return value;
+      });
+      stmt.run(...values);
     }
-    this.#db.execute("commit");
-
-    stmt.finalize();
+    this.#db.exec("commit");
   }
 
   #runSql(sql: SqlQuery) {
     if (typeof sql[0] !== "string") {
       throw new Error("first argument to sql option must be a string");
     }
-    const records = this.#db.queryEntries(sql[0], sql[1] || []);
+    
+    let query = sql[0];
+    let params: any[] = [];
+    
+    if (sql[1]) {
+      if (Array.isArray(sql[1])) {
+        params = sql[1];
+      } else {
+        // Convert named parameters to positional parameters
+        const namedParams = sql[1] as Record<string, any>;
+        for (const [key, value] of Object.entries(namedParams)) {
+          query = query.replace(new RegExp(`:${key}`, 'g'), '?');
+          params.push(value);
+        }
+      }
+    }
+    
+    const stmt = this.#db.prepare(query);
+    const records = stmt.all(...params);
     return parseRecords(records);
   }
 
@@ -200,7 +223,9 @@ export class Contents {
           } else {
             where_exprs.push(`"${expr[0]}" = ?`);
           }
-          where_params.push(expr[1]);
+          // Convert boolean values to 0/1 for SQLite compatibility
+          const value = typeof expr[1] === "boolean" ? (expr[1] ? 1 : 0) : expr[1];
+          where_params.push(value);
         }
       });
     }
@@ -209,14 +234,15 @@ export class Contents {
       where = `where ${where_exprs.join(" and ")}`;
     }
 
-    const stmt = this.#db.prepareQuery(
+    const stmt = this.#db.prepare(
       `select ${select} from ${table} ${where} ${order_by} limit ? offset ?`,
     );
     if (opts?.count) {
-      return stmt.all([...where_params, limit, offset]).flat();
+      const result = stmt.all(...where_params, limit, offset);
+      // Extract the count value from the result object
+      return result.map((row: any) => Object.values(row)[0]);
     }
-    const records = stmt.allEntries([...where_params, limit, offset]);
-    stmt.finalize();
+    const records = stmt.all(...where_params, limit, offset);
     return parseRecords(records);
   }
 
@@ -257,11 +283,14 @@ export class Contents {
   }
 
   serialize() {
-    if (this.#prepared) {
-      return this.#db.serialize();
-    } else {
-      // return an empty buffer
-      return new Uint8Array();
-    }
+    // TODO: node:sqlite doesn't support serialize yet
+    // Skip serialize functionality for now
+    // if (this.#prepared) {
+    //   return this.#db.serialize();
+    // } else {
+    //   // return an empty buffer
+    //   return new Uint8Array();
+    // }
+    return new Uint8Array();
   }
 }

@@ -1,5 +1,5 @@
 import { join, resolve } from "@std/path";
-import { DB } from "sqlite";
+import { DatabaseSync } from "node:sqlite";
 
 import {
   Config,
@@ -58,7 +58,7 @@ async function prepareSite(siteConfig: SiteConfig): Promise<Site> {
   // prepare contents
   const contentsPath = join(srcPath, config.dirs!.contents!);
 
-  const db = new DB(resolve(srcPath, config.db?.path ?? "punch.db"), {});
+  const db = new DatabaseSync(resolve(srcPath, config.db?.path ?? "punch.db"));
 
   const contents = new Contents(db);
   // TODO: if the `contents` table already exists, skip prepare

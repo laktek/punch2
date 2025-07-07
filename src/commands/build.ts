@@ -1,5 +1,5 @@
 import { join, resolve } from "@std/path";
-import { DB } from "sqlite";
+import { DatabaseSync } from "node:sqlite";
 
 import { Config, getConfig } from "../config/config.ts";
 import { Contents } from "../lib/contents.ts";
@@ -139,11 +139,10 @@ export async function build(opts: BuildOpts): Promise<boolean> {
   // prepare contents
   const contentsPath = join(srcPath, config.dirs!.contents!);
   const dbPath = config.db?.path ?? ":memory:";
-  const db = new DB(
+  const db = new DatabaseSync(
     dbPath !== ":memory:" ? resolve(srcPath, dbPath) : ":memory:",
-    {},
   );
-  db.execute("pragma temp_store = memory");
+  db.exec("pragma temp_store = memory");
 
   const contents = new Contents(db, config.db?.indexes);
   withQuiet(() => console.time("- indexed content"));
