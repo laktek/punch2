@@ -10,7 +10,7 @@ export interface Context {
   config: Config;
   contents: Contents;
   resources: Resources;
-  renderer: Renderer;
+  renderer?: Renderer;
   assetMap: AssetMap;
   remoteAddr?: Deno.Addr;
   devMode?: boolean;

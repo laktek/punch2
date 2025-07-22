@@ -38,7 +38,7 @@ interface Site {
   contents: Contents;
   resources: Resources;
   assetMap: AssetMap;
-  renderer: Renderer;
+  renderer?: Renderer;
   middleware: Middleware[];
 }
 
@@ -67,20 +67,22 @@ async function prepareSite(siteConfig: SiteConfig): Promise<Site> {
   const resources = new Resources(db);
 
   // setup renderer
-  const renderCtx = {
-    srcPath,
-    config,
-    contents,
-    devMode: false,
-  };
-  let renderer: Renderer;
-  if (config.modifiers?.renderer) {
-    const { renderer: customRenderer } = await import(
-      join(srcPath, config.modifiers?.renderer)
-    );
-    renderer = await customRenderer.init(renderCtx);
-  } else {
-    renderer = await Renderer.init(renderCtx);
+  let renderer = undefined;
+  if (!config.serve?.ondemandRender?.disabled) {
+    const renderCtx = {
+      srcPath,
+      config,
+      contents,
+      devMode: false,
+    };
+    if (config.modifiers?.renderer) {
+      const { renderer: customRenderer } = await import(
+        join(srcPath, config.modifiers?.renderer)
+      );
+      renderer = await customRenderer.init(renderCtx);
+    } else {
+      renderer = await Renderer.init(renderCtx);
+    }
   }
 
   const assetMap = new AssetMap(config, renderer);

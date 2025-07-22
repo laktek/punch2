@@ -9,8 +9,9 @@ import { routeWithContentHash } from "../utils/content_hash.ts";
 import { Resource } from "../lib/resources.ts";
 
 export default async function (ctx: Context, next: NextFn) {
-  // if there's already a response, skip on-demand-render
-  if (ctx.response) {
+  // if there's already a response
+  // or renderer is undefined, skip on-demand-render
+  if (ctx.response || !ctx.renderer) {
     return next()(ctx, next);
   }
 

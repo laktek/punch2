@@ -14,7 +14,7 @@ async function getPageNotFound(
 
   try {
     const pathname = "/404";
-    if (ctx.devMode) {
+    if (ctx.devMode && renderer) {
       const renderOpts: RenderOptions = {};
       // in dev mode, we send the `used_by` option for assets
       const asset = assetMap.assets.get(pathname);
