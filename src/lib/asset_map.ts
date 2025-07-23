@@ -65,7 +65,7 @@ export class AssetMap {
     });
 
     content.assets[ResourceType.VIDEO].forEach((v) => {
-      if (!v.startsWith(`/${this.#config.dirs!.video!}/`)) {
+      if (!v.startsWith(`/${this.#config.dirs!.videos!}/`)) {
         return;
       }
       const asset: Asset = this.assets.get(v) ??
