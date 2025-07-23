@@ -1501,6 +1501,7 @@
     "https://deno.land/x/denoflate@1.2.1/pkg/denoflate_bg.wasm.js": "d581956245407a2115a3d7e8d85a9641c032940a8e810acbd59ca86afd34d44d",
     "https://deno.land/x/esbuild@v0.19.5/mod.js": "cbc57c89f925d7b6e752594832450f2af57d5f5c3bd4e488ceba76fad233db6c",
     "https://deno.land/x/esbuild@v0.24.0/mod.js": "15b51f08198c373555700a695b6c6630a86f2c254938e81be7711eb6d4edc74e",
+    "https://deno.land/x/esbuild@v0.25.7/mod.js": "c9c92a85ea40a9e12bf8f5eb6ad03679c1071dd26a6783dec503bda4cf5d8466",
     "https://deno.land/x/plug@1.0.0-rc.3/deps.ts": "ea73ca429e71624fdae0fe9393fe5056b9404d058ef45688eda4150112cf85d3",
     "https://deno.land/x/plug@1.0.0-rc.3/download.ts": "81d1aef0595e018514f1d70a5c52b0267d81685e2dccb5459f8427b29f3f3736",
     "https://deno.land/x/plug@1.0.0-rc.3/mod.ts": "6db7edf982efedf8c9e1002754fbb109c22201fd8fb89ba715fe70171b5e821c",
