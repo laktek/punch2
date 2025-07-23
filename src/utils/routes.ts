@@ -84,9 +84,9 @@ export async function findResource(
   } else if (route.startsWith("/audio")) {
     resourceDir = config.dirs!.audio!;
     resourceType = ResourceType.AUDIO;
-  } else if (route.startsWith("/video")) {
-    resourceDir = config.dirs!.video!;
-    resourceType = ResourceType.AUDIO;
+  } else if (route.startsWith("/videos")) {
+    resourceDir = config.dirs!.videos!;
+    resourceType = ResourceType.VIDEO;
   } else if (route.startsWith("/feeds") && ext === ".xml") {
     resourceDir = config.dirs!.feeds!;
     resourceType = ResourceType.XML;

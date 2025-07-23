@@ -41,7 +41,7 @@ export interface Config {
     images?: string;
     feeds?: string;
     audio?: string;
-    video?: string;
+    videos?: string;
   };
   modifiers?: {
     renderer?: string;
@@ -98,7 +98,7 @@ export async function getConfig(
       feeds: "feeds",
       fonts: "fonts",
       audio: "audio",
-      video: "video",
+      videos: "videos",
     },
     routes: [],
     redirects: {},
