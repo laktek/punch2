@@ -15,6 +15,8 @@ else
 	esac
 fi
 
+echo $target
+
 if [ $# -eq 0 ]; then
 	punch_uri="https://github.com/laktek/punch2/releases/latest/download/punch-${target}"
 else
