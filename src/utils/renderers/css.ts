@@ -35,7 +35,14 @@ export async function renderCSS(
   const raw = await Deno.readTextFile(path);
   const { css } = await postcss([
     // we run postcss import manually to support cases where tailwind isn't used.
-    postcssImport(),
+    postcssImport({
+      addModulesDirectories: [
+        join(
+          import.meta.dirname!,
+          "../../../node_modules",
+        ),
+      ],
+    }),
     tailwindcss({
       // we skip tailwind optimize so we can minify CSS regardless tailwind is used.
       optimize: false,
