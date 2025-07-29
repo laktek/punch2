@@ -14,6 +14,20 @@ export function getBrowserTargets(queries: undefined | string | string[]) {
   return browserslistToTargets(browserslist(queries));
 }
 
+declare global {
+  var __tw_resolve: (id: any, base: any) => string | undefined;
+}
+
+globalThis.__tw_resolve = function (id: any, base: any) {
+  if (id === "tailwindcss") {
+    return join(
+      import.meta.dirname!,
+      "../../../node_modules/tailwindcss/index.css",
+    );
+  }
+  return undefined;
+};
+
 export async function renderCSS(
   path: string,
   targets: undefined | Targets,
