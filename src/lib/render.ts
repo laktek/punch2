@@ -137,9 +137,11 @@ export class Renderer {
     this.#htmlTemplateCache = new Map();
     this.#partialsCache = new Map();
 
-    const workerCount = context.devMode
-      ? 1
-      : Math.max(navigator.hardwareConcurrency - 1, 1);
+    const maxWorkersEnv = Deno.env.get("PUNCH_MAX_WORKERS");
+    const maxConcurrency = maxWorkersEnv
+      ? parseInt(maxWorkersEnv, 10)
+      : navigator.hardwareConcurrency;
+    const workerCount = context.devMode ? 1 : Math.max(maxConcurrency - 1, 1);
     this.#imageWorkerPool = new WorkerPool(
       "../utils/workers/image_worker.ts",
       workerCount,
