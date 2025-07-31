@@ -182,6 +182,7 @@ export async function build(opts: BuildOpts): Promise<boolean> {
 
   const { pages, assetMap } = await batchedRender(config, renderer, routes);
 
+  withQuiet(() => console.info("- building assets..."));
   withQuiet(() => console.time("- built assets"));
   await assetMap.render(destPath);
 
