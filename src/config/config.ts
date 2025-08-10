@@ -36,6 +36,7 @@ export interface Config {
     pages?: string;
     contents?: string;
     partials?: string;
+    helpers?: string;
     css?: string;
     js?: string;
     images?: string;
@@ -92,6 +93,7 @@ export async function getConfig(
       pages: "pages",
       contents: "contents",
       partials: "partials",
+      helpers: "helpers",
       css: "css",
       js: "js",
       images: "images",

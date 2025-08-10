@@ -1,7 +1,9 @@
 import { basename, extname, join, relative, resolve } from "@std/path";
 import { exists, walk } from "@std/fs";
+import { escape as escapeHTML, unescape as unescapeHTML } from "@std/html";
 import { createContext, Script } from "node:vm";
 import { DB } from "sqlite";
+import * as esbuild from "esbuild";
 
 import { Contents } from "../../lib/contents.ts";
 import { Config } from "../../config/config.ts";
@@ -29,6 +31,22 @@ let srcPath: null | string = null;
 let config: null | Config = null;
 let contents: null | Contents = null;
 let partialsCache: null | Map<string, string> = null;
+let defaultBuiltins = {
+  console,
+  Date,
+  Intl,
+  JSON,
+  atob,
+  btoa,
+  TextEncoder,
+  TextDecoder,
+  URL,
+  URLPattern,
+  URLSearchParams,
+  escapeHTML,
+  unescapeHTML,
+};
+let helpers: { [name: string]: unknown } = {};
 
 const htmlTemplateCache = new Map();
 
@@ -56,6 +74,109 @@ function setupContents(data: Uint8Array) {
 
   db.execute("pragma temp_store = memory");
   contents = new Contents(db);
+}
+
+function getHelperNameFromPath(
+  entryPath: string,
+  helpersDir: string,
+): string | null {
+  const relativePath = relative(helpersDir, entryPath);
+  const pathParts = relativePath.split("/");
+
+  if (pathParts.length === 1) {
+    // Top level file - check if it's a valid helper file
+    if (
+      extname(entryPath) === ".js" || extname(entryPath) === ".mjs" ||
+      extname(entryPath) === ".ts" || extname(entryPath) === ".mts"
+    ) {
+      return basename(entryPath, extname(entryPath));
+    }
+  } else if (pathParts.length === 2) {
+    // File in subdirectory - check if it's index.js
+    const fileName = basename(entryPath);
+    if (
+      fileName === "index.js" || fileName === "index.mjs" ||
+      fileName === "index.ts" || fileName === "index.mts"
+    ) {
+      return pathParts[0]; // directory name
+    }
+  }
+
+  return null;
+}
+
+async function setupHelpers(): Promise<{ [name: string]: unknown }> {
+  if (!config?.dirs?.helpers || !srcPath) {
+    return {};
+  }
+
+  const helpersDir = resolve(srcPath, config.dirs.helpers);
+
+  // Check if helpers directory exists
+  if (!await exists(helpersDir)) {
+    return {};
+  }
+
+  const context = createContext(defaultBuiltins);
+  const entryPoints: string[] = [];
+  const entryPointToHelperName = new Map<string, string>();
+
+  // Walk through files in helpersDir (traverse up to 1 level for directories)
+  for await (
+    const entry of walk(helpersDir, {
+      maxDepth: 2,
+      skip: commonSkipPaths,
+      includeDirs: false,
+    })
+  ) {
+    const helperName = getHelperNameFromPath(entry.path, helpersDir);
+    if (helperName) {
+      entryPoints.push(entry.path);
+      entryPointToHelperName.set(entry.path, helperName);
+    }
+  }
+
+  if (entryPoints.length === 0) {
+    return {};
+  }
+
+  // Build each helper individually to maintain entry point mapping
+  const helperResults: { [name: string]: unknown } = {};
+  for (const entryPoint of entryPoints) {
+    const helperName = entryPointToHelperName.get(entryPoint);
+    if (!helperName) continue;
+
+    try {
+      const result = await esbuild.build({
+        entryPoints: [entryPoint],
+        bundle: true,
+        format: "iife",
+        write: false,
+        globalName: "HelperModule",
+      });
+
+      if (result.outputFiles && result.outputFiles.length > 0) {
+        const output = result.outputFiles[0];
+
+        // Create and execute the script in the context
+        const script = new Script(output.text);
+        script.runInContext(context);
+
+        // Extract the exported function/object from the context
+        const helperModule = (context as any).HelperModule;
+        const helperFn = helperModule?.default ?? helperModule;
+
+        helperResults[helperName] = helperFn;
+      }
+    } catch (error) {
+      console.error(`Failed to process helper ${helperName}:`, error);
+    }
+  }
+
+  // Stop esbuild
+  esbuild.stop();
+
+  return helperResults;
 }
 
 async function getHTMLTemplate(
@@ -88,6 +209,8 @@ async function bootstrapWorker(key: string, msg: BootstrapMessage) {
 
   setupContents(msg.contentsDb);
 
+  helpers = await setupHelpers();
+
   (globalThis as any).postMessage({ key, result: undefined });
 }
 
@@ -106,18 +229,13 @@ async function processMessage(key: string, msg: InputMessage) {
     } = msg;
 
     const builtins = {
-      console,
-      Date,
-      Intl,
-      JSON,
-      atob,
-      btoa,
-      TextEncoder,
-      TextDecoder,
-      URL,
-      URLPattern,
-      URLSearchParams,
+      ...helpers,
+      ...defaultBuiltins,
       Punch: {
+        devMode,
+        notFound: () => {
+          throw new NotFoundError();
+        },
         route: getRouteParams(
           route,
           relative(join(srcPath, config.dirs!.pages!), templatePath),
@@ -151,12 +269,6 @@ async function processMessage(key: string, msg: InputMessage) {
           });
           return renderHTML(script, context);
         },
-        notFound: () => {
-          throw new NotFoundError();
-        },
-        escape,
-        unescape,
-        devMode,
       },
     };
 
@@ -164,7 +276,7 @@ async function processMessage(key: string, msg: InputMessage) {
     const tmpl = await getHTMLTemplate(templatePath, devMode);
 
     const renderHTMLContext = createContext(
-      contents!.proxy({ ...builtins }),
+      contents!.proxy({ ...builtins, globalThis: builtins }),
     );
 
     const result = renderHTML(

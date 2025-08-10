@@ -1,8 +1,6 @@
 import { basename, extname, join, relative } from "@std/path";
 import { exists, walk } from "@std/fs";
-import { escape, unescape } from "@std/html";
 import { createContext, Script } from "node:vm";
-
 import { Contents } from "./contents.ts";
 import { Config } from "../config/config.ts";
 import { findResource, getRouteParams, ResourceType } from "../utils/routes.ts";

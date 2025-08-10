@@ -12,6 +12,7 @@ function createDirs(path: string) {
   Deno.mkdirSync(join(path, "public"), { recursive: true });
   Deno.mkdirSync(join(path, "contents", "blog"), { recursive: true });
   Deno.mkdirSync(join(path, "partials"), { recursive: true });
+  Deno.mkdirSync(join(path, "helpers"), { recursive: true });
   Deno.mkdirSync(join(path, "css"), { recursive: true });
   Deno.mkdirSync(join(path, "js"), { recursive: true });
   Deno.mkdirSync(join(path, "images"), { recursive: true });

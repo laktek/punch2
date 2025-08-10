@@ -41,7 +41,6 @@
     -- (dev should show helpful error page, build should fail)
 * CSP header middleware
 * ability to import .ts files directly in script tags
-* Publish to JSR (so it can be imported for customization)
 * punch upgrade command
 * Support svg optimizations (https://github.com/noahbald/oxvg)
 
@@ -58,7 +57,7 @@
 * Immutable builds
   - serve can choose which build to use
   - build refs are stored in DB
-* Content as txt files https://x.com/alexalbert__/status/1857457290917589509
+* Content as txt files https://x.com/alexalbert__/status/1857457290917589509 [x]
 
 ### What you can build with Punch?
 

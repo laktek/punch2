@@ -11,7 +11,7 @@
           <li>
             <a href="/blog/${slug}">${ title }</a>
             <time pubdate datetime="${new Date(published_on)}">
-              ${new Intl.DateTimeFormat('en-GB', { dateStyle: 'long' }).format(new Date(published_on))}
+              ${formattedDate(published_on)}
             </time>
           </li>
         `)}
