@@ -9,7 +9,7 @@
            <article>
              <h2>${ blog.title }</h2>
              <time pubdate datetime="${new Date(blog.published_on)}">
-               ${new Intl.DateTimeFormat('en-GB', { dateStyle: 'long' }).format(new Date(blog.published_on))}
+               ${formattedDate(blog.published_on)}
              </time>
 
              <div>

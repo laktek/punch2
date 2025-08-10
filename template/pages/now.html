@@ -6,7 +6,7 @@
     <main>
       <h2>Now</h2>
       <time pubdate datetime="${new Date(now.updated_on)}">
-        Last updated ${new Intl.DateTimeFormat('en-GB', { dateStyle: 'long' }).format(new Date(now.updated_on))}
+        Last updated ${formattedDate(now.updated_on)}
       </time>
 
       <div>
