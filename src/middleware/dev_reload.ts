@@ -17,11 +17,13 @@ export default async function (ctx: Context, next: NextFn) {
     const decoded = new TextDecoder().decode(value);
 
     const script = `<script>
+    document.addEventListener("DOMContentLoaded", () => {
       const evtSource = new EventSource("/_punch/events");
       evtSource.onmessage = (event) => {
         console.log(event);
         location.reload(true);
       }
+    })
     </script>`;
     const updatedBody = decoded.replace(
       /<\/body>(?:[\n]*)<\/html>$/,

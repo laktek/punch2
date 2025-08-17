@@ -83,6 +83,8 @@ export async function dev(opts: DevOpts): Promise<void> {
 
   const assetMap = new AssetMap(config, renderer);
 
+  const sseConnections = new Set<ReadableStreamDefaultController>();
+
   const watcher = new Worker(import.meta.resolve("../lib/dev_watcher.ts"), {
     type: "module",
   });
@@ -96,7 +98,18 @@ export async function dev(opts: DevOpts): Promise<void> {
       await contents.prepare(contentsPath);
     }
     await renderer.refresh();
-    dispatchEvent(new CustomEvent("file_changed", { detail: { paths } }));
+    
+    const encoder = new TextEncoder();
+    const data = JSON.stringify({ paths });
+    const msg = encoder.encode(`data: ${data}\r\n\r\n`);
+    
+    for (const controller of sseConnections) {
+      try {
+        controller.enqueue(msg);
+      } catch {
+        sseConnections.delete(controller);
+      }
+    }
   };
 
   // TODO: call render.complete() before shutdown
@@ -111,22 +124,14 @@ export async function dev(opts: DevOpts): Promise<void> {
       const pathname = new URL(request.url).pathname;
 
       if (pathname === "/_punch/events") {
-        const encoder = new TextEncoder();
-        const abortController = new AbortController();
-        const signal = abortController.signal;
-
+        let streamController: ReadableStreamDefaultController;
         const body = new ReadableStream({
           start(controller) {
-            addEventListener("file_changed", (e) => {
-              const data = JSON.stringify({
-                paths: (e as CustomEvent).detail.paths,
-              });
-              const msg = encoder.encode(`data: ${data}\r\n\r\n`);
-              controller.enqueue(msg);
-            }, { signal });
+            streamController = controller;
+            sseConnections.add(controller);
           },
           cancel() {
-            abortController.abort();
+            sseConnections.delete(streamController);
           },
         });
         return new Response(body, {
