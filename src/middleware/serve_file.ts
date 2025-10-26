@@ -3,7 +3,9 @@ import { contentType } from "@std/media-types";
 
 import { Context, NextFn } from "../lib/middleware.ts";
 
-async function getContents(filePath: string): Promise<Uint8Array | undefined> {
+async function getContents(
+  filePath: string,
+): Promise<Uint8Array<ArrayBuffer> | undefined> {
   try {
     return await Deno.readFile(filePath);
   } catch (e) {

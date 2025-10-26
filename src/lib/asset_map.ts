@@ -90,7 +90,7 @@ export class AssetMap {
 
         const { content, metadata } = output;
 
-        const hash = await hashContent(content! as Uint8Array);
+        const hash = await hashContent(content! as Uint8Array<ArrayBuffer>);
         let assetPath = routeWithContentHash(route, hash);
 
         if (asset.resourceType === ResourceType.IMAGE && metadata?.ext) {

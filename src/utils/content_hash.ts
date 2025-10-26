@@ -2,7 +2,9 @@ import { crypto } from "@std/crypto";
 import { encodeHex } from "@std/encoding";
 import { extname } from "@std/path";
 
-export async function hashContent(content: Uint8Array): Promise<string> {
+export async function hashContent(
+  content: Uint8Array<ArrayBuffer>,
+): Promise<string> {
   const hash = await crypto.subtle.digest(
     "SHA-256",
     content,

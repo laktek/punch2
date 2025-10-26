@@ -9,7 +9,7 @@ const defaultPageNotFound =
 
 async function getPageNotFound(
   ctx: Context,
-): Promise<Uint8Array> {
+): Promise<Uint8Array<ArrayBuffer>> {
   const { assetMap, devMode, srcPath, config, renderer } = ctx;
 
   try {
