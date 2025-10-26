@@ -72,9 +72,9 @@ export default async function (ctx: Context, next: NextFn) {
         }
       }
 
-      let encoded: Uint8Array;
+      let encoded: Uint8Array<ArrayBuffer>;
       if (output.content instanceof Uint8Array) {
-        encoded = output.content;
+        encoded = output.content as Uint8Array<ArrayBuffer>;
       } else {
         const contentStr = output.content!.toString();
         encoded = (new TextEncoder()).encode(contentStr);
