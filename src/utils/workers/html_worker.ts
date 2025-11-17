@@ -142,7 +142,7 @@ async function setupHelpers(): Promise<{ [name: string]: unknown }> {
 
   // Build each helper individually to maintain entry point mapping
   const helperResults: { [name: string]: unknown } = {};
-  for (const entryPoint of entryPoints) {
+  for await (const entryPoint of entryPoints) {
     const helperName = entryPointToHelperName.get(entryPoint);
     if (!helperName) continue;
 
