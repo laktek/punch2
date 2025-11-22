@@ -9,10 +9,11 @@ export default async function (ctx: Context, next: NextFn): Promise<Response> {
     // First try exact match
     const redirect = config.redirects[pathname];
     if (redirect) {
-      newCtx.response = Response.redirect(
-        new URL(redirect.destination, request.url),
-        redirect.permanent ? 301 : 302,
-      );
+      const location = new URL(redirect.destination, request.url).toString();
+      newCtx.response = new Response(null, {
+        status: redirect.permanent ? 301 : 302,
+        headers: { Location: location },
+      });
       return next()(newCtx, next);
     }
 
@@ -25,10 +26,11 @@ export default async function (ctx: Context, next: NextFn): Promise<Response> {
           const destination = redirect.destination.endsWith('/')
             ? redirect.destination + suffix
             : redirect.destination + '/' + suffix;
-          newCtx.response = Response.redirect(
-            new URL(destination, request.url),
-            redirect.permanent ? 301 : 302,
-          );
+          const location = new URL(destination, request.url).toString();
+          newCtx.response = new Response(null, {
+            status: redirect.permanent ? 301 : 302,
+            headers: { Location: location },
+          });
           return next()(newCtx, next);
         }
       }
