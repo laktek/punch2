@@ -1,4 +1,5 @@
 import { join, resolve } from "@std/path";
+import * as esbuild from "esbuild";
 import { DB } from "sqlite";
 
 import { Config, getConfig } from "../config/config.ts";
@@ -217,6 +218,9 @@ export async function build(opts: BuildOpts): Promise<boolean> {
     await generateSitemap(config, destPath, resources, opts.baseUrl);
     withQuiet(() => console.timeEnd("- built sitemap"));
   }
+
+  // stop esbuild
+  esbuild.stop();
 
   db.close(true);
 

@@ -173,9 +173,6 @@ async function setupHelpers(): Promise<{ [name: string]: unknown }> {
     }
   }
 
-  // Stop esbuild
-  esbuild.stop();
-
   return helperResults;
 }
 
