@@ -58,7 +58,6 @@ export async function renderJS(
       //sourcemap: true,
       write: false,
     });
-    esbuild.stop();
     return result;
   } catch (e) {
     throw new Error(`failed to render JS file - ${path}`, { cause: e });

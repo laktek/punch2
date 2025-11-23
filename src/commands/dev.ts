@@ -1,4 +1,5 @@
 import { join, resolve } from "@std/path";
+import * as esbuild from "esbuild";
 import { DB } from "sqlite";
 
 import { Config, getConfig } from "../config/config.ts";
@@ -98,11 +99,11 @@ export async function dev(opts: DevOpts): Promise<void> {
       await contents.prepare(contentsPath);
     }
     await renderer.refresh();
-    
+
     const encoder = new TextEncoder();
     const data = JSON.stringify({ paths });
     const msg = encoder.encode(`data: ${data}\r\n\r\n`);
-    
+
     for (const controller of sseConnections) {
       try {
         controller.enqueue(msg);
@@ -112,8 +113,7 @@ export async function dev(opts: DevOpts): Promise<void> {
     }
   };
 
-  // TODO: call render.complete() before shutdown
-  Deno.serve(
+  const server = Deno.serve(
     {
       port,
       onListen: ({ hostname, port }) => {
@@ -159,4 +159,9 @@ export async function dev(opts: DevOpts): Promise<void> {
       return res;
     },
   );
+
+  // wait for server to finish
+  await server.finished;
+  renderer.complete();
+  esbuild.stop();
 }
