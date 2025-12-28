@@ -9,6 +9,15 @@ interface RedirectValue {
   permanent: boolean;
 }
 
+interface ProxyValue {
+  destination: string;
+  preserveHost?: boolean;
+  stripPath?: boolean;
+  headers?: Record<string, string>;
+  timeout?: number;
+  websocket?: boolean;
+}
+
 interface ServeLoggingOpts {
   disabled: boolean;
   path: string;
@@ -31,6 +40,7 @@ export interface Config {
   baseURL?: string;
   routes?: string[];
   redirects?: Record<string, RedirectValue>;
+  proxies?: Record<string, ProxyValue>;
   dirs?: {
     public?: string;
     pages?: string;
@@ -104,6 +114,7 @@ export async function getConfig(
     },
     routes: [],
     redirects: {},
+    proxies: {},
     build: {
       batchSize: 100,
       sitemap: true,

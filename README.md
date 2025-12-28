@@ -24,14 +24,17 @@
 * SQLite DB of contents available for direct access during build and runtime
 * Compliant with Web Vitals recommendations https://web.dev/articles/vitals
 * Automatic sitemap generation
+* Reverse proxying and redirects
+* Serve txt or md files directly (for LLMs)
 * Host it anywhere Vercel, Netlify, GitHub Pages, S3, or VPS
 
 ### TODO
 
+* ability to import .ts files directly in script tags
+* Internal redirects for images loaded via CSS / JS
 * Sourcemap for css and JS
 * CI tests for Windows
 * Support for resizing images (for srcset)
-* Internal redirects for images loaded via CSS / JS
 * auto-redirect www to host
 * on-demand rendering [~]
   - write rendered resources to disk
@@ -40,7 +43,6 @@
   - failing to render HTML template
     -- (dev should show helpful error page, build should fail)
 * CSP header middleware
-* ability to import .ts files directly in script tags
 * punch upgrade command
 * Support svg optimizations (https://github.com/noahbald/oxvg)
 
@@ -49,7 +51,7 @@
 * Support for diagrams in markdown content (mermaid)
 * Opengraph images with Resvg
 * Speculative Loading API
-* Full-text / Semantic search
+* Full-text / Semantic search (implement as a separate project)
 * Migrate Jekyll, 11ty, Astro, and Hugo sites
 * Easy A/B testing
 * Support for i18n (multi-language sites)
@@ -57,7 +59,6 @@
 * Immutable builds
   - serve can choose which build to use
   - build refs are stored in DB
-* Content as txt files https://x.com/alexalbert__/status/1857457290917589509 [x]
 
 ### What you can build with Punch?
 

@@ -1,3 +1,4 @@
+export { default as proxy } from "./proxy.ts";
 export { default as redirect } from "./redirect.ts";
 export { default as serveFile } from "./serve_file.ts";
 export { default as notFound } from "./not_found.ts";

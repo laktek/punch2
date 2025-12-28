@@ -16,6 +16,7 @@ import {
   logRequest,
   notFound,
   onDemandRender,
+  proxy,
   redirect,
 } from "../middleware/index.ts";
 
@@ -45,6 +46,7 @@ export async function dev(opts: DevOpts): Promise<void> {
     middleware = middlewareFn();
   } else {
     middleware = [
+      proxy,
       redirect,
       contentAPI,
       onDemandRender,
