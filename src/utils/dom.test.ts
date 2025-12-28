@@ -281,6 +281,68 @@ Deno.test("updateAssetPaths", async (t) => {
     },
   );
   await t.step(
+    "updates OG image meta tags",
+    () => {
+      const doc = new RenderableDocument(
+        '<html><head><meta property="og:image" content="/images/og-image.png"/><meta property="og:image:url" content="/images/og-image.png"/><meta property="og:image:secure_url" content="/images/og-image.png"/><meta name="twitter:image" content="/images/og-image.png"/><meta property="og:image" content="/images/other.png"/></head></html>',
+      );
+
+      doc.updateAssetPaths(
+        ResourceType.IMAGE,
+        "/images/og-image.png",
+        "/images/og-image.123.png",
+      );
+
+      // Verify og:image updated
+      assert(
+        doc.document!.querySelectorAll(
+          'meta[property="og:image"][content="/images/og-image.123.png"]',
+        ).length === 1,
+        "expected to return updated og:image path",
+      );
+
+      // Verify og:image:url updated
+      assert(
+        doc.document!.querySelectorAll(
+          'meta[property="og:image:url"][content="/images/og-image.123.png"]',
+        ).length === 1,
+        "expected to return updated og:image:url path",
+      );
+
+      // Verify og:image:secure_url updated
+      assert(
+        doc.document!.querySelectorAll(
+          'meta[property="og:image:secure_url"][content="/images/og-image.123.png"]',
+        ).length === 1,
+        "expected to return updated og:image:secure_url path",
+      );
+
+      // Verify twitter:image updated
+      assert(
+        doc.document!.querySelectorAll(
+          'meta[name="twitter:image"][content="/images/og-image.123.png"]',
+        ).length === 1,
+        "expected to return updated twitter:image path",
+      );
+
+      // Verify old paths don't exist
+      assert(
+        doc.document!.querySelectorAll(
+          'meta[content="/images/og-image.png"]',
+        ).length === 0,
+        "expected to not return old OG image paths",
+      );
+
+      // Verify other OG images weren't modified
+      assert(
+        doc.document!.querySelectorAll(
+          'meta[property="og:image"][content="/images/other.png"]',
+        ).length === 1,
+        "expected to not modify other OG image paths",
+      );
+    },
+  );
+  await t.step(
     "updates audio path",
     () => {
       const doc = new RenderableDocument(
