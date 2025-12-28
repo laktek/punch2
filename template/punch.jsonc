@@ -18,6 +18,25 @@
     // "/old-page": { "destination": "/new-page", "permanent": true }
   },
 
+  // Proxy requests to other servers (e.g., API servers, WebSocket servers)
+  "proxies": {
+    // Basic proxy - forward all /api/* requests to a backend server
+    // "/api/*": { "destination": "http://localhost:3000", "stripPath": true },
+
+    // WebSocket proxy with timeout
+    // "/ws/*": { "destination": "http://localhost:3001", "websocket": true, "timeout": 60000 },
+
+    // Proxy with custom headers and preserving original host
+    // "/backend/*": {
+    //   "destination": "https://api.example.com",
+    //   "preserveHost": true,
+    //   "headers": {
+    //     "Authorization": "Bearer secret-token",
+    //     "X-Custom-Header": "value"
+    //   }
+    // }
+  },
+
   // Set the DB indexes to make content queries faster
   "db": {
     "indexes": {

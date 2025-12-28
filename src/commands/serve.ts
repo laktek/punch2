@@ -20,6 +20,7 @@ import {
   logRequest,
   notFound,
   onDemandRender,
+  proxy,
   redirect,
   serveFile,
 } from "../middleware/index.ts";
@@ -95,6 +96,7 @@ async function prepareSite(siteConfig: SiteConfig): Promise<Site> {
     middleware = middlewareFn();
   } else {
     middleware = [
+      proxy,
       redirect,
       contentAPI,
       serveFile,
