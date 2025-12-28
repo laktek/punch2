@@ -144,6 +144,29 @@ Deno.test("getAssets", async (t) => {
   );
 
   await t.step(
+    "returns images URLs from OG meta tags",
+    () => {
+      const doc = new RenderableDocument(
+        '<html><head><meta property="og:image" content="/images/og-image.png"/><meta property="og:image:url" content="/images/og-url.png"/><meta property="og:image:secure_url" content="/images/og-secure.png"/><meta name="twitter:image" content="/images/twitter.png"/></head><body><img src="regular.png"/></body></html>',
+      );
+
+      assertEquals(doc.assets, {
+        [ResourceType.JS]: [],
+        [ResourceType.CSS]: [],
+        [ResourceType.IMAGE]: [
+          "regular.png",
+          "/images/og-image.png",
+          "/images/og-url.png",
+          "/images/og-secure.png",
+          "/images/twitter.png",
+        ],
+        [ResourceType.AUDIO]: [],
+        [ResourceType.VIDEO]: [],
+      }, "expected to return OG and Twitter image meta tag sources");
+    },
+  );
+
+  await t.step(
     "returns audio URLs set in src and source child elements",
     () => {
       const doc = new RenderableDocument(
