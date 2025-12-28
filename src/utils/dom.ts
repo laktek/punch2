@@ -196,6 +196,22 @@ export class RenderableDocument {
         );
       }
     });
+
+    // Update OG image meta tags
+    const ogImageMatches = this.document.querySelectorAll(
+      `meta[property="og:image"][content="${oldPath}"], meta[property="og:image:url"][content="${oldPath}"], meta[property="og:image:secure_url"][content="${oldPath}"]`,
+    );
+    ogImageMatches.forEach((match) => {
+      (match as Element).setAttribute("content", newPath);
+    });
+
+    // Update Twitter card image meta tags
+    const twitterImageMatches = this.document.querySelectorAll(
+      `meta[name="twitter:image"][content="${oldPath}"]`,
+    );
+    twitterImageMatches.forEach((match) => {
+      (match as Element).setAttribute("content", newPath);
+    });
   }
 
   #updateAudioPaths(oldPath: string, newPath: string) {
