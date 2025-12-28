@@ -104,6 +104,28 @@ export class RenderableDocument {
       }
     });
 
+    // OG image meta tags
+    const ogImages = this.document.querySelectorAll(
+      'meta[property="og:image"], meta[property="og:image:url"], meta[property="og:image:secure_url"]',
+    );
+    ogImages.forEach((meta) => {
+      const content = (meta as Element).getAttribute("content");
+      if (content) {
+        assets[ResourceType.IMAGE].push(content);
+      }
+    });
+
+    // Twitter card image meta tags
+    const twitterImages = this.document.querySelectorAll(
+      'meta[name="twitter:image"]',
+    );
+    twitterImages.forEach((meta) => {
+      const content = (meta as Element).getAttribute("content");
+      if (content) {
+        assets[ResourceType.IMAGE].push(content);
+      }
+    });
+
     const audios = this.document.querySelectorAll(
       "audio",
     );
