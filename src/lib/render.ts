@@ -27,7 +27,7 @@ export interface Output {
   route: string;
   resourceType?: ResourceType;
   content?: RenderableDocument | Uint8Array;
-  metadata?: ImageResult["metadata"];
+  metadata?: ImageResult["metadata"] | { ext: string };
   hash?: string;
   errorStatus?: number;
   errorMessage?: string;
@@ -334,9 +334,17 @@ export class Renderer {
         join(srcPath, config.dirs!.js!),
         tsConfig,
       );
+
+      // Determine output extension: .mjs and .json stay as-is, others become .js
+      const inputExt = extname(path);
+      const outputExt = (inputExt === ".mjs" || inputExt === ".json")
+        ? inputExt
+        : ".js";
+
       return {
         route,
         content: encoder.encode(result.outputFiles[0].text),
+        metadata: { ext: outputExt },
         resourceType,
       };
     } else if (resourceType === ResourceType.IMAGE) {
