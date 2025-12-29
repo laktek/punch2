@@ -1,0 +1,34 @@
+# Development files
+src/
+test/
+tests/
+.github/
+docs-site/
+certs/
+abc123/
+
+# Config files
+deno.json
+deno.lock
+.gitignore
+.editorconfig
+
+# Deno compiled binary (will be downloaded in postinstall)
+bin/punch
+
+# Test files
+*.test.ts
+*.test.js
+
+# Documentation
+user-guide.md
+TODO
+
+# Scripts (except postinstall)
+scripts/install.sh
+scripts/ci_release.sh
+scripts/testdata.ts
+
+# Temporary files
+temp/
+node_modules/

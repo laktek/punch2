@@ -3,5 +3,10 @@
 debug/
 target/
 temp/
+node_modules/
 
 .DS_Store
+
+# NPM downloaded binaries
+bin/punch-bin
+bin/punch.exe

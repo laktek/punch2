@@ -1,0 +1,40 @@
+{
+  "name": "punch-cli",
+  "version": "0.0.0",
+  "description": "A fast and simple web site builder - Static Site Builder + Headless CMS + Web Server",
+  "main": "index.js",
+  "type": "commonjs",
+  "bin": {
+    "punch": "./bin/punch.js"
+  },
+  "scripts": {
+    "postinstall": "node scripts/postinstall.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/laktek/punch2.git"
+  },
+  "keywords": [
+    "static-site-generator",
+    "ssg",
+    "cms",
+    "headless-cms",
+    "web-server",
+    "tailwind",
+    "typescript",
+    "deno"
+  ],
+  "author": "Lakshan Perera",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/laktek/punch2/issues"
+  },
+  "homepage": "https://punch.dev",
+  "files": [
+    "bin/",
+    "scripts/postinstall.js"
+  ],
+  "engines": {
+    "node": ">=14"
+  }
+}
