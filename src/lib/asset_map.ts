@@ -93,7 +93,7 @@ export class AssetMap {
         const hash = await hashContent(content! as Uint8Array<ArrayBuffer>);
         let assetPath = routeWithContentHash(route, hash);
 
-        if (asset.resourceType === ResourceType.IMAGE && metadata?.ext) {
+        if (metadata?.ext) {
           const ext = extname(assetPath);
           assetPath = assetPath.replace(ext, metadata?.ext);
         }

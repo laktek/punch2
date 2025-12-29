@@ -30,7 +30,6 @@
 
 ### TODO
 
-* ability to import .ts files directly in script tags
 * Internal redirects for images loaded via CSS / JS
 * Sourcemap for css and JS
 * CI tests for Windows
