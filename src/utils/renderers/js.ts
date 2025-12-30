@@ -4,15 +4,6 @@ import { extname } from "@std/path";
 
 import { Config } from "../../config/config.ts";
 
-// Initialize esbuild once
-let esbuildInitialized = false;
-async function ensureEsbuildInitialized() {
-  if (!esbuildInitialized) {
-    await esbuild.initialize({});
-    esbuildInitialized = true;
-  }
-}
-
 const loaders = {
   ".js": "js",
   ".mjs": "js",
@@ -51,7 +42,6 @@ export async function renderJS(
   resolveDir: string,
   tsconfigRaw?: string,
 ): Promise<any> {
-  await ensureEsbuildInitialized();
   try {
     const raw = await Deno.readTextFile(path);
     const ext = extname(path);
