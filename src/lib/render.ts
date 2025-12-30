@@ -164,6 +164,10 @@ export class Renderer {
       partialsCache: renderer.#partialsCache,
     });
 
+    await renderer.#imageWorkerPool.bootstrap({
+      format: config.assets?.images?.format || "webp",
+    });
+
     renderer.#browserTargets = getBrowserTargets(
       config.assets?.css?.browserTargets,
     );

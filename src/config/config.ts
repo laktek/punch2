@@ -35,6 +35,10 @@ interface JsOpts {
   tsconfig?: string;
 }
 
+interface ImageOpts {
+  format?: "webp" | "avif";
+}
+
 export interface Config {
   output?: string;
   baseURL?: string;
@@ -70,6 +74,7 @@ export interface Config {
   assets?: {
     css?: CssOpts;
     js?: JsOpts;
+    images?: ImageOpts;
   };
   db?: {
     path?: string;

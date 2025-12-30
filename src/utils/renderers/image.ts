@@ -19,7 +19,10 @@ export interface Result {
   metadata: Metadata;
 }
 
-export async function renderImage(path: string): Promise<Result> {
+export async function renderImage(
+  path: string,
+  format: "webp" | "avif" = "webp",
+): Promise<Result> {
   try {
     const content = await Deno.readFile(path);
     const ext = extname(path);
@@ -30,15 +33,19 @@ export async function renderImage(path: string): Promise<Result> {
         const width = img.width;
         const height = img.height;
 
-        // perform webp conversion on following extensions
+        // perform format conversion on following extensions
         const convert_exts = [".png", ".jpg", ".jpeg"];
 
         if (!convert_exts.includes(ext)) {
           return { content, metadata: { width, height, ext } };
         }
 
+        // Determine output format and extension
+        const magickFormat = format === "avif" ? MagickFormat.Avif : MagickFormat.WebP;
+        const outputExt = format === "avif" ? ".avif" : ".webp";
+
         const finalContent = img.write(
-          MagickFormat.WebP,
+          magickFormat,
           (data) => {
             const copy = new Uint8Array(data.length);
             copy.set(data);
@@ -48,7 +55,7 @@ export async function renderImage(path: string): Promise<Result> {
 
         return {
           content: finalContent,
-          metadata: { width, height, ext: ".webp" },
+          metadata: { width, height, ext: outputExt },
         };
       },
     );
