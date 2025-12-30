@@ -11,6 +11,9 @@ import { NotFoundError, renderHTML } from "../renderers/html.ts";
 import { getRouteParams } from "../routes.ts";
 import { commonSkipPaths } from "../paths.ts";
 
+// Initialize esbuild once per worker
+let esbuildInitialized = false;
+
 interface BootstrapMessage {
   bootstrap: boolean;
   srcPath: string;
@@ -200,6 +203,12 @@ async function getHTMLTemplate(
 }
 
 async function bootstrapWorker(key: string, msg: BootstrapMessage) {
+  // Initialize esbuild once per worker
+  if (!esbuildInitialized) {
+    await esbuild.initialize({});
+    esbuildInitialized = true;
+  }
+
   srcPath = msg.srcPath;
   config = msg.config;
   partialsCache = msg.partialsCache;

@@ -124,6 +124,9 @@ async function batchedWrite(
 }
 
 export async function build(opts: BuildOpts): Promise<boolean> {
+  // Initialize esbuild
+  await esbuild.initialize({});
+
   globalThis.isQuiet = opts.quiet;
   withQuiet(() => console.info("Build started..."));
   const srcPath = resolve(Deno.cwd(), opts.srcPath ?? "");

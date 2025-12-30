@@ -27,6 +27,9 @@ interface DevOpts {
 }
 
 export async function dev(opts: DevOpts): Promise<void> {
+  // Initialize esbuild
+  await esbuild.initialize({});
+
   const srcPath = resolve(Deno.cwd(), opts.srcPath ?? "");
   const { port } = opts;
   // read config file, and get options from it
